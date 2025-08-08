@@ -5,7 +5,8 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import AnimatedText from "@/components/animated-text";
-import MarkdownRenderer from "@/components/markdown-renderer";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface BlogPost {
   slug: string;
@@ -92,7 +93,11 @@ export default function BlogClient({ post }: { post: BlogPost }) {
             ))}
           </div>
 
-          <MarkdownRenderer content={post.content} />
+          <div className="prose dark:prose-invert max-w-none">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {(post.content || "").replace(/^\s+/gm, "").trim()}
+            </ReactMarkdown>
+          </div>
         </motion.div>
       </main>
     </div>

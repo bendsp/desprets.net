@@ -13,7 +13,7 @@ const blogPosts = [
     title: "Getting Started with Next.js",
     excerpt:
       "Learn how to build modern web applications with Next.js, React's framework for production.",
-    date: "2023-04-15",
+    date: "2025-04-15",
     readingTime: 5,
     categories: ["Web Development", "React", "Next.js"],
   },
@@ -22,7 +22,7 @@ const blogPosts = [
     title: "Understanding TypeScript for JavaScript Developers",
     excerpt:
       "A comprehensive guide to TypeScript and how it improves your JavaScript development experience.",
-    date: "2023-05-22",
+    date: "2025-05-22",
     readingTime: 8,
     categories: ["TypeScript", "JavaScript", "Web Development"],
   },
@@ -31,7 +31,7 @@ const blogPosts = [
     title: "10 Tailwind CSS Tips to Improve Your Workflow",
     excerpt:
       "Practical tips and tricks to make the most out of Tailwind CSS in your projects.",
-    date: "2023-06-10",
+    date: "2025-06-10",
     readingTime: 6,
     categories: ["CSS", "Tailwind", "Web Development"],
   },
