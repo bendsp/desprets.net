@@ -446,7 +446,7 @@ const education = [
       "Specialized in software engineering, full-stack development, and maintaining production systems.",
   },
   {
-    degree: "Certificate in Management (Expected)",
+    degree: "Certificate in Management",
     institution: "McGill University",
     location: "Montreal, Canada",
     startYear: "2024",
