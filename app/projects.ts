@@ -49,6 +49,18 @@ export const projects = [
   },
   {
     id: "3",
+    title: "Skribbl.chat",
+    description: "A Pictochat inspired chatroom",
+    technologies: ["React-Native", "Tailwind", "TypeScript"],
+    github: "https://github.com/bendrsio/skribbl.chat",
+    link: "https://skribbl.chat/",
+    fullDescription: `
+      A Pictochat inspired chatroom, built with React-Native and Tailwind.  
+    `,
+    images: ["/skribbl.png"],
+  },
+  {
+    id: "4",
     title: "Emoji-Picker",
     description: "A unique take on the classic color picker",
     technologies: ["React", "Tailwind", "TypeScript"],
@@ -61,7 +73,7 @@ export const projects = [
     images: ["/Emoji-Color-Picker.png"],
   },
   {
-    id: "4",
+    id: "5",
     title: "desprets.net",
     description: "You are here!",
     technologies: ["React", "Tailwind", "TypeScript"],
