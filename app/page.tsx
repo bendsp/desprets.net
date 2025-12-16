@@ -356,7 +356,7 @@ export default function Home() {
                 </span>
               </motion.a>
               <motion.a
-                href="https://github.com/bendrsio"
+                href="https://github.com/bendsp"
                 title="Visit GitHub profile"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -375,11 +375,11 @@ export default function Home() {
               >
                 <Github className="mr-4 text-primary" />
                 <span className="group-hover:text-primary transition-colors">
-                  github.com/bendrsio
+                  github.com/bendsp
                 </span>
               </motion.a>
               <motion.a
-                href="https://x.com/bendrsio"
+                href="https://x.com/bendesprets"
                 title="Visit Twitter (X) profile"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -398,7 +398,7 @@ export default function Home() {
               >
                 <XIcon className="mr-4 text-primary" />
                 <span className="group-hover:text-primary transition-colors">
-                  x.com/bendrsio
+                  x.com/bendesprets
                 </span>
               </motion.a>
             </div>
