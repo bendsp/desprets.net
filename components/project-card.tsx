@@ -25,12 +25,12 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
       transition={{ duration: 0.4, delay: index * 0.1 }}
     >
       <Card
-        className="overflow-hidden h-full transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1"
+        className="overflow-hidden h-full transition-all duration-300 border-t-0 py-0 gap-0 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <Link href={`/projects/${project.id}`}>
-          <div className="h-64 bg-muted flex items-center justify-center relative overflow-hidden cursor-pointer">
+          <div className="h-64 w-full bg-muted flex items-center justify-center relative overflow-hidden cursor-pointer">
             <motion.div
               animate={{ scale: isHovered ? 1.2 : 1 }}
               transition={{ duration: 0.4 }}
@@ -45,20 +45,21 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             </motion.div>
           </div>
         </Link>
-        <CardContent className="p-6">
-          <h3 className="text-xl font-bold mb-2">{project.title}</h3>
-          <p className="text-muted-foreground mb-4">{project.description}</p>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {project.technologies.map((tech, techIndex) => (
-              <span
-                key={techIndex}
-                className="text-xs px-2 py-1 bg-muted rounded-none"
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
-          <div className="flex justify-between items-center">
+        <CardContent className="p-6 flex flex-col flex-1">
+          <h3
+            className="text-xl font-bold mb-2 overflow-hidden text-ellipsis whitespace-nowrap"
+            title={project.title}
+          >
+            {project.title}
+          </h3>
+          <p
+            className="text-muted-foreground mb-4 min-h-[3rem] overflow-hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+            title={project.description}
+          >
+            {project.description}
+          </p>
+
+          <div className="flex justify-between items-center mt-auto">
             <div className="flex space-x-3">
               <a
                 href={project.github}
