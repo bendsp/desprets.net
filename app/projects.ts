@@ -14,6 +14,17 @@ export interface Project {
 export const projects = [
   {
     id: "1",
+    title: "Bedrock",
+    description: "Markdown Editor - Level up your notes!",
+    technologies: ["React", "Tailwind", "TypeScript", "Electron"],
+    github: "https://github.com/bendsp/bedrock",
+    fullDescription: `
+      A Markdown editor, built with React and Tailwind.
+    `,
+    images: ["/Bedrock.png"],
+  },
+  {
+    id: "2",
     title: "Fundamental",
     description: "The easiest wallet in the world!",
     technologies: ["React-Native", "Tailwind", "TypeScript", "Crypto"],
@@ -28,7 +39,7 @@ export const projects = [
     images: ["/Fundamental.jpeg"],
   },
   {
-    id: "2",
+    id: "3",
     title: "Imagn AI",
     description: "An AI-powered image editor and generator",
     technologies: [
@@ -48,11 +59,11 @@ export const projects = [
     images: ["/Imagen.png"],
   },
   {
-    id: "3",
+    id: "4",
     title: "Skribbl.chat",
     description: "A Pictochat inspired chatroom",
     technologies: ["React-Native", "Tailwind", "TypeScript"],
-    github: "https://github.com/bendrsio/skribbl.chat",
+    github: "https://github.com/bendsp/skribbl.chat",
     link: "https://skribbl.chat/",
     fullDescription: `
       A Pictochat inspired chatroom, built with React-Native and Tailwind.  
@@ -60,11 +71,11 @@ export const projects = [
     images: ["/skribbl.png"],
   },
   {
-    id: "4",
+    id: "5",
     title: "Emoji-Picker",
     description: "A unique take on the classic color picker",
     technologies: ["React", "Tailwind", "TypeScript"],
-    github: "https://github.com/bendrsio/emoji-color-picker",
+    github: "https://github.com/bendsp/emoji-color-picker",
     link: "https://emoji.desprets.net/",
     fullDescription: `
       A unique take on color pickers, showing the emoji with the closest average RGB value.  
@@ -73,16 +84,16 @@ export const projects = [
     images: ["/Emoji-Color-Picker.png"],
   },
   {
-    id: "5",
+    id: "6",
     title: "desprets.net",
-    description: "You are here!",
+    description: "To learn recursion, one must first understand recursion.",
     technologies: ["React", "Tailwind", "TypeScript"],
-    github: "https://github.com/bendrsio/desprets.net",
+    github: "https://github.com/bendsp/desprets.net",
     link: "https://desprets.net/",
     fullDescription: `
       The website you are on right now!   
       I built this because I wanted somewhere to show off my projects, my skills and who I am.  
-      You can see the source code and learn how I built it [on GitHub](https://github.com/bendrsio/desprets.net).
+      You can see the source code and learn how I built it [on GitHub](https://github.com/bendsp/desprets.net).
     `,
     images: ["/Desprets.png"],
   },
