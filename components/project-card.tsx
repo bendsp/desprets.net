@@ -30,7 +30,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
         onMouseLeave={() => setIsHovered(false)}
       >
         <Link href={`/projects/${project.id}`}>
-          <div className="h-64 w-full bg-muted flex items-center justify-center relative overflow-hidden cursor-pointer">
+          <div className="w-full aspect-[4/3] bg-muted flex items-center justify-center relative overflow-hidden cursor-pointer">
             <motion.div
               animate={{ scale: isHovered ? 1.2 : 1 }}
               transition={{ duration: 0.4 }}
