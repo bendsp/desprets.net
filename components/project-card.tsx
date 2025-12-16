@@ -79,13 +79,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
               </a>
             </div>
             <Link href={`/projects/${project.id}`}>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-primary border-primary hover:bg-primary/10"
-              >
-                Learn More
-              </Button>
+              <Button size="sm">Learn More</Button>
             </Link>
           </div>
         </CardContent>
