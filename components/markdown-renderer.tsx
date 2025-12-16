@@ -1,13 +1,13 @@
-"use client"
-import { motion } from "framer-motion"
+"use client";
+import { motion } from "framer-motion";
 
 interface MarkdownRendererProps {
-  content: string
+  content: string;
 }
 
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   // Split the content by double newlines to separate paragraphs
-  const sections = content.split("\n\n")
+  const sections = content.split("\n\n");
 
   return (
     <div className="prose prose-zinc dark:prose-invert max-w-none">
@@ -17,7 +17,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           return (
             <motion.h2
               key={index}
-              className="text-2xl font-bold mt-8 mb-4 text-emerald-400"
+              className="text-2xl font-bold mt-8 mb-4 text-primary"
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -25,12 +25,12 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             >
               {section.replace("## ", "")}
             </motion.h2>
-          )
+          );
         }
 
         // Check if the section is a list
         if (section.includes("\n- ")) {
-          const [listTitle, ...listItems] = section.split("\n- ")
+          const [listTitle, ...listItems] = section.split("\n- ");
           return (
             <div key={index}>
               {listTitle && (
@@ -56,7 +56,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                 ))}
               </motion.ul>
             </div>
-          )
+          );
         }
 
         // Regular paragraph
@@ -71,9 +71,8 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           >
             {section}
           </motion.p>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
-

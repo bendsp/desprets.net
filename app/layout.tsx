@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="font-mono">
+      <body className="font-mono bg-background text-foreground">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -24,7 +24,7 @@ export default function RootLayout({
         >
           <Navbar />
           <div>{children}</div>
-          <footer className="border-t border-zinc-200 dark:border-zinc-800 py-8 text-center text-zinc-600 dark:text-gray-400 mt-20">
+          <footer className="border-t border-border py-8 text-center text-muted-foreground mt-20">
             <div className="container mx-auto px-4">
               <p>
                 2024 - {new Date().getFullYear()} Benjamin Desprets. All rights

@@ -47,7 +47,7 @@ export default function ProjectClient({ project }: ProjectClientProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white font-mono">
+    <div className="min-h-screen bg-background text-foreground font-mono">
       <main className="container mx-auto px-4 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -56,7 +56,7 @@ export default function ProjectClient({ project }: ProjectClientProps) {
         >
           <Link
             href="/#projects"
-            className="inline-flex items-center text-emerald-400 hover:underline mb-8 group"
+            className="inline-flex items-center text-primary hover:underline mb-8 group"
           >
             <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
             Back
@@ -75,7 +75,7 @@ export default function ProjectClient({ project }: ProjectClientProps) {
             showCursor={false}
           />
 
-          <div className="flex items-center mb-4 text-zinc-600 dark:text-gray-400 text-sm">
+          <div className="flex items-center mb-4 text-muted-foreground text-sm">
             <Clock className="h-4 w-4 mr-1" />
             <span>{readingTime} min read</span>
           </div>
@@ -84,7 +84,7 @@ export default function ProjectClient({ project }: ProjectClientProps) {
             {project.technologies.map((tech, index) => (
               <motion.span
                 key={index}
-                className="text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-md"
+                className="text-xs px-2 py-1 bg-muted rounded-none"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}
@@ -137,7 +137,7 @@ export default function ProjectClient({ project }: ProjectClientProps) {
             {project.images.map((image, index) => (
               <motion.div
                 key={index}
-                className="bg-zinc-100 dark:bg-zinc-900 rounded-lg overflow-hidden"
+                className="bg-muted rounded-none overflow-hidden"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}

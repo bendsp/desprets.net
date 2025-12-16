@@ -64,7 +64,7 @@ const useScrollReveal = () => {
 export default function Home() {
   useScrollReveal();
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white font-mono">
+    <div className="min-h-screen bg-background text-foreground font-mono">
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <motion.section
@@ -78,7 +78,7 @@ export default function Home() {
           </div>
           <AnimatedText
             text="Full-stack developer"
-            className="text-xl md:text-2xl max-w-2xl mb-6 text-zinc-600 dark:text-gray-400 relative z-10"
+            className="text-xl md:text-2xl max-w-2xl mb-6 text-muted-foreground relative z-10"
             typingSpeed={50}
             showCursor={true}
           />
@@ -95,7 +95,7 @@ export default function Home() {
             >
               <Button
                 variant="outline"
-                className="border-emerald-400 text-emerald-400 hover:bg-emerald-400/10"
+                className="border-primary text-primary hover:bg-primary/10"
               >
                 About Me
               </Button>
@@ -105,9 +105,7 @@ export default function Home() {
               className="inline-block"
               title="Jump to Contact section"
             >
-              <Button className="bg-emerald-400 text-black hover:bg-emerald-500">
-                Contact Me
-              </Button>
+              <Button>Contact Me</Button>
             </SmoothScrollLink>
           </motion.div>
         </motion.section>
@@ -141,8 +139,8 @@ export default function Home() {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="max-md:left-2 bg-emerald-400 dark:bg-emerald-400 text-black dark:text-black hover:bg-emerald-600 dark:hover:bg-emerald-600" />
-              <CarouselNext className="max-md:right-2 bg-emerald-400 dark:bg-emerald-400 text-black dark:text-black hover:bg-emerald-600 dark:hover:bg-emerald-600" />
+              <CarouselPrevious className="max-md:left-2 bg-primary text-primary-foreground hover:bg-primary/90" />
+              <CarouselNext className="max-md:right-2 bg-primary text-primary-foreground hover:bg-primary/90" />
             </Carousel>
           </div>
         </section>
@@ -170,17 +168,17 @@ export default function Home() {
                 width="256"
                 height="256"
                 alt="A headshot of me"
-                className="rounded-lg object-cover w-64 h-64 md:w-256 md:h-256"
+                className="rounded-none object-cover w-64 h-64 md:w-256 md:h-256"
               />
             </div>
             <div className="w-full mt-4 md:mt-0 md:pl-4">
-              <p className="text-zinc-600 dark:text-gray-400 mb-3 mx-4 text-justify md:mx-0 md:mr-10">
+              <p className="text-muted-foreground mb-3 mx-4 text-justify md:mx-0 md:mr-10">
                 I'm a passionate developer with a focus on creating clean,
                 efficient, and user-friendly applications. With expertise in
                 both frontend and backend technologies, I enjoy building
                 complete solutions that solve real-world problems.
               </p>
-              <p className="text-zinc-600 dark:text-gray-400 mb-3 mx-4 text-justify md:mx-0 md:mr-10">
+              <p className="text-muted-foreground mb-3 mx-4 text-justify md:mx-0 md:mr-10">
                 I'm currently completing my master's degree in computer science
                 at Epitech and obtaining a certificate in management at McGill
                 University. My academic journey has equipped me with a strong
@@ -204,36 +202,36 @@ export default function Home() {
             {education.map((item, index) => (
               <motion.div
                 key={index}
-                className="relative pl-8 border-l-2 border-zinc-200 dark:border-zinc-800"
+                className="relative pl-8 border-l-2 border-border"
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: false }}
                 transition={{ duration: 0.5, delay: index * 0.2 }}
               >
                 {/* Dot marker */}
-                <div className="absolute left-[-9px] top-0 h-4 w-4 rounded-full bg-emerald-400"></div>
+                <div className="absolute left-[-9px] top-0 h-4 w-4 rounded-none bg-primary"></div>
 
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-1">
                   <h3 className="text-lg font-semibold">{item.degree}</h3>
-                  <span className="text-emerald-400 text-sm font-mono">
+                  <span className="text-primary text-sm font-mono">
                     {item.startYear} - {item.endYear}
                   </span>
                 </div>
 
                 <div className="flex items-center mb-2">
-                  <GraduationCap className="h-4 w-4 mr-2 text-zinc-500 dark:text-zinc-400" />
-                  <span className="text-zinc-600 dark:text-gray-400">
+                  <GraduationCap className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <span className="text-muted-foreground">
                     {item.institution}
                   </span>
                   {item.location && (
-                    <span className="text-zinc-500 dark:text-zinc-400 text-sm ml-2">
+                    <span className="text-muted-foreground text-sm ml-2">
                       • {item.location}
                     </span>
                   )}
                 </div>
 
                 {item.description && (
-                  <p className="text-zinc-600 dark:text-gray-400 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     {item.description}
                   </p>
                 )}
@@ -268,7 +266,7 @@ export default function Home() {
                   transition={{ duration: 0.5 }}
                   className="mb-4"
                 >
-                  <h3 className="text-xl font-semibold mb-2 text-emerald-400">
+                  <h3 className="text-xl font-semibold mb-2 text-primary">
                     {category}
                   </h3>
                   <div className="grid grid-cols-1 gap-2">
@@ -281,7 +279,7 @@ export default function Home() {
                         viewport={{ once: false }}
                         transition={{ duration: 0.3, delay: index * 0.2 }}
                       >
-                        <div className="h-2 w-2 bg-emerald-400 mr-2"></div>
+                        <div className="h-2 w-2 bg-primary mr-2"></div>
                         <span>{skill}</span>
                       </motion.div>
                     ))}
@@ -303,7 +301,7 @@ export default function Home() {
           <SectionDivider />
           <div className="max-w-md">
             <motion.p
-              className="text-zinc-600 dark:text-gray-400 mb-4"
+              className="text-muted-foreground mb-4"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false }}
@@ -329,8 +327,8 @@ export default function Home() {
                   transition: { duration: 0.2, delay: 0 },
                 }}
               >
-                <Mail className="mr-4 text-emerald-400" />
-                <span className="group-hover:text-emerald-400 transition-colors">
+                <Mail className="mr-4 text-primary" />
+                <span className="group-hover:text-primary transition-colors">
                   benjamin.desprets@epitech.eu
                 </span>
               </motion.a>
@@ -352,8 +350,8 @@ export default function Home() {
                   transition: { duration: 0.2, delay: 0 },
                 }}
               >
-                <Linkedin className="mr-4 text-emerald-400" />
-                <span className="group-hover:text-emerald-400 transition-colors">
+                <Linkedin className="mr-4 text-primary" />
+                <span className="group-hover:text-primary transition-colors">
                   linkedin.com/in/benjamindesprets
                 </span>
               </motion.a>
@@ -375,8 +373,8 @@ export default function Home() {
                   transition: { duration: 0.2, delay: 0 },
                 }}
               >
-                <Github className="mr-4 text-emerald-400" />
-                <span className="group-hover:text-emerald-400 transition-colors">
+                <Github className="mr-4 text-primary" />
+                <span className="group-hover:text-primary transition-colors">
                   github.com/bendrsio
                 </span>
               </motion.a>
@@ -398,8 +396,8 @@ export default function Home() {
                   transition: { duration: 0.2, delay: 0 },
                 }}
               >
-                <XIcon className="mr-4 text-emerald-400" />
-                <span className="group-hover:text-emerald-400 transition-colors">
+                <XIcon className="mr-4 text-primary" />
+                <span className="group-hover:text-primary transition-colors">
                   x.com/bendrsio
                 </span>
               </motion.a>
@@ -408,7 +406,7 @@ export default function Home() {
         </section>
         <motion.button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-8 right-8 p-3 rounded-full bg-emerald-400 text-black shadow-lg hover:bg-emerald-500 transition-all duration-300 z-50"
+          className="fixed bottom-8 right-8 p-3 rounded-none bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all duration-300 z-50"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           whileHover={{ scale: 1.1 }}

@@ -40,7 +40,7 @@ export default function BlogClient({ post }: { post: BlogPost }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white font-mono">
+    <div className="min-h-screen bg-background text-foreground font-mono">
       <main className="container mx-auto px-4 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -49,7 +49,7 @@ export default function BlogClient({ post }: { post: BlogPost }) {
         >
           <Link
             href="/blog"
-            className="inline-flex items-center text-emerald-400 hover:underline mb-8 group"
+            className="inline-flex items-center text-primary hover:underline mb-8 group"
           >
             <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
             Back to all posts
@@ -68,7 +68,7 @@ export default function BlogClient({ post }: { post: BlogPost }) {
             showCursor={false}
           />
 
-          <div className="flex items-center space-x-4 text-zinc-600 dark:text-gray-400 text-sm mb-6">
+          <div className="flex items-center space-x-4 text-muted-foreground text-sm mb-6">
             <div className="flex items-center">
               <Calendar className="h-4 w-4 mr-1" />
               <span>{post.date}</span>
@@ -83,7 +83,7 @@ export default function BlogClient({ post }: { post: BlogPost }) {
             {post.categories.map((category, index) => (
               <motion.span
                 key={index}
-                className="text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-md"
+                className="text-xs px-2 py-1 bg-muted rounded-none"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}

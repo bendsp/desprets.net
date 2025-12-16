@@ -39,7 +39,7 @@ const blogPosts = [
 
 export default function BlogPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white font-mono">
+    <div className="min-h-screen bg-background text-foreground font-mono">
       <main className="container mx-auto px-4 py-12">
         <motion.div
           initial={{ opacity: 0 }}
@@ -54,7 +54,7 @@ export default function BlogPage() {
             showCursor={false}
           />
           <SectionDivider />
-          <p className="text-zinc-600 dark:text-gray-400 mt-4 max-w-2xl">
+          <p className="text-muted-foreground mt-4 max-w-2xl">
             Thoughts, ideas, and insights about web development, programming,
             and technology.
           </p>
@@ -67,14 +67,14 @@ export default function BlogPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 hover:border-emerald-400/50 transition-all"
+              className="border border-border rounded-none p-6 hover:border-primary/50 transition-all"
             >
               <Link href={`/blog/posts/${post.slug}`} className="block group">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
-                  <h2 className="text-2xl font-bold group-hover:text-emerald-400 transition-colors">
+                  <h2 className="text-2xl font-bold group-hover:text-primary transition-colors">
                     {post.title}
                   </h2>
-                  <div className="flex items-center space-x-4 text-sm text-zinc-600 dark:text-gray-400 mt-2 md:mt-0">
+                  <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-2 md:mt-0">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
                       <span>{post.date}</span>
@@ -85,20 +85,18 @@ export default function BlogPage() {
                     </div>
                   </div>
                 </div>
-                <p className="text-zinc-600 dark:text-gray-400 mb-4">
-                  {post.excerpt}
-                </p>
+                <p className="text-muted-foreground mb-4">{post.excerpt}</p>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {post.categories.map((category, catIndex) => (
                     <span
                       key={catIndex}
-                      className="text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-md"
+                      className="text-xs px-2 py-1 bg-muted rounded-none"
                     >
                       {category}
                     </span>
                   ))}
                 </div>
-                <div className="flex items-center text-emerald-400 group-hover:underline">
+                <div className="flex items-center text-primary group-hover:underline">
                   <span className="mr-1">Read more</span>
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </div>
