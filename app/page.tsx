@@ -8,7 +8,7 @@ import AnimatedText from "@/components/animated-text";
 import SmoothScrollLink from "@/components/smooth-scroll-link";
 import ProjectCard from "@/components/project-card";
 import SectionDivider from "@/components/section-divider";
-import AboutMap, { defaultLocations } from "@/components/about-map";
+import AboutMap, { defaultLocations, getCheatedCenter } from "@/components/about-map";
 import { type MapRef } from "@/components/ui/map";
 import {
   Carousel,
@@ -71,7 +71,7 @@ export default function Home() {
   const flyToLocation = (coordinates: [number, number]) => {
     if (mapRef.current) {
       mapRef.current.flyTo({
-        center: coordinates,
+        center: getCheatedCenter(coordinates),
         zoom: 12,
         duration: 2000,
         essential: true,
