@@ -63,7 +63,8 @@ export const projects = [
       The app is currently in development and some features are not yet functional.
       I plan to add more models and features in the future.
     `,
-    images: ["/Imagen.png"],
+    images: ["/imagn_light.jpg"],
+    darkImages: ["/imagn_dark.jpg"],
   },
   {
     id: "4",
