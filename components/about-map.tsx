@@ -30,7 +30,7 @@ const locations = [
 export default function AboutMap() {
   return (
     <motion.div
-      className="mt-8 h-[300px] w-full md:w-2/3 mx-auto border border-border overflow-hidden"
+      className="mt-8 h-[400px] w-full md:w-2/3 mx-auto border border-border overflow-hidden"
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: false }}
