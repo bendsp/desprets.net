@@ -8,8 +8,11 @@ import AnimatedText from "@/components/animated-text";
 import SmoothScrollLink from "@/components/smooth-scroll-link";
 import ProjectCard from "@/components/project-card";
 import SectionDivider from "@/components/section-divider";
-import AboutMap, { defaultLocations, getCheatedCenter } from "@/components/about-map";
-import { type MapRef } from "@/components/ui/map";
+import AboutMap, {
+  defaultLocations,
+  getCheatedCenter,
+  type AboutMapRef,
+} from "@/components/about-map";
 import {
   Carousel,
   CarouselContent,
@@ -66,16 +69,11 @@ const useScrollReveal = () => {
 
 export default function Home() {
   useScrollReveal();
-  const mapRef = useRef<MapRef>(null);
+  const mapRef = useRef<AboutMapRef>(null);
 
   const flyToLocation = (coordinates: [number, number]) => {
     if (mapRef.current) {
-      mapRef.current.flyTo({
-        center: getCheatedCenter(coordinates),
-        zoom: 12,
-        duration: 2000,
-        essential: true,
-      });
+      mapRef.current.openLocation(coordinates);
 
       // Scroll to map
       const mapElement = document.getElementById("about-map");
