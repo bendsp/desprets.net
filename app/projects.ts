@@ -42,7 +42,8 @@ export const projects = [
     We recognized DeFi's immense potential and value to the world, but realized existing apps were either far too complex to become mainstream or went against the core principle of decentralization.
     # Mission
     That's why our mission at Fundamental is to make the easiest wallet in the world, without ever compromising on our values of decentralization and security.`,
-    images: ["/Fundamental.jpeg"],
+    images: ["/fundamental_light.jpg"],
+    darkImages: ["/fundamental_dark.jpg"],
   },
   {
     id: "3",
