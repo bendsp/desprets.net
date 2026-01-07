@@ -29,7 +29,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <Link href={`/projects/${project.id}`}>
+        <Link href={`/projects/${project.slug}`}>
           <div className="w-full aspect-[4/3] bg-muted flex items-center justify-center relative overflow-hidden cursor-pointer">
             <motion.div
               animate={{ scale: isHovered ? 1.2 : 1 }}
@@ -61,24 +61,28 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
 
           <div className="flex justify-between items-center mt-auto">
             <div className="flex space-x-3">
-              <a
-                href={project.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors p-1"
-              >
-                <Github size={20} />
-              </a>
-              <a
-                href={project.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors p-1"
-              >
-                <ExternalLink size={20} />
-              </a>
+              {project.github && (
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                >
+                  <Github size={20} />
+                </a>
+              )}
+              {project.link && (
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                >
+                  <ExternalLink size={20} />
+                </a>
+              )}
             </div>
-            <Link href={`/projects/${project.id}`}>
+            <Link href={`/projects/${project.slug}`}>
               <Button size="sm">Learn More</Button>
             </Link>
           </div>

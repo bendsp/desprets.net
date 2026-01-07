@@ -3,11 +3,11 @@ import { projects } from "@/app/projects";
 import ProjectClient from "./ProjectClient";
 
 export function generateStaticParams() {
-  return projects.map((p) => ({ id: p.id }));
+  return projects.map((p) => ({ slug: p.slug }));
 }
 
-export default function ProjectPage({ params }: { params: { id: string } }) {
-  const project = projects.find((p) => p.id === params.id);
+export default function ProjectPage({ params }: { params: { slug: string } }) {
+  const project = projects.find((p) => p.slug === params.slug);
   if (!project) {
     notFound();
   }

@@ -1,6 +1,7 @@
 // data/projects.ts
 export interface Project {
   id: string;
+  slug: string;
   title: string;
   description: string;
   screenshot?: string;
@@ -14,6 +15,7 @@ export interface Project {
 export const projects = [
   {
     id: "1",
+    slug: "bedrock",
     title: "Bedrock",
     description: "Markdown Editor - Level up your notes!",
     technologies: ["React", "Tailwind", "TypeScript", "Electron"],
@@ -25,6 +27,7 @@ export const projects = [
   },
   {
     id: "2",
+    slug: "fundamental",
     title: "Fundamental",
     description: "The easiest wallet in the world!",
     technologies: ["React-Native", "Tailwind", "TypeScript", "Crypto"],
@@ -40,6 +43,7 @@ export const projects = [
   },
   {
     id: "3",
+    slug: "imagn",
     title: "Imagn AI",
     description: "An AI-powered image editor and generator",
     technologies: [
@@ -60,6 +64,7 @@ export const projects = [
   },
   {
     id: "4",
+    slug: "skribbl-chat",
     title: "Skribbl.chat",
     description: "A Pictochat inspired chatroom",
     technologies: ["React-Native", "Tailwind", "TypeScript"],
@@ -72,6 +77,7 @@ export const projects = [
   },
   {
     id: "5",
+    slug: "emoji-picker",
     title: "Emoji-Picker",
     description: "A unique take on the classic color picker",
     technologies: ["React", "Tailwind", "TypeScript"],
@@ -85,6 +91,7 @@ export const projects = [
   },
   {
     id: "6",
+    slug: "desprets-net",
     title: "desprets.net",
     description: "To learn recursion, one must first understand recursion.",
     technologies: ["React", "Tailwind", "TypeScript"],
