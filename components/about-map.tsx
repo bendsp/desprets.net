@@ -87,9 +87,19 @@ const AboutMap = forwardRef<MapRef, AboutMapProps>(
               key={idx}
               longitude={loc.coordinates[0]}
               latitude={loc.coordinates[1]}
+              onClick={() => {
+                if (ref && "current" in ref && ref.current) {
+                  ref.current.flyTo({
+                    center: loc.coordinates,
+                    zoom: 12,
+                    duration: 2000,
+                    essential: true,
+                  });
+                }
+              }}
             >
               <MarkerContent>
-                <div className="h-5 w-5 rounded-full bg-primary border-2 border-background shadow-md" />
+                <div className="h-5 w-5 rounded-full bg-primary border-2 border-background shadow-md cursor-pointer" />
               </MarkerContent>
               <MarkerTooltip className="bg-popover text-popover-foreground border border-border px-3 py-1.5 rounded-none font-mono text-xs">
                 <div className="font-bold">{loc.name}</div>
