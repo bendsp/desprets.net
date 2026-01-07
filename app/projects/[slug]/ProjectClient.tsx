@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Github, ExternalLink, Clock } from "lucide-react";
 import { motion } from "framer-motion";
