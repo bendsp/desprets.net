@@ -108,6 +108,7 @@ export const projects = [
       I built this because I wanted somewhere to show off my projects, my skills and who I am.  
       You can see the source code and learn how I built it [on GitHub](https://github.com/bendsp/desprets.net).
     `,
-    images: ["/Desprets.png"],
+    images: ["/despretsnet_light.jpg"],
+    darkImages: ["/despretsnet_dark.jpg"],
   },
 ];
