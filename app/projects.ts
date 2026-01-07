@@ -25,7 +25,8 @@ export const projects = [
     fullDescription: `
       A Markdown editor, built with React and Tailwind.
     `,
-    images: ["/Bedrock.png"],
+    images: ["/bedrock_light.jpg"],
+    darkImages: ["/bedrock_dark.jpg"],
   },
   {
     id: "2",
