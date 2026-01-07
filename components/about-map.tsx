@@ -11,19 +11,19 @@ import {
 
 const locations = [
   {
-    name: "Montreal, Canada",
-    coordinates: [-73.5673, 45.5017] as [number, number],
-    description: "Master's at Epitech & McGill University",
+    name: "McGill University",
+    coordinates: [-73.57494517996066, 45.5039191858195] as [number, number],
+    description: "Certificate in Management, 1 year exchange (2024-2025)",
   },
   {
-    name: "Paris, France",
-    coordinates: [2.3522, 48.8566] as [number, number],
-    description: "Bachelor's at Epitech",
+    name: "Epitech Paris",
+    coordinates: [2.3630611581062637, 48.815358261085045] as [number, number],
+    description: "Bachelor's and Master's in Software Engineering",
   },
   {
-    name: "Berlin, Germany",
-    coordinates: [13.405, 52.52] as [number, number],
-    description: "International Track at Epitech Berlin",
+    name: "Epitech Berlin",
+    coordinates: [13.329241150011002, 52.508337785627134] as [number, number],
+    description: "1 year exchange (2023-2024)",
   },
 ];
 
