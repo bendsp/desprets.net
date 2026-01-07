@@ -194,7 +194,10 @@ const AboutMap = forwardRef<AboutMapRef, AboutMapProps>(
               anchor="bottom"
               offset={20}
             >
-              <LocationCard location={selectedLocation} />
+              <LocationCard 
+                key={selectedLocation.name} 
+                location={selectedLocation} 
+              />
             </MapPopup>
           )}
         </Map>
