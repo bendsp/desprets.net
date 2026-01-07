@@ -1,6 +1,5 @@
 // data/projects.ts
 export interface Project {
-  id: string;
   slug: string;
   title: string;
   description: string;
@@ -13,9 +12,8 @@ export interface Project {
   darkImages?: string[];
 }
 
-export const projects = [
+export const projects: Project[] = [
   {
-    id: "1",
     slug: "bedrock",
     title: "Bedrock",
     description: "Level up your notes with the power of Markdown",
@@ -29,7 +27,6 @@ export const projects = [
     darkImages: ["/bedrock_dark.webp"],
   },
   {
-    id: "2",
     slug: "fundamental",
     title: "Fundamental",
     description: "The easiest wallet in the world!",
@@ -46,7 +43,6 @@ export const projects = [
     darkImages: ["/fundamental_dark.webp"],
   },
   {
-    id: "3",
     slug: "imagn",
     title: "imagn.xyz",
     description: "An AI-powered image editor and generator",
@@ -68,7 +64,6 @@ export const projects = [
     darkImages: ["/imagn_dark.webp"],
   },
   {
-    id: "5",
     slug: "emoji-picker",
     title: "Emoji Color Picker",
     description: "Find out which emoji has the closest average RGB value",
@@ -83,7 +78,6 @@ export const projects = [
     darkImages: ["/emojipicker_dark.webp"],
   },
   {
-    id: "4",
     slug: "skribbl-chat",
     title: "skribbl.chat",
     description: "A Pictochat inspired chatroom",
@@ -96,7 +90,6 @@ export const projects = [
     images: ["/skribbl.png"],
   },
   {
-    id: "6",
     slug: "desprets-net",
     title: "desprets.net",
     description: "To learn recursion, one must first understand recursion.",

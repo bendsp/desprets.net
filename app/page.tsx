@@ -133,7 +133,7 @@ export default function Home() {
               <CarouselContent className="-ml-4">
                 {projects.map((project, index) => (
                   <CarouselItem
-                    key={index}
+                    key={project.slug}
                     className="pl-4 basis-full md:basis-1/2 lg:basis-1/3 py-4"
                   >
                     <ProjectCard
