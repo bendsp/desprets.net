@@ -91,7 +91,7 @@ const ResetButton = ({ onReset }: { onReset?: () => void }) => {
         onClick={() => {
           onReset?.();
           map?.flyTo({
-            center: [-30, 40],
+            center: [-30, 45],
             zoom: 1.5,
             duration: 1500,
             essential: true,
@@ -144,14 +144,14 @@ const AboutMap = forwardRef<AboutMapRef, AboutMapProps>(
         viewport={{ once: false }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <Map
-          ref={mapInstanceRef}
-          center={[-30, 40]}
-          zoom={1.5}
-          dragRotate={false}
-          pitchWithRotate={false}
-          onClick={() => setSelectedLocation(null)}
-        >
+      <Map
+        ref={mapInstanceRef}
+        center={[-30, 45]}
+        zoom={1.5}
+        dragRotate={false}
+        pitchWithRotate={false}
+        onClick={() => setSelectedLocation(null)}
+      >
           <MapControls position="bottom-right" showZoom={true} />
           <ResetButton onReset={() => setSelectedLocation(null)} />
 
