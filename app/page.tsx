@@ -8,6 +8,7 @@ import AnimatedText from "@/components/animated-text";
 import SmoothScrollLink from "@/components/smooth-scroll-link";
 import ProjectCard from "@/components/project-card";
 import SectionDivider from "@/components/section-divider";
+import AboutMap from "@/components/about-map";
 import {
   Carousel,
   CarouselContent,
@@ -136,10 +137,7 @@ export default function Home() {
                     key={project.slug}
                     className="pl-4 basis-full md:basis-1/2 lg:basis-1/3 py-4"
                   >
-                    <ProjectCard
-                      project={project}
-                      index={index}
-                    />
+                    <ProjectCard project={project} index={index} />
                   </CarouselItem>
                 ))}
               </CarouselContent>
@@ -191,6 +189,8 @@ export default function Home() {
               </p>
             </div>
           </motion.div>
+
+          <AboutMap />
         </section>
 
         {/* Education Section */}
