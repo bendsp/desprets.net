@@ -17,6 +17,7 @@
     "embla-carousel-wheel-gestures": "^8.0.2",
     "framer-motion": "^10.16.4",
     "lucide-react": "^0.268.0",
+    "maplibre-gl": "^5.15.0",
     "next": "^14.2.35",
     "next-themes": "^0.2.1",
     "react": "^18.2.0",

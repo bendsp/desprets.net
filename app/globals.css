@@ -50,6 +50,12 @@
     --input: 0.269 0 0;
     --ring: 0.556 0 0;
   }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
 }
 
 @layer base {
