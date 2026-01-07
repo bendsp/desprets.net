@@ -10,6 +10,7 @@ export interface Project {
   link?: string;
   fullDescription?: string;
   images: string[];
+  darkImages?: string[];
 }
 
 export const projects = [

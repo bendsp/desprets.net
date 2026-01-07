@@ -6,15 +6,33 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 
 import { Project } from "@/app/projects";
 
 interface ProjectCardProps {
   project: Project;
   index: number;
+  priority?: boolean;
 }
 
-export default function ProjectCard({ project, index }: ProjectCardProps) {
+export default function ProjectCard({ project, index, priority }: ProjectCardProps) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const projectImage =
+    mounted &&
+    resolvedTheme === "dark" &&
+    project.darkImages &&
+    project.darkImages.length > 0
+      ? project.darkImages[0]
+      : project.images[0];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -26,10 +44,12 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
         <Link href={`/projects/${project.slug}`}>
           <div className="w-full aspect-[4/3] bg-muted relative overflow-hidden cursor-pointer">
             <Image
-              src={project.images[0] || "/placeholder.svg"}
+              src={projectImage || "/placeholder.svg"}
               alt={`${project.title} screenshot`}
               fill
               className="object-cover object-top"
+              priority={priority}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
         </Link>

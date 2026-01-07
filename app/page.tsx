@@ -135,7 +135,11 @@ export default function Home() {
                     key={index}
                     className="pl-4 basis-full md:basis-1/2 lg:basis-1/3 py-4"
                   >
-                    <ProjectCard project={project} index={index} />
+                    <ProjectCard
+                      project={project}
+                      index={index}
+                      priority={index < 2}
+                    />
                   </CarouselItem>
                 ))}
               </CarouselContent>

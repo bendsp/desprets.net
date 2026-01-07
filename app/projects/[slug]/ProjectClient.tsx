@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import AnimatedText from "@/components/animated-text";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 import type { Project } from "@/app/projects";
 
 // Calculate reading time
@@ -25,6 +27,20 @@ interface ProjectClientProps {
 
 export default function ProjectClient({ project }: ProjectClientProps) {
   const readingTime = calculateReadingTime(project.fullDescription);
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const displayImages =
+    mounted &&
+    resolvedTheme === "dark" &&
+    project.darkImages &&
+    project.darkImages.length > 0
+      ? project.darkImages
+      : project.images;
 
   // Animate sections on scroll
   useEffect(() => {
@@ -134,7 +150,7 @@ export default function ProjectClient({ project }: ProjectClientProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            {project.images.map((image, index) => (
+            {displayImages.map((image, index) => (
               <motion.div
                 key={index}
                 className="bg-muted rounded-none overflow-hidden"
