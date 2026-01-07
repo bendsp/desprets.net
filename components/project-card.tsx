@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Github, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
@@ -16,33 +15,22 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project, index }: ProjectCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
+      className="relative z-0 hover:z-10"
     >
-      <Card
-        className="overflow-hidden h-full transition-all duration-300 border-t-0 py-0 gap-0 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <Card className="h-full transition-all duration-300 pt-[1px] py-0 gap-0 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 relative">
         <Link href={`/projects/${project.slug}`}>
-          <div className="w-full aspect-[4/3] bg-muted flex items-center justify-center relative overflow-hidden cursor-pointer">
-            <motion.div
-              animate={{ scale: isHovered ? 1.2 : 1 }}
-              transition={{ duration: 0.4 }}
-              className="absolute inset-0 w-full h-full"
-            >
-              <Image
-                src={project.images[0] || "/placeholder.svg"}
-                alt={`${project.title} screenshot`}
-                fill
-                className="object-cover"
-              />
-            </motion.div>
+          <div className="w-full aspect-[4/3] bg-muted relative overflow-hidden cursor-pointer">
+            <Image
+              src={project.images[0] || "/placeholder.svg"}
+              alt={`${project.title} screenshot`}
+              fill
+              className="object-cover object-top"
+            />
           </div>
         </Link>
         <CardContent className="p-6 flex flex-col flex-1">
