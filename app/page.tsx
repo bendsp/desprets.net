@@ -113,12 +113,7 @@ export default function Home() {
               className="inline-block"
               title="Jump to About Me section"
             >
-              <Button
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary/10"
-              >
-                About Me
-              </Button>
+              <Button variant="outline">About Me</Button>
             </SmoothScrollLink>
             <SmoothScrollLink
               href="#contact"
