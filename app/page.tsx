@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
-import { Github, Mail, Linkedin, GraduationCap } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Github, Mail, Linkedin, GraduationCap, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import AnimatedText from "@/components/animated-text";
 import SmoothScrollLink from "@/components/smooth-scroll-link";
 import ProjectCard from "@/components/project-card";
 import SectionDivider from "@/components/section-divider";
-import AboutMap from "@/components/about-map";
+import AboutMap, { defaultLocations } from "@/components/about-map";
+import { type MapRef } from "@/components/ui/map";
 import {
   Carousel,
   CarouselContent,
@@ -65,6 +66,25 @@ const useScrollReveal = () => {
 
 export default function Home() {
   useScrollReveal();
+  const mapRef = useRef<MapRef>(null);
+
+  const flyToLocation = (coordinates: [number, number]) => {
+    if (mapRef.current) {
+      mapRef.current.flyTo({
+        center: coordinates,
+        zoom: 12,
+        duration: 2000,
+        essential: true,
+      });
+
+      // Scroll to map
+      const mapElement = document.getElementById("about-map");
+      if (mapElement) {
+        mapElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground font-mono">
       <main className="container mx-auto px-4 py-12">
@@ -190,7 +210,9 @@ export default function Home() {
             </div>
           </motion.div>
 
-          <AboutMap />
+          <div id="about-map">
+            <AboutMap ref={mapRef} />
+          </div>
         </section>
 
         {/* Education Section */}
@@ -222,16 +244,26 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className="flex items-center mb-2">
-                  <GraduationCap className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <span className="text-muted-foreground">
-                    {item.institution}
-                  </span>
-                  {item.location && (
-                    <span className="text-muted-foreground text-sm ml-2">
-                      • {item.location}
+                <div className="flex flex-col md:flex-row md:items-center mb-2">
+                  <div className="flex items-center">
+                    <GraduationCap className="h-4 w-4 mr-2 text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      {item.institution}
                     </span>
-                  )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 md:ml-4 mt-2 md:mt-0">
+                    {item.locations.map((loc, lIdx) => (
+                      <button
+                        key={lIdx}
+                        onClick={() => flyToLocation(loc.coords)}
+                        className="flex items-center text-xs text-primary hover:underline group/loc transition-all"
+                        title={`Show ${loc.name} on map`}
+                      >
+                        <MapPin className="h-3 w-3 mr-1 opacity-50 group-hover/loc:opacity-100 transition-opacity" />
+                        {loc.name}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {item.description && (
@@ -441,7 +473,16 @@ const education = [
   {
     degree: "Master's in Software Engineering (Expected)",
     institution: "Epitech",
-    location: "Montreal, Canada / Paris, France",
+    locations: [
+      {
+        name: "Montreal, Canada",
+        coords: defaultLocations[0].coordinates,
+      },
+      {
+        name: "Paris, France",
+        coords: defaultLocations[1].coordinates,
+      },
+    ],
     startYear: "2024",
     endYear: "2026",
     description:
@@ -450,7 +491,12 @@ const education = [
   {
     degree: "Certificate in Management",
     institution: "McGill University",
-    location: "Montreal, Canada",
+    locations: [
+      {
+        name: "Montreal, Canada",
+        coords: defaultLocations[0].coordinates,
+      },
+    ],
     startYear: "2024",
     endYear: "2025",
     description:
@@ -459,7 +505,16 @@ const education = [
   {
     degree: "Bachelor's in Software Engineering",
     institution: "Epitech",
-    location: "Paris, France / Berlin, Germany",
+    locations: [
+      {
+        name: "Paris, France",
+        coords: defaultLocations[1].coordinates,
+      },
+      {
+        name: "Berlin, Germany",
+        coords: defaultLocations[2].coordinates,
+      },
+    ],
     startYear: "2020",
     endYear: "2024",
     description:

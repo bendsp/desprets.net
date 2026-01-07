@@ -1,33 +1,45 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { forwardRef } from "react";
 import {
   Map,
   MapMarker,
   MarkerContent,
   MarkerTooltip,
   MapControls,
+  type MapRef,
 } from "@/components/ui/map";
 
-const locations = [
+export interface MapLocation {
+  name: string;
+  coordinates: [number, number];
+  description: string;
+}
+
+export const defaultLocations: MapLocation[] = [
   {
     name: "McGill University",
-    coordinates: [-73.57494517996066, 45.5039191858195] as [number, number],
+    coordinates: [-73.57494517996066, 45.5039191858195],
     description: "Certificate in Management, 1 year exchange (2024-2025)",
   },
   {
     name: "Epitech Paris",
-    coordinates: [2.3630611581062637, 48.815358261085045] as [number, number],
+    coordinates: [2.3630611581062637, 48.815358261085045],
     description: "Bachelor's and Master's in Software Engineering",
   },
   {
     name: "Epitech Berlin",
-    coordinates: [13.329241150011002, 52.508337785627134] as [number, number],
+    coordinates: [13.329241150011002, 52.508337785627134],
     description: "1 year exchange (2023-2024)",
   },
 ];
 
-export default function AboutMap() {
+interface AboutMapProps {
+  locations?: MapLocation[];
+}
+
+const AboutMap = forwardRef<MapRef, AboutMapProps>(({ locations = defaultLocations }, ref) => {
   return (
     <motion.div
       className="mt-8 h-[400px] w-full md:w-2/3 mx-auto border border-border overflow-hidden"
@@ -37,6 +49,7 @@ export default function AboutMap() {
       transition={{ duration: 0.5, delay: 0.2 }}
     >
       <Map
+        ref={ref}
         center={[-30, 40]}
         zoom={1.8}
         dragRotate={false}
@@ -63,4 +76,8 @@ export default function AboutMap() {
       </Map>
     </motion.div>
   );
-}
+});
+
+AboutMap.displayName = "AboutMap";
+
+export default AboutMap;
