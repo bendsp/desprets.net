@@ -51,6 +51,8 @@ type MapProps = {
     light?: MapStyleOption;
     dark?: MapStyleOption;
   };
+  /** Callback when the map is clicked */
+  onClick?: (e: MapLibreGL.MapMouseEvent) => void;
 } & Omit<MapLibreGL.MapOptions, "container" | "style">;
 
 type MapRef = MapLibreGL.Map;
@@ -108,11 +110,19 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
 
     map.on("load", loadHandler);
     map.on("styledata", styleDataHandler);
+
+    if (props.onClick) {
+      map.on("click", props.onClick);
+    }
+
     setMapInstance(map);
 
     return () => {
       map.off("load", loadHandler);
       map.off("styledata", styleDataHandler);
+      if (props.onClick) {
+        map.off("click", props.onClick);
+      }
       map.remove();
       setIsLoaded(false);
       setIsStyleLoaded(false);

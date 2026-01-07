@@ -219,13 +219,13 @@ const AboutMap = forwardRef<AboutMapRef, AboutMapProps>(
                 });
               }}
             >
-              <MarkerContent>
+              <MarkerContent className="group">
                 <div className="h-5 w-5 rounded-full bg-primary border-2 border-background shadow-md hover:scale-110 transition-transform cursor-pointer" />
                 <MarkerLabel
                   position="bottom"
-                  className="text-[10px] font-mono mt-1 font-bold text-primary bg-background/80 px-1 py-0.5 rounded-none border border-primary/20"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-mono mt-1 font-bold text-primary bg-background/80 px-1 py-0.5 rounded-none border border-primary/20 pointer-events-none"
                 >
-                  {loc.name.split(" ")[0]}
+                  {loc.name}
                 </MarkerLabel>
               </MarkerContent>
             </MapMarker>
