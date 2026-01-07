@@ -18,7 +18,7 @@ export const projects = [
     id: "1",
     slug: "bedrock",
     title: "Bedrock",
-    description: "Markdown Editor - Level up your notes!",
+    description: "Level up your notes with the power of Markdown",
     technologies: ["React", "Tailwind", "TypeScript", "Electron"],
     github: "https://github.com/bendsp/bedrock",
     link: "https://bedrock.desprets.net/",
