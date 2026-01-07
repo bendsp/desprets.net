@@ -48,7 +48,7 @@ export const projects = [
   {
     id: "3",
     slug: "imagn",
-    title: "Imagn AI",
+    title: "imagn.xyz",
     description: "An AI-powered image editor and generator",
     technologies: [
       "Next.js",
@@ -70,7 +70,7 @@ export const projects = [
   {
     id: "4",
     slug: "skribbl-chat",
-    title: "Skribbl.chat",
+    title: "skribbl.chat",
     description: "A Pictochat inspired chatroom",
     technologies: ["React-Native", "Tailwind", "TypeScript"],
     github: "https://github.com/bendsp/skribbl.chat",
@@ -83,8 +83,8 @@ export const projects = [
   {
     id: "5",
     slug: "emoji-picker",
-    title: "Emoji-Picker",
-    description: "A unique take on the classic color picker",
+    title: "Emoji Color Picker",
+    description: "Find out which emoji has the closest average RGB value",
     technologies: ["React", "Tailwind", "TypeScript"],
     github: "https://github.com/bendsp/emoji-color-picker",
     link: "https://emoji.desprets.net/",
