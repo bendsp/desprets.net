@@ -139,7 +139,6 @@ export default function Home() {
                     <ProjectCard
                       project={project}
                       index={index}
-                      priority={index < 2}
                     />
                   </CarouselItem>
                 ))}

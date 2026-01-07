@@ -14,10 +14,9 @@ import { Project } from "@/app/projects";
 interface ProjectCardProps {
   project: Project;
   index: number;
-  priority?: boolean;
 }
 
-export default function ProjectCard({ project, index, priority }: ProjectCardProps) {
+export default function ProjectCard({ project, index }: ProjectCardProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -48,7 +47,6 @@ export default function ProjectCard({ project, index, priority }: ProjectCardPro
               alt={`${project.title} screenshot`}
               fill
               className="object-cover object-top"
-              priority={priority}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
