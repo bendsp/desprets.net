@@ -25,8 +25,8 @@ export const projects = [
     fullDescription: `
       A Markdown editor, built with React and Tailwind.
     `,
-    images: ["/bedrock_light.jpg"],
-    darkImages: ["/bedrock_dark.jpg"],
+    images: ["/bedrock_light.webp"],
+    darkImages: ["/bedrock_dark.webp"],
   },
   {
     id: "2",
@@ -42,8 +42,8 @@ export const projects = [
     We recognized DeFi's immense potential and value to the world, but realized existing apps were either far too complex to become mainstream or went against the core principle of decentralization.
     # Mission
     That's why our mission at Fundamental is to make the easiest wallet in the world, without ever compromising on our values of decentralization and security.`,
-    images: ["/fundamental_light.jpg"],
-    darkImages: ["/fundamental_dark.jpg"],
+    images: ["/fundamental_light.webp"],
+    darkImages: ["/fundamental_dark.webp"],
   },
   {
     id: "3",
@@ -64,8 +64,8 @@ export const projects = [
       The app is currently in development and some features are not yet functional.
       I plan to add more models and features in the future.
     `,
-    images: ["/imagn_light.jpg"],
-    darkImages: ["/imagn_dark.jpg"],
+    images: ["/imagn_light.webp"],
+    darkImages: ["/imagn_dark.webp"],
   },
   {
     id: "4",
@@ -92,8 +92,8 @@ export const projects = [
       A unique take on color pickers, showing the emoji with the closest average RGB value.  
       Built with Apple's emoji set in mind. I may add support for other emoji sets in the future.
     `,
-    images: ["/emojipicker_light.jpg"],
-    darkImages: ["/emojipicker_dark.jpg"],
+    images: ["/emojipicker_light.webp"],
+    darkImages: ["/emojipicker_dark.webp"],
   },
   {
     id: "6",
@@ -108,7 +108,7 @@ export const projects = [
       I built this because I wanted somewhere to show off my projects, my skills and who I am.  
       You can see the source code and learn how I built it [on GitHub](https://github.com/bendsp/desprets.net).
     `,
-    images: ["/despretsnet_light.jpg"],
-    darkImages: ["/despretsnet_dark.jpg"],
+    images: ["/despretsnet_light.webp"],
+    darkImages: ["/despretsnet_dark.webp"],
   },
 ];
