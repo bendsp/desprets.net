@@ -40,7 +40,7 @@ export interface MapLocation {
   name: string;
   coordinates: [number, number];
   description: string;
-  image?: string;
+  images?: string[];
   category: string;
   period: string;
   link?: string;
@@ -51,8 +51,7 @@ export const defaultLocations: MapLocation[] = [
     name: "McGill University",
     coordinates: [-73.57494517996066, 45.5039191858195],
     description: "Certificate in Management, 1 year exchange",
-    image:
-      "https://images.unsplash.com/photo-1541339907198-e08756ebafe3?auto=format&fit=crop&q=80&w=400",
+    images: ["/mcgill1.webp", "/mcgill2.webp"],
     category: "Education",
     period: "2024-2025",
     link: "https://www.mcgill.ca/",
@@ -61,8 +60,9 @@ export const defaultLocations: MapLocation[] = [
     name: "Epitech Paris",
     coordinates: [2.3630611581062637, 48.815358261085045],
     description: "Bachelor's and Master's in Software Engineering",
-    image:
+    images: [
       "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=400",
+    ],
     category: "Education",
     period: "2021-2026",
     link: "https://www.epitech.eu/paris/",
@@ -71,8 +71,9 @@ export const defaultLocations: MapLocation[] = [
     name: "Epitech Berlin",
     coordinates: [13.329241150011002, 52.508337785627134],
     description: "1 year exchange program",
-    image:
+    images: [
       "https://images.unsplash.com/photo-1585202900225-6d3ac20a6962?auto=format&fit=crop&q=80&w=400",
+    ],
     category: "Education",
     period: "2023-2024",
     link: "https://www.epitech.eu/berlin/",
