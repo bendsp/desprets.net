@@ -68,19 +68,6 @@ export const projects = [
     darkImages: ["/imagn_dark.webp"],
   },
   {
-    id: "4",
-    slug: "skribbl-chat",
-    title: "skribbl.chat",
-    description: "A Pictochat inspired chatroom",
-    technologies: ["React-Native", "Tailwind", "TypeScript"],
-    github: "https://github.com/bendsp/skribbl.chat",
-    link: "https://skribbl.chat/",
-    fullDescription: `
-      A Pictochat inspired chatroom, built with React-Native and Tailwind.  
-    `,
-    images: ["/skribbl.png"],
-  },
-  {
     id: "5",
     slug: "emoji-picker",
     title: "Emoji Color Picker",
@@ -94,6 +81,19 @@ export const projects = [
     `,
     images: ["/emojipicker_light.webp"],
     darkImages: ["/emojipicker_dark.webp"],
+  },
+  {
+    id: "4",
+    slug: "skribbl-chat",
+    title: "skribbl.chat",
+    description: "A Pictochat inspired chatroom",
+    technologies: ["React-Native", "Tailwind", "TypeScript"],
+    github: "https://github.com/bendsp/skribbl.chat",
+    link: "https://skribbl.chat/",
+    fullDescription: `
+      A Pictochat inspired chatroom, built with React-Native and Tailwind.  
+    `,
+    images: ["/skribbl.png"],
   },
   {
     id: "6",
