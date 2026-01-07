@@ -133,7 +133,7 @@ const LocationCard = ({ location }: { location: MapLocation }) => (
 const ResetButton = ({ onReset }: { onReset?: () => void }) => {
   const { map } = useMap();
   return (
-    <div className="absolute bottom-[110px] right-2 z-10 flex flex-col rounded-md border border-border bg-background shadow-sm overflow-hidden">
+    <div className="absolute bottom-[110px] right-2 z-10 flex flex-col rounded-none border border-primary bg-background shadow-sm overflow-hidden">
       <button
         onClick={() => {
           onReset?.();
@@ -144,7 +144,7 @@ const ResetButton = ({ onReset }: { onReset?: () => void }) => {
             essential: true,
           });
         }}
-        className="flex items-center justify-center size-8 hover:bg-accent dark:hover:bg-accent/40 transition-colors"
+        className="flex items-center justify-center size-8 text-primary hover:bg-primary/10 transition-colors"
         title="Reset map view"
       >
         <RotateCcw className="size-4" />

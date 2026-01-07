@@ -120,7 +120,7 @@ export default function ProjectClient({ project }: ProjectClientProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex items-center"
+                    className="flex items-center border-primary text-primary hover:bg-primary/10 hover:text-primary transition-colors"
                   >
                     <Github className="mr-2 h-4 w-4" />
                     View Code
@@ -138,7 +138,7 @@ export default function ProjectClient({ project }: ProjectClientProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex items-center"
+                    className="flex items-center border-primary text-primary hover:bg-primary/10 hover:text-primary transition-colors"
                   >
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Check it out

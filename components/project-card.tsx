@@ -72,7 +72,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
                   href={project.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                  className="text-muted-foreground hover:text-primary transition-colors p-1"
                 >
                   <Github size={20} />
                 </a>
@@ -82,7 +82,7 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
                   href={project.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-foreground transition-colors p-1"
+                  className="text-muted-foreground hover:text-primary transition-colors p-1"
                 >
                   <ExternalLink size={20} />
                 </a>
