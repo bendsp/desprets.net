@@ -20,6 +20,7 @@ export const projects = [
     description: "Markdown Editor - Level up your notes!",
     technologies: ["React", "Tailwind", "TypeScript", "Electron"],
     github: "https://github.com/bendsp/bedrock",
+    link: "https://bedrock.desprets.net/",
     fullDescription: `
       A Markdown editor, built with React and Tailwind.
     `,
