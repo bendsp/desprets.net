@@ -49,7 +49,7 @@ const ResetButton = () => {
         onClick={() =>
           map?.flyTo({
             center: [-30, 40],
-            zoom: 1.8,
+            zoom: 1.5,
             duration: 1500,
             essential: true,
           })
@@ -76,7 +76,7 @@ const AboutMap = forwardRef<MapRef, AboutMapProps>(
         <Map
           ref={ref}
           center={[-30, 40]}
-          zoom={1.8}
+          zoom={1.5}
           dragRotate={false}
           pitchWithRotate={false}
         >
@@ -99,7 +99,7 @@ const AboutMap = forwardRef<MapRef, AboutMapProps>(
               }}
             >
               <MarkerContent>
-                <div className="h-5 w-5 rounded-full bg-primary border-2 border-background shadow-md cursor-pointer" />
+                <div className="h-5 w-5 rounded-full bg-primary border-2 border-background shadow-md" />
               </MarkerContent>
               <MarkerTooltip className="bg-popover text-popover-foreground border border-border px-3 py-1.5 rounded-none font-mono text-xs">
                 <div className="font-bold">{loc.name}</div>
