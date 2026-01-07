@@ -92,7 +92,8 @@ export const projects = [
       A unique take on color pickers, showing the emoji with the closest average RGB value.  
       Built with Apple's emoji set in mind. I may add support for other emoji sets in the future.
     `,
-    images: ["/Emoji-Color-Picker.png"],
+    images: ["/emojipicker_light.jpg"],
+    darkImages: ["/emojipicker_dark.jpg"],
   },
   {
     id: "6",
