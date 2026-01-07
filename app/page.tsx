@@ -8,11 +8,22 @@ import AnimatedText from "@/components/animated-text";
 import SmoothScrollLink from "@/components/smooth-scroll-link";
 import ProjectCard from "@/components/project-card";
 import SectionDivider from "@/components/section-divider";
-import AboutMap, {
+import dynamic from "next/dynamic";
+import {
   defaultLocations,
   getCheatedCenter,
   type AboutMapRef,
 } from "@/components/about-map";
+
+const AboutMap = dynamic(() => import("@/components/about-map"), {
+  ssr: false,
+  loading: () => (
+    <div className="mt-8 h-[600px] w-full md:w-2/3 mx-auto border border-border animate-pulse bg-muted flex items-center justify-center">
+      <span className="text-muted-foreground font-mono">Loading Map...</span>
+    </div>
+  ),
+});
+
 import {
   Carousel,
   CarouselContent,

@@ -68,7 +68,7 @@ const DefaultLoader = () => (
 );
 
 const Map = forwardRef<MapRef, MapProps>(function Map(
-  { children, styles, ...props },
+  { children, styles, onClick, ...props },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -111,8 +111,8 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     map.on("load", loadHandler);
     map.on("styledata", styleDataHandler);
 
-    if (props.onClick) {
-      map.on("click", props.onClick);
+    if (onClick) {
+      map.on("click", onClick);
     }
 
     setMapInstance(map);
@@ -120,8 +120,8 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     return () => {
       map.off("load", loadHandler);
       map.off("styledata", styleDataHandler);
-      if (props.onClick) {
-        map.off("click", props.onClick);
+      if (onClick) {
+        map.off("click", onClick);
       }
       map.remove();
       setIsLoaded(false);
