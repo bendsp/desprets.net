@@ -206,8 +206,7 @@ export default function Home() {
               </p>
               <p className="text-muted-foreground mb-3 mx-4 text-justify md:mx-0 md:mr-10">
                 I'm currently completing my master's degree in computer science
-                at Epitech and obtaining a certificate in management at McGill
-                University. My academic journey has equipped me with a strong
+                at Epitech. My academic journey has equipped me with a strong
                 foundation in software development, problem-solving, and
                 leadership skills.
               </p>
