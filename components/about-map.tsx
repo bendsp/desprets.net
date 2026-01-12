@@ -211,6 +211,7 @@ const AboutMap = forwardRef<AboutMapRef, AboutMapProps>(
                 className="p-0 shadow-2xl border-none"
                 anchor="bottom"
                 offset={20}
+                autoPan={false}
               >
                 <LocationCard
                   key={selectedLocation.name}

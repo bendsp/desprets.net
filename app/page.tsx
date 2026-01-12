@@ -79,7 +79,7 @@ export default function Home() {
       // Scroll to map
       const mapElement = document.getElementById("about-map");
       if (mapElement) {
-        mapElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        mapElement.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
   };
@@ -203,7 +203,7 @@ export default function Home() {
             </div>
           </motion.div>
 
-          <div id="about-map" className="px-4 md:px-4">
+          <div id="about-map" className="px-4 md:px-4 scroll-mt-24">
             <AboutMap ref={mapRef} />
           </div>
         </section>
