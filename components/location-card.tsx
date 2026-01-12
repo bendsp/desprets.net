@@ -35,18 +35,21 @@ export const LocationCard = ({ location }: LocationCardProps) => {
           </div>
         </div>
 
-        <div className="pt-1">
-          {location.link && (
-            <Button
-              size="sm"
-              className="w-full h-7 text-[10px] font-mono"
-              onClick={() => window.open(location.link!, "_blank")}
-            >
-              Visit Website
-              <ExternalLink className="size-2.5 ml-1.5" />
-            </Button>
-          )}
-        </div>
+      <div className="pt-1">
+        <Button
+          size="sm"
+          className="w-full h-7 text-[10px] font-mono"
+          onClick={() => {
+            const element = document.getElementById("education");
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        >
+          Learn More
+          <ExternalLink className="size-2.5 ml-1.5" />
+        </Button>
+      </div>
       </div>
     </div>
   );

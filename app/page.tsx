@@ -213,7 +213,7 @@ export default function Home() {
             </div>
           </motion.div>
 
-          <div id="about-map">
+          <div id="about-map" className="px-4 md:px-4">
             <AboutMap ref={mapRef} />
           </div>
         </section>
@@ -231,7 +231,7 @@ export default function Home() {
             {education.map((item, index) => (
               <motion.div
                 key={index}
-                className="relative pl-8 border-l-2 border-border"
+                className="relative pl-8 border-l-2 border-border scroll-mt-24"
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: false }}

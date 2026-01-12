@@ -139,20 +139,20 @@ const AboutMap = forwardRef<AboutMapRef, AboutMapProps>(
 
     return (
       <motion.div
-        className="mt-8 h-[600px] w-full md:w-2/3 mx-auto border border-border overflow-hidden"
+        className="mt-8 h-[600px] w-full mx-auto border border-border overflow-hidden"
         initial={{ opacity: 0, scale: 0.95 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: false }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-      <Map
-        ref={mapInstanceRef}
-        center={[-30, 45]}
-        zoom={1.5}
-        dragRotate={false}
-        pitchWithRotate={false}
-        onClick={() => setSelectedLocation(null)}
-      >
+        <Map
+          ref={mapInstanceRef}
+          center={[-30, 45]}
+          zoom={1.5}
+          dragRotate={false}
+          pitchWithRotate={false}
+          onClick={() => setSelectedLocation(null)}
+        >
           <MapControls position="bottom-right" showZoom={true} />
           <ResetButton onReset={() => setSelectedLocation(null)} />
 
@@ -194,9 +194,9 @@ const AboutMap = forwardRef<AboutMapRef, AboutMapProps>(
               anchor="bottom"
               offset={20}
             >
-              <LocationCard 
-                key={selectedLocation.name} 
-                location={selectedLocation} 
+              <LocationCard
+                key={selectedLocation.name}
+                location={selectedLocation}
               />
             </MapPopup>
           )}
