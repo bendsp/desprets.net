@@ -92,7 +92,12 @@ export const defaultLocations: MapLocation[] = [
     coordinates: [13.329241150011002, 52.508337785627134],
     description: "1 year exchange program",
     images: [
-      "https://images.unsplash.com/photo-1585202900225-6d3ac20a6962?auto=format&fit=crop&q=80&w=400",
+      "/epitech_berlin1.webp",
+      "/epitech_berlin2.webp",
+      "/epitech_berlin3.webp",
+      "/epitech_berlin4.webp",
+      "/epitech_berlin5.webp",
+      "/epitech_berlin6.webp",
     ],
     category: "Education",
     period: "2023-2024",
