@@ -59,7 +59,13 @@ export const defaultLocations: MapLocation[] = [
     name: "McGill University",
     coordinates: [-73.57494517996066, 45.5039191858195],
     description: "Certificate in Management, 1 year exchange",
-    images: ["/mcgill1.webp", "/mcgill2.webp"],
+    images: [
+      "/mcgill1.webp",
+      "/mcgill2.webp",
+      "/mcgill3.webp",
+      "/mcgill4.webp",
+      "/mcgill5.webp",
+    ],
     category: "Education",
     period: "2024-2025",
     link: "https://www.mcgill.ca/",
@@ -211,7 +217,6 @@ const AboutMap = forwardRef<AboutMapRef, AboutMapProps>(
                 className="p-0 shadow-2xl border-none"
                 anchor="bottom"
                 offset={20}
-                autoPan={false}
               >
                 <LocationCard
                   key={selectedLocation.name}
