@@ -8,21 +8,11 @@ import AnimatedText from "@/components/animated-text";
 import SmoothScrollLink from "@/components/smooth-scroll-link";
 import ProjectCard from "@/components/project-card";
 import SectionDivider from "@/components/section-divider";
-import dynamic from "next/dynamic";
-import {
+import AboutMap, {
   defaultLocations,
   getCheatedCenter,
   type AboutMapRef,
 } from "@/components/about-map";
-
-const AboutMap = dynamic(() => import("@/components/about-map"), {
-  ssr: false,
-  loading: () => (
-    <div className="mt-8 h-[600px] w-full md:w-2/3 mx-auto border border-border animate-pulse bg-muted flex items-center justify-center">
-      <span className="text-muted-foreground font-mono">Loading Map...</span>
-    </div>
-  ),
-});
 
 import {
   Carousel,
@@ -82,9 +72,9 @@ export default function Home() {
   useScrollReveal();
   const mapRef = useRef<AboutMapRef>(null);
 
-  const flyToLocation = (coordinates: [number, number]) => {
+  const flyToLocation = (locationId: string) => {
     if (mapRef.current) {
-      mapRef.current.openLocation(coordinates);
+      mapRef.current.openLocation(locationId);
 
       // Scroll to map
       const mapElement = document.getElementById("about-map");
@@ -258,7 +248,7 @@ export default function Home() {
                     {item.locations.map((loc, lIdx) => (
                       <button
                         key={lIdx}
-                        onClick={() => flyToLocation(loc.coords)}
+                        onClick={() => flyToLocation(loc.locationId)}
                         className="flex items-center text-xs text-primary hover:underline group/loc transition-all"
                         title={`Show ${loc.name} on map`}
                       >
@@ -479,11 +469,11 @@ const education = [
     locations: [
       {
         name: "Montreal, Canada",
-        coords: defaultLocations[0].coordinates,
+        locationId: "mcgill",
       },
       {
         name: "Paris, France",
-        coords: defaultLocations[1].coordinates,
+        locationId: "epitech-paris",
       },
     ],
     startYear: "2024",
@@ -497,7 +487,7 @@ const education = [
     locations: [
       {
         name: "Montreal, Canada",
-        coords: defaultLocations[0].coordinates,
+        locationId: "mcgill",
       },
     ],
     startYear: "2024",
@@ -511,11 +501,11 @@ const education = [
     locations: [
       {
         name: "Paris, France",
-        coords: defaultLocations[1].coordinates,
+        locationId: "epitech-paris",
       },
       {
         name: "Berlin, Germany",
-        coords: defaultLocations[2].coordinates,
+        locationId: "epitech-berlin",
       },
     ],
     startYear: "2020",

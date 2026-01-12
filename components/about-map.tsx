@@ -39,10 +39,11 @@ export const getCheatedCenter = (
 
 export interface AboutMapRef {
   map: MapRef | null;
-  openLocation: (coordinates: [number, number]) => void;
+  openLocation: (locationId: string) => void;
 }
 
 export interface MapLocation {
+  id: string;
   name: string;
   coordinates: [number, number];
   description: string;
@@ -54,21 +55,17 @@ export interface MapLocation {
 
 export const defaultLocations: MapLocation[] = [
   {
+    id: "mcgill",
     name: "McGill University",
     coordinates: [-73.57494517996066, 45.5039191858195],
     description: "Certificate in Management, 1 year exchange",
-    images: [
-      "/mcgill1.webp",
-      "/mcgill2.webp",
-      "/mcgill3.webp",
-      "/mcgill4.webp",
-      "/mcgill5.webp",
-    ],
+    images: ["/mcgill1.webp", "/mcgill2.webp"],
     category: "Education",
     period: "2024-2025",
     link: "https://www.mcgill.ca/",
   },
   {
+    id: "epitech-paris",
     name: "Epitech Paris",
     coordinates: [2.3630611581062637, 48.815358261085045],
     description: "Bachelor's and Master's in Software Engineering",
@@ -80,6 +77,7 @@ export const defaultLocations: MapLocation[] = [
     link: "https://www.epitech.eu/paris/",
   },
   {
+    id: "epitech-berlin",
     name: "Epitech Berlin",
     coordinates: [13.329241150011002, 52.508337785627134],
     description: "1 year exchange program",
@@ -134,12 +132,8 @@ const AboutMap = forwardRef<AboutMapRef, AboutMapProps>(
       ref,
       () => ({
         map: mapInstanceRef.current,
-        openLocation: (coords: [number, number]) => {
-          const location = locations.find(
-            (loc) =>
-              loc.coordinates[0] === coords[0] &&
-              loc.coordinates[1] === coords[1]
-          );
+        openLocation: (locationId: string) => {
+          const location = locations.find((loc) => loc.id === locationId);
           if (location) {
             setSelectedLocation(location);
             mapInstanceRef.current?.flyTo({
