@@ -76,7 +76,11 @@ export const defaultLocations: MapLocation[] = [
     coordinates: [2.3630611581062637, 48.815358261085045],
     description: "Bachelor's and Master's in Software Engineering",
     images: [
-      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=400",
+      "/epitech_paris1.webp",
+      "/epitech_paris2.webp",
+      "/epitech_paris3.webp",
+      "/epitech_paris4.webp",
+      "/epitech_paris5.webp",
     ],
     category: "Education",
     period: "2021-2026",
