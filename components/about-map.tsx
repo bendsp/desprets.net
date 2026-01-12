@@ -1,7 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { forwardRef, useState, useImperativeHandle, useRef } from "react";
+import {
+  forwardRef,
+  useState,
+  useImperativeHandle,
+  useRef,
+  useEffect,
+} from "react";
 import {
   RotateCcw,
   GraduationCap,
@@ -51,7 +57,13 @@ export const defaultLocations: MapLocation[] = [
     name: "McGill University",
     coordinates: [-73.57494517996066, 45.5039191858195],
     description: "Certificate in Management, 1 year exchange",
-    images: ["/mcgill1.webp", "/mcgill2.webp"],
+    images: [
+      "/mcgill1.webp",
+      "/mcgill2.webp",
+      "/mcgill3.webp",
+      "/mcgill4.webp",
+      "/mcgill5.webp",
+    ],
     category: "Education",
     period: "2024-2025",
     link: "https://www.mcgill.ca/",
@@ -111,7 +123,12 @@ const AboutMap = forwardRef<AboutMapRef, AboutMapProps>(
   ({ locations = defaultLocations }, ref) => {
     const [selectedLocation, setSelectedLocation] =
       useState<MapLocation | null>(null);
+    const [mounted, setMounted] = useState(false);
     const mapInstanceRef = useRef<MapRef | null>(null);
+
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
     useImperativeHandle(
       ref,
@@ -145,62 +162,70 @@ const AboutMap = forwardRef<AboutMapRef, AboutMapProps>(
         viewport={{ once: false }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <Map
-          ref={mapInstanceRef}
-          center={[-30, 45]}
-          zoom={1.5}
-          dragRotate={false}
-          pitchWithRotate={false}
-          onClick={() => setSelectedLocation(null)}
-        >
-          <MapControls position="bottom-right" showZoom={true} />
-          <ResetButton onReset={() => setSelectedLocation(null)} />
+        {!mounted ? (
+          <div className="w-full h-full animate-pulse bg-muted flex items-center justify-center">
+            <span className="text-muted-foreground font-mono">
+              Loading Map...
+            </span>
+          </div>
+        ) : (
+          <Map
+            ref={mapInstanceRef}
+            center={[-30, 45]}
+            zoom={1.5}
+            dragRotate={false}
+            pitchWithRotate={false}
+            onClick={() => setSelectedLocation(null)}
+          >
+            <MapControls position="bottom-right" showZoom={true} />
+            <ResetButton onReset={() => setSelectedLocation(null)} />
 
-          {locations.map((loc, idx) => (
-            <MapMarker
-              key={idx}
-              longitude={loc.coordinates[0]}
-              latitude={loc.coordinates[1]}
-              onClick={(e) => {
-                // Prevent map click from closing this immediately
-                e.stopPropagation();
-                setSelectedLocation(loc);
-                mapInstanceRef.current?.flyTo({
-                  center: getCheatedCenter(loc.coordinates),
-                  zoom: 12,
-                  duration: 2000,
-                  essential: true,
-                });
-              }}
-            >
-              <MarkerContent className="group">
-                <div className="h-5 w-5 rounded-full bg-primary border-2 border-background shadow-md hover:scale-110 transition-transform cursor-pointer" />
-                <MarkerLabel
-                  position="bottom"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-mono mt-1 font-bold text-primary bg-background/80 px-1 py-0.5 rounded-none border border-primary/20 pointer-events-none"
-                >
-                  {loc.name}
-                </MarkerLabel>
-              </MarkerContent>
-            </MapMarker>
-          ))}
+            {locations.map((loc, idx) => (
+              <MapMarker
+                key={idx}
+                longitude={loc.coordinates[0]}
+                latitude={loc.coordinates[1]}
+                onClick={(e) => {
+                  // Prevent map click from closing this immediately
+                  e.stopPropagation();
+                  setSelectedLocation(loc);
+                  mapInstanceRef.current?.flyTo({
+                    center: getCheatedCenter(loc.coordinates),
+                    zoom: 12,
+                    duration: 2000,
+                    essential: true,
+                  });
+                }}
+              >
+                <MarkerContent className="group">
+                  <div className="h-5 w-5 rounded-full bg-primary border-2 border-background shadow-md hover:scale-110 transition-transform cursor-pointer" />
+                  <MarkerLabel
+                    position="bottom"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-mono mt-1 font-bold text-primary bg-background/80 px-1 py-0.5 rounded-none border border-primary/20 pointer-events-none"
+                  >
+                    {loc.name}
+                  </MarkerLabel>
+                </MarkerContent>
+              </MapMarker>
+            ))}
 
-          {selectedLocation && (
-            <MapPopup
-              longitude={selectedLocation.coordinates[0]}
-              latitude={selectedLocation.coordinates[1]}
-              onClose={() => setSelectedLocation(null)}
-              className="p-0 shadow-2xl border-none"
-              anchor="bottom"
-              offset={20}
-            >
-              <LocationCard
-                key={selectedLocation.name}
-                location={selectedLocation}
-              />
-            </MapPopup>
-          )}
-        </Map>
+            {selectedLocation && (
+              <MapPopup
+                longitude={selectedLocation.coordinates[0]}
+                latitude={selectedLocation.coordinates[1]}
+                onClose={() => setSelectedLocation(null)}
+                className="p-0 shadow-2xl border-none"
+                anchor="bottom"
+                offset={20}
+              >
+                <LocationCard
+                  key={selectedLocation.name}
+                  location={selectedLocation}
+                />
+              </MapPopup>
+            )}
+          </Map>
+        )}
       </motion.div>
     );
   }
