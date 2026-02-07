@@ -15,7 +15,7 @@ export const LocationCard = ({ location }: LocationCardProps) => {
   return (
     <div className="w-72 overflow-hidden shadow-2xl border-none">
       {images.length > 0 && <SwipeCarousel images={images} />}
-      <div className="p-3 space-y-2 bg-popover text-popover-foreground font-sans text-left">
+      <div className="p-3 space-y-2 bg-popover text-popover-foreground font-mono text-left">
         <div className="space-y-0.5">
           <div className="flex items-center gap-1.5 text-[9px] font-bold text-primary uppercase tracking-[0.2em]">
             <GraduationCap className="size-3" />

@@ -60,7 +60,7 @@ function PixelText({ text }: { text: string }) {
 
   return (
     <div
-      className="relative font-pixel-circle text-[clamp(2.5rem,8vw,8rem)] leading-tight select-none text-center"
+      className="relative font-pixel text-[clamp(2.5rem,8vw,8rem)] leading-tight select-none text-center"
       aria-hidden="true"
     >
       {/* Shadow layer — offset exactly one pixel-grid cell to the left */}

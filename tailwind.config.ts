@@ -61,7 +61,7 @@ const config = {
         sm: "var(--radius)",
       },
       fontFamily: {
-        mono: ["JetBrains Mono", "Menlo", "Monaco", "Consolas", "monospace"],
+        mono: ["var(--font-geist-pixel-square)", "JetBrains Mono", "Menlo", "Monaco", "Consolas", "monospace"],
         pixel: ["var(--font-geist-pixel-square)", "monospace"],
         "pixel-circle": ["var(--font-geist-pixel-circle)", "monospace"],
         "pixel-triangle": ["var(--font-geist-pixel-triangle)", "monospace"],
