@@ -325,6 +325,11 @@ export default function PixelHero({
         className="absolute inset-0"
         aria-hidden="true"
       />
+      {/* Bottom fade gradient */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-24 pointer-events-none bg-gradient-to-b from-transparent to-background"
+        aria-hidden="true"
+      />
       <div className="relative z-10 flex flex-col items-center justify-center">
         <PixelText text={text} mouseRef={mouseRef} />
         {children}

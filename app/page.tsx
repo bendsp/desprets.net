@@ -87,47 +87,48 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground font-mono">
-      <main className="container mx-auto px-4 py-12">
-        {/* Hero Section */}
-        <PixelHero
-          text="Benjamin Desprets"
-          className="py-16 md:py-24 min-h-[340px] md:min-h-[420px]"
+      {/* Hero Section — full bleed */}
+      <PixelHero
+        text="Benjamin Desprets"
+        className="py-16 md:py-24 min-h-[340px] md:min-h-[420px]"
+      >
+        <motion.div
+          className="flex flex-col items-center justify-center text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
         >
+          <AnimatedText
+            text="Full-stack developer"
+            className="text-xl md:text-2xl max-w-2xl mb-6 text-muted-foreground"
+            typingSpeed={50}
+            showCursor={true}
+          />
           <motion.div
-            className="flex flex-col items-center justify-center text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            className="flex space-x-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.5 }}
           >
-            <AnimatedText
-              text="Full-stack developer"
-              className="text-xl md:text-2xl max-w-2xl mb-6 text-muted-foreground"
-              typingSpeed={50}
-              showCursor={true}
-            />
-            <motion.div
-              className="flex space-x-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1.5 }}
+            <SmoothScrollLink
+              href="#about"
+              className="inline-block"
+              title="Jump to About Me section"
             >
-              <SmoothScrollLink
-                href="#about"
-                className="inline-block"
-                title="Jump to About Me section"
-              >
-                <Button variant="outline">About Me</Button>
-              </SmoothScrollLink>
-              <SmoothScrollLink
-                href="#contact"
-                className="inline-block"
-                title="Jump to Contact section"
-              >
-                <Button>Contact Me</Button>
-              </SmoothScrollLink>
-            </motion.div>
+              <Button variant="outline">About Me</Button>
+            </SmoothScrollLink>
+            <SmoothScrollLink
+              href="#contact"
+              className="inline-block"
+              title="Jump to Contact section"
+            >
+              <Button>Contact Me</Button>
+            </SmoothScrollLink>
           </motion.div>
-        </PixelHero>
+        </motion.div>
+      </PixelHero>
+
+      <main className="container mx-auto px-4 py-12">
 
         {/* Projects Section */}
         <section id="projects" className="py-8 scroll-reveal scroll-mt-20">
