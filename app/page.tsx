@@ -90,7 +90,7 @@ export default function Home() {
       {/* Hero Section — full bleed */}
       <PixelHero
         text="Benjamin Desprets"
-        className="py-16 md:py-24 min-h-[340px] md:min-h-[420px]"
+        className="pt-16 md:pt-24 pb-12 md:pb-16 min-h-[340px] md:min-h-[420px]"
       >
         <motion.div
           className="flex flex-col items-center justify-center text-center"
@@ -128,7 +128,7 @@ export default function Home() {
         </motion.div>
       </PixelHero>
 
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 pt-4 pb-12">
 
         {/* Projects Section */}
         <section id="projects" className="py-8 scroll-reveal scroll-mt-20">

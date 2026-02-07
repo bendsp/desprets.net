@@ -1,21 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 
 interface PixelHeroProps {
   text: string;
   children?: React.ReactNode;
   className?: string;
 }
-
-// Font variant CSS classes (mapped to tailwind font families)
-const FONT_VARIANTS = [
-  "font-pixel-grid",     // Grid (default)
-  "font-pixel-circle",
-  "font-pixel-triangle",
-  "font-pixel",          // Square
-  "font-pixel-line",
-] as const;
 
 // Background symbols: mix of Geist Pixel decorative glyphs and classic characters
 const BG_SYMBOLS = ["▲", "•", "∆", "→", "↓", "+", "·", "−", "↗", "↘", "0", "1", "*"];
@@ -41,119 +32,40 @@ function hash(x: number, y: number): number {
 }
 
 // ---- Pixel Text (DOM) ----
-// Each character is a <span> that switches font variant on hover proximity
-function PixelText({
-  text,
-  mouseRef,
-}: {
-  text: string;
-  mouseRef: React.RefObject<{ x: number; y: number } | null>;
-}) {
-  const charRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const frameRef = useRef<number>(0);
-  const charPositions = useRef<{ cx: number; cy: number }[]>([]);
+// Circle variant with pixel-grid-aligned shadow (one dot to the left)
+// Geist Pixel dot grid = 38 font-units = 0.038em per cell
+const PX_GRID = "0.038em";
 
-  // Split into words; build a flat char array with global indices for refs
+function PixelText({ text }: { text: string }) {
   const words = text.split(" ");
-  const chars = text.split("");
 
-  // Cache character center positions
-  const updatePositions = useCallback(() => {
-    charPositions.current = charRefs.current.map((el) => {
-      if (!el) return { cx: 0, cy: 0 };
-      const rect = el.getBoundingClientRect();
-      return { cx: rect.left + rect.width / 2, cy: rect.top + rect.height / 2 };
-    });
-  }, []);
+  const textContent = (
+    <>
+      {words.map((word, wIdx) => (
+        <span key={wIdx}>
+          <span className="inline-block whitespace-nowrap">{word}</span>
+          {wIdx < words.length - 1 && <span>{" "}</span>}
+        </span>
+      ))}
+    </>
+  );
 
-  useEffect(() => {
-    const EFFECT_R = 120;
-    // Track previous variant per char to avoid redundant className writes
-    const prevVariant = new Array<number>(chars.length).fill(0);
-
-    // Update positions initially and on resize/scroll
-    const schedulePositionUpdate = () => requestAnimationFrame(updatePositions);
-    schedulePositionUpdate();
-    window.addEventListener("resize", schedulePositionUpdate);
-    window.addEventListener("scroll", schedulePositionUpdate, { passive: true });
-
-    const animate = () => {
-      const mouse = mouseRef.current;
-      const now = performance.now();
-
-      for (let i = 0; i < charRefs.current.length; i++) {
-        const el = charRefs.current[i];
-        if (!el || chars[i] === " ") continue;
-
-        const pos = charPositions.current[i];
-        let targetVariant = 0; // default: square
-
-        if (mouse && pos) {
-          const dx = mouse.x - pos.cx;
-          const dy = mouse.y - pos.cy;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const prox = Math.max(0, 1 - dist / EFFECT_R);
-
-          if (prox > 0.15) {
-            const seed = hash(i, Math.floor(now * 0.003));
-            const variantPool = [1, 2, 1, 2, 3, 4];
-            targetVariant = variantPool[Math.floor(seed * variantPool.length)];
-          }
-        }
-
-        // Only write to DOM if variant changed
-        if (prevVariant[i] !== targetVariant) {
-          prevVariant[i] = targetVariant;
-          const variantClass = FONT_VARIANTS[targetVariant];
-          const duration = targetVariant === 0 ? "duration-300" : "duration-150";
-          el.className = `${variantClass} inline-block transition-[font-family] ${duration}`;
-        }
-      }
-
-      frameRef.current = requestAnimationFrame(animate);
-    };
-
-    frameRef.current = requestAnimationFrame(animate);
-    return () => {
-      cancelAnimationFrame(frameRef.current);
-      window.removeEventListener("resize", schedulePositionUpdate);
-      window.removeEventListener("scroll", schedulePositionUpdate);
-    };
-  }, [chars, mouseRef, updatePositions]);
-
-  // Render words as nowrap groups so line breaks only happen between words
-  let globalIdx = 0;
   return (
     <div
-      className="font-pixel-grid text-[clamp(3rem,10vw,11rem)] leading-tight text-foreground select-none text-center"
+      className="relative font-pixel-circle text-[clamp(2.5rem,8vw,8rem)] leading-tight select-none text-center"
       aria-hidden="true"
     >
-      {words.map((word, wIdx) => {
-        const startIdx = globalIdx;
-        const wordChars = word.split("");
-        globalIdx += word.length + 1; // +1 for the space
-        return (
-          <span key={wIdx}>
-            <span className="inline-flex whitespace-nowrap">
-              {wordChars.map((char, cIdx) => {
-                const i = startIdx + cIdx;
-                return (
-                  <span
-                    key={i}
-                    ref={(el) => {
-                      charRefs.current[i] = el;
-                    }}
-                    className="font-pixel-grid inline-block transition-[font-family] duration-300"
-                  >
-                    {char}
-                  </span>
-                );
-              })}
-            </span>
-            {wIdx < words.length - 1 && <span>{" "}</span>}
-          </span>
-        );
-      })}
+      {/* Shadow layer — offset exactly one pixel-grid cell to the left */}
+      <div
+        className="absolute inset-0 text-foreground/20"
+        style={{ transform: `translateX(-${PX_GRID})` }}
+      >
+        {textContent}
+      </div>
+      {/* Main text layer */}
+      <div className="relative text-foreground">
+        {textContent}
+      </div>
     </div>
   );
 }
@@ -345,11 +257,11 @@ export default function PixelHero({
       />
       {/* Bottom fade gradient */}
       <div
-        className="absolute inset-x-0 bottom-0 h-24 pointer-events-none bg-gradient-to-b from-transparent to-background"
+        className="absolute inset-x-0 bottom-0 h-48 pointer-events-none bg-gradient-to-b from-transparent to-background"
         aria-hidden="true"
       />
       <div className="relative z-10 flex flex-col items-center justify-center">
-        <PixelText text={text} mouseRef={mouseRef} />
+        <PixelText text={text} />
         {children}
       </div>
     </div>
