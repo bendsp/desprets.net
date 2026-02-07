@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface PixelHeroProps {
   text: string;
@@ -40,40 +40,104 @@ function rgbTupleFromCssColor(color: string): string | null {
 }
 
 // ---- Pixel Text (DOM) ----
-// Pixel-grid-aligned shadow (two dots to the left)
+// Pixel-grid-aligned shadow (one dot to the left)
 // Geist Pixel dot grid = 38 font-units = 0.038em per cell
 const PX_GRID = "0.038em";
 const PX_SHADOW = PX_GRID;
 
-function PixelText({ text }: { text: string }) {
-  const words = text.split(" ");
+type MorphStyle = "circle" | "triangle" | "gridTop";
+type ActiveMorph = { index: number; style: MorphStyle; endsAt: number };
 
-  const textContent = (
-    <>
-      {words.map((word, wIdx) => (
-        <span key={wIdx}>
-          <span className="inline-block whitespace-nowrap">{word}</span>
-          {wIdx < words.length - 1 && <span>{" "}</span>}
+const MORPH_STYLES: MorphStyle[] = ["circle", "triangle", "gridTop"];
+const MORPH_DURATION_MS = 2500;
+const MORPH_COOLDOWN_MS = 1500;
+const MORPH_TICK_MS = 150;
+
+function PixelText({ text }: { text: string }) {
+  const chars = Array.from(text);
+  const morphEnabled = text.trim() === "Benjamin Desprets";
+  const [activeMorph, setActiveMorph] = useState<ActiveMorph | null>(null);
+  const lastMorphStartRef = useRef(0);
+
+  useEffect(() => {
+    setActiveMorph(null);
+    lastMorphStartRef.current = 0;
+    if (!morphEnabled) return;
+
+    const candidateIndexes = Array.from(text)
+      .map((ch, i) => (ch.trim() ? i : -1))
+      .filter((i) => i >= 0);
+
+    if (candidateIndexes.length === 0) return;
+
+    const timer = window.setInterval(() => {
+      const now = Date.now();
+
+      setActiveMorph((current) => {
+        if (current && now >= current.endsAt) return null;
+        if (current) return current;
+        if (now - lastMorphStartRef.current < MORPH_COOLDOWN_MS) return null;
+
+        const index = candidateIndexes[(Math.random() * candidateIndexes.length) | 0];
+        const style = MORPH_STYLES[(Math.random() * MORPH_STYLES.length) | 0];
+        lastMorphStartRef.current = now;
+        return { index, style, endsAt: now + MORPH_DURATION_MS };
+      });
+    }, MORPH_TICK_MS);
+
+    return () => window.clearInterval(timer);
+  }, [morphEnabled, text]);
+
+  const getCharStyle = (
+    index: number,
+    _isShadow: boolean
+  ): { className: string; style?: React.CSSProperties } => {
+    if (!morphEnabled || !activeMorph || activeMorph.index !== index) {
+      return { className: "font-pixel" };
+    }
+
+    switch (activeMorph.style) {
+      case "circle":
+        return { className: "font-pixel-circle" };
+      case "triangle":
+        return { className: "font-pixel-triangle" };
+      case "gridTop":
+        return {
+          className: "font-pixel-grid",
+          style: { clipPath: "inset(0 0 50% 0)" },
+        };
+    }
+  };
+
+  const renderCharacters = (isShadow: boolean) =>
+    chars.map((char, index) => {
+      const { className, style } = getCharStyle(index, isShadow);
+      return (
+        <span
+          key={`${isShadow ? "shadow" : "main"}-${index}`}
+          className={`inline-block ${className}`}
+          style={style}
+        >
+          {char === " " ? "\u00A0" : char}
         </span>
-      ))}
-    </>
-  );
+      );
+    });
 
   return (
     <div
       className="relative font-pixel text-[clamp(2.5rem,8vw,8rem)] leading-tight select-none text-center"
       aria-hidden="true"
     >
-      {/* Shadow layer — offset exactly two pixel-grid cells to the left */}
+      {/* Shadow layer — offset exactly one pixel-grid cell to the left */}
       <div
         className="absolute inset-0 text-foreground/35"
         style={{ transform: `translateX(-${PX_SHADOW})` }}
       >
-        {textContent}
+        {renderCharacters(true)}
       </div>
       {/* Main text layer */}
       <div className="relative text-foreground">
-        {textContent}
+        {renderCharacters(false)}
       </div>
     </div>
   );
