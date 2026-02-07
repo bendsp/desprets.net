@@ -40,9 +40,10 @@ function rgbTupleFromCssColor(color: string): string | null {
 }
 
 // ---- Pixel Text (DOM) ----
-// Circle variant with pixel-grid-aligned shadow (one dot to the left)
+// Pixel-grid-aligned shadow (two dots to the left)
 // Geist Pixel dot grid = 38 font-units = 0.038em per cell
 const PX_GRID = "0.038em";
+const PX_SHADOW = PX_GRID;
 
 function PixelText({ text }: { text: string }) {
   const words = text.split(" ");
@@ -63,10 +64,10 @@ function PixelText({ text }: { text: string }) {
       className="relative font-pixel text-[clamp(2.5rem,8vw,8rem)] leading-tight select-none text-center"
       aria-hidden="true"
     >
-      {/* Shadow layer — offset exactly one pixel-grid cell to the left */}
+      {/* Shadow layer — offset exactly two pixel-grid cells to the left */}
       <div
-        className="absolute inset-0 text-foreground/20"
-        style={{ transform: `translateX(-${PX_GRID})` }}
+        className="absolute inset-0 text-foreground/35"
+        style={{ transform: `translateX(-${PX_SHADOW})` }}
       >
         {textContent}
       </div>
