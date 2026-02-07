@@ -5,6 +5,7 @@ import { Github, Mail, Linkedin, GraduationCap, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import AnimatedText from "@/components/animated-text";
+import PixelHero from "@/components/pixel-hero";
 import SmoothScrollLink from "@/components/smooth-scroll-link";
 import ProjectCard from "@/components/project-card";
 import SectionDivider from "@/components/section-divider";
@@ -88,43 +89,45 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground font-mono">
       <main className="container mx-auto px-4 py-12">
         {/* Hero Section */}
-        <motion.section
-          className="py-8 flex flex-col items-center justify-center text-center relative"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+        <PixelHero
+          text="Benjamin Desprets"
+          className="py-16 md:py-24 min-h-[340px] md:min-h-[420px]"
         >
-          <div className="text-4xl md:text-6xl font-bold mb-4 relative z-10">
-            Benjamin Desprets
-          </div>
-          <AnimatedText
-            text="Full-stack developer"
-            className="text-xl md:text-2xl max-w-2xl mb-6 text-muted-foreground relative z-10"
-            typingSpeed={50}
-            showCursor={true}
-          />
           <motion.div
-            className="flex space-x-4 relative z-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.5 }}
+            className="flex flex-col items-center justify-center text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
           >
-            <SmoothScrollLink
-              href="#about"
-              className="inline-block"
-              title="Jump to About Me section"
+            <AnimatedText
+              text="Full-stack developer"
+              className="text-xl md:text-2xl max-w-2xl mb-6 text-muted-foreground"
+              typingSpeed={50}
+              showCursor={true}
+            />
+            <motion.div
+              className="flex space-x-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1.5 }}
             >
-              <Button variant="outline">About Me</Button>
-            </SmoothScrollLink>
-            <SmoothScrollLink
-              href="#contact"
-              className="inline-block"
-              title="Jump to Contact section"
-            >
-              <Button>Contact Me</Button>
-            </SmoothScrollLink>
+              <SmoothScrollLink
+                href="#about"
+                className="inline-block"
+                title="Jump to About Me section"
+              >
+                <Button variant="outline">About Me</Button>
+              </SmoothScrollLink>
+              <SmoothScrollLink
+                href="#contact"
+                className="inline-block"
+                title="Jump to Contact section"
+              >
+                <Button>Contact Me</Button>
+              </SmoothScrollLink>
+            </motion.div>
           </motion.div>
-        </motion.section>
+        </PixelHero>
 
         {/* Projects Section */}
         <section id="projects" className="py-8 scroll-reveal scroll-mt-20">

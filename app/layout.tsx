@@ -3,6 +3,8 @@ import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import Navbar from "@/components/navbar";
+import { GeistPixelSquare, GeistPixelCircle, GeistPixelTriangle, GeistPixelGrid, GeistPixelLine } from "geist/font/pixel";
+
 export const metadata: Metadata = {
   title: "Benjamin Desprets | Full-Stack Developer",
   description: "Personal portfolio showcasing projects and skills",
@@ -14,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${GeistPixelSquare.variable} ${GeistPixelCircle.variable} ${GeistPixelTriangle.variable} ${GeistPixelGrid.variable} ${GeistPixelLine.variable}`}>
       <body className="font-mono bg-background text-foreground">
         <ThemeProvider
           attribute="class"

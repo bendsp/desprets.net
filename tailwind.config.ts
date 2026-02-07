@@ -62,6 +62,11 @@ const config = {
       },
       fontFamily: {
         mono: ["JetBrains Mono", "Menlo", "Monaco", "Consolas", "monospace"],
+        pixel: ["var(--font-geist-pixel-square)", "monospace"],
+        "pixel-circle": ["var(--font-geist-pixel-circle)", "monospace"],
+        "pixel-triangle": ["var(--font-geist-pixel-triangle)", "monospace"],
+        "pixel-grid": ["var(--font-geist-pixel-grid)", "monospace"],
+        "pixel-line": ["var(--font-geist-pixel-line)", "monospace"],
       },
     },
   },
