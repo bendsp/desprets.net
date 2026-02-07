@@ -53,7 +53,8 @@ function PixelText({
   const frameRef = useRef<number>(0);
   const charPositions = useRef<{ cx: number; cy: number }[]>([]);
 
-  // Split into characters, preserving spaces
+  // Split into words; build a flat char array with global indices for refs
+  const words = text.split(" ");
   const chars = text.split("");
 
   // Cache character center positions
@@ -120,22 +121,39 @@ function PixelText({
     };
   }, [chars, mouseRef, updatePositions]);
 
+  // Render words as nowrap groups so line breaks only happen between words
+  let globalIdx = 0;
   return (
     <div
       className="font-pixel-grid text-[clamp(3rem,10vw,11rem)] leading-tight text-foreground select-none text-center"
       aria-hidden="true"
     >
-      {chars.map((char, i) => (
-        <span
-          key={i}
-          ref={(el) => {
-            charRefs.current[i] = el;
-          }}
-          className="font-pixel-grid inline-block transition-[font-family] duration-300"
-        >
-          {char === " " ? "\u00A0" : char}
-        </span>
-      ))}
+      {words.map((word, wIdx) => {
+        const startIdx = globalIdx;
+        const wordChars = word.split("");
+        globalIdx += word.length + 1; // +1 for the space
+        return (
+          <span key={wIdx}>
+            <span className="inline-flex whitespace-nowrap">
+              {wordChars.map((char, cIdx) => {
+                const i = startIdx + cIdx;
+                return (
+                  <span
+                    key={i}
+                    ref={(el) => {
+                      charRefs.current[i] = el;
+                    }}
+                    className="font-pixel-grid inline-block transition-[font-family] duration-300"
+                  >
+                    {char}
+                  </span>
+                );
+              })}
+            </span>
+            {wIdx < words.length - 1 && <span>{" "}</span>}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -153,7 +171,7 @@ function useCanvasBackground(
 
     const ctx = canvas.getContext("2d")!;
 
-    const CELL = 20;
+    const CELL = 28;
     const EFFECT_R = 160;
     const AMBIENT_BASE = 4; // seconds per ambient symbol cycle
     const ANIM_MS = 2200;
