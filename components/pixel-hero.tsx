@@ -31,6 +31,14 @@ function hash(x: number, y: number): number {
   return (h & 0x7fffffff) / 0x7fffffff;
 }
 
+function rgbTupleFromCssColor(color: string): string | null {
+  const m = color.match(/rgba?\(([^)]+)\)/i);
+  if (!m) return null;
+  const parts = m[1].split(",").map((p) => p.trim());
+  if (parts.length < 3) return null;
+  return `${parts[0]} ,${parts[1]} ,${parts[2]}`.replace(/\s+/g, "");
+}
+
 // ---- Pixel Text (DOM) ----
 // Circle variant with pixel-grid-aligned shadow (one dot to the left)
 // Geist Pixel dot grid = 38 font-units = 0.038em per cell
@@ -84,13 +92,28 @@ function useCanvasBackground(
     const ctx = canvas.getContext("2d")!;
 
     const CELL = 28;
-    const EFFECT_R = 160;
+    const EFFECT_R = 62;
     const AMBIENT_BASE = 4; // seconds per ambient symbol cycle
     const ANIM_MS = 2200;
+    const HOVER_RISE = 28; // brighten speed (per second)
+    const HOVER_DECAY = 3.4; // fade speed (per second)
 
     let animStart: number | null = null;
     let frameId = 0;
     let canvasRect = canvas.getBoundingClientRect();
+    let lastNow = 0;
+    let fgRgb = "255,255,255";
+
+    const refreshForegroundColor = () => {
+      const containerColor = getComputedStyle(container).color;
+      const bodyColor = getComputedStyle(document.body).color;
+      const parsed = rgbTupleFromCssColor(containerColor) ?? rgbTupleFromCssColor(bodyColor);
+      if (parsed) {
+        fgRgb = parsed;
+        return;
+      }
+      fgRgb = document.documentElement.classList.contains("dark") ? "255,255,255" : "0,0,0";
+    };
 
     const setup = () => {
       const rect = container.getBoundingClientRect();
@@ -110,6 +133,7 @@ function useCanvasBackground(
       const n = totalCols * totalRows;
       const rands = new Float32Array(n);
       const symBase = new Uint8Array(n);
+      const hoverHeat = new Float32Array(n);
 
       for (let r = 0; r < totalRows; r++) {
         for (let c = 0; c < totalCols; c++) {
@@ -120,14 +144,16 @@ function useCanvasBackground(
         }
       }
 
-      return { totalCols, totalRows, canvasW, canvasH, dpr, rands, symBase };
+      return { totalCols, totalRows, canvasW, canvasH, dpr, rands, symBase, hoverHeat };
     };
 
     let S = setup();
+    refreshForegroundColor();
 
     const onResize = () => {
       S = setup();
       canvasRect = canvas.getBoundingClientRect();
+      refreshForegroundColor();
     };
     const onScroll = () => {
       canvasRect = canvas.getBoundingClientRect();
@@ -144,8 +170,11 @@ function useCanvasBackground(
       const t = Math.min(1, elapsed / ANIM_MS);
       const progress = 1 - (1 - t) * (1 - t) * (1 - t); // ease-out cubic
       const timeSec = now * 0.001;
+      const dt = Math.min(0.05, lastNow > 0 ? (now - lastNow) * 0.001 : 1 / 60);
+      lastNow = now;
+      if ((now | 0) % 500 < 17) refreshForegroundColor();
 
-      const { totalCols, totalRows, canvasW, canvasH, dpr, rands, symBase } = S;
+      const { totalCols, totalRows, canvasW, canvasH, dpr, rands, symBase, hoverHeat } = S;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, canvasW, canvasH);
@@ -156,6 +185,8 @@ function useCanvasBackground(
         mx = mouse.x - canvasRect.left;
         my = mouse.y - canvasRect.top;
       }
+      const rise = 1 - Math.exp(-HOVER_RISE * dt);
+      const decay = Math.exp(-HOVER_DECAY * dt);
 
       ctx.font = symFont;
       ctx.textAlign = "center";
@@ -176,26 +207,33 @@ function useCanvasBackground(
 
           const dx = mx - cx;
           const dy = my - cy;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const prox = Math.max(0, 1 - dist / EFFECT_R);
+          const dist = Math.hypot(dx, dy);
+          const near = Math.max(0, 1 - dist / EFFECT_R);
+          const target = near * near;
+          if (target > hoverHeat[i]) {
+            hoverHeat[i] += (target - hoverHeat[i]) * rise;
+          } else {
+            hoverHeat[i] *= decay;
+          }
+          const prox = hoverHeat[i];
 
           // Ambient cycle
           const cellRate = AMBIENT_BASE + rnd * 2.5;
           const ambIdx = Math.floor((timeSec + rnd * cellRate * 3) / cellRate);
 
           let sIdx: number;
-          if (prox > 0.05) {
-            const speed = 1.5 + prox * 5;
-            const cursorOff = Math.floor((timeSec + rnd * 10) * speed);
+          if (prox > 0.02) {
+            const symbolSpeed = 1.5 + prox * 8;
+            const cursorOff = Math.floor((timeSec + rnd * 10) * symbolSpeed);
             sIdx = (symBase[i] + ambIdx + cursorOff) % NUM_BG;
           } else {
             sIdx = (symBase[i] + ambIdx) % NUM_BG;
           }
 
           const baseA = 0.06 + rnd * 0.05;
-          const a = baseA + prox * 0.3;
+          const a = Math.min(1, baseA + prox * 1.12);
 
-          ctx.fillStyle = `rgba(255,255,255,${a})`;
+          ctx.fillStyle = `rgba(${fgRgb},${a})`;
           ctx.fillText(BG_SYMBOLS[sIdx], cx, cy);
         }
       }
