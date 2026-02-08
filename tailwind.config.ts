@@ -61,6 +61,8 @@ const config = {
         sm: "var(--radius)",
       },
       fontFamily: {
+        sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        "geist-mono": ["var(--font-geist-mono)", "Menlo", "Monaco", "Consolas", "monospace"],
         mono: ["var(--font-geist-pixel-square)", "JetBrains Mono", "Menlo", "Monaco", "Consolas", "monospace"],
         pixel: ["var(--font-geist-pixel-square)", "monospace"],
         "pixel-circle": ["var(--font-geist-pixel-circle)", "monospace"],

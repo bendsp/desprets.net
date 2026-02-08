@@ -3,6 +3,8 @@ import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import Navbar from "@/components/navbar";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import { GeistPixelSquare, GeistPixelCircle, GeistPixelTriangle, GeistPixelGrid, GeistPixelLine } from "geist/font/pixel";
 
 export const metadata: Metadata = {
@@ -16,7 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${GeistPixelSquare.variable} ${GeistPixelCircle.variable} ${GeistPixelTriangle.variable} ${GeistPixelGrid.variable} ${GeistPixelLine.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${GeistSans.variable} ${GeistMono.variable} ${GeistPixelSquare.variable} ${GeistPixelCircle.variable} ${GeistPixelTriangle.variable} ${GeistPixelGrid.variable} ${GeistPixelLine.variable}`}
+    >
       <body className="font-mono bg-background text-foreground">
         <ThemeProvider
           attribute="class"
