@@ -14,7 +14,7 @@ export default function SectionTypingTitle({
   text,
   as = "h2",
   className = "",
-  typingSpeed = 26,
+  typingSpeed = 52,
   once = true,
 }: SectionTypingTitleProps) {
   const Element = as as ElementType;

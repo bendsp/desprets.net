@@ -41,6 +41,7 @@ function contactIcon(kind: ContactKind) {
 }
 
 export default function VariantTwoProduction() {
+  const sectionTypingSpeed = 90;
   const [expandedProjects, setExpandedProjects] = useState(false);
 
   const visibleProjects = useMemo(
@@ -75,7 +76,7 @@ export default function VariantTwoProduction() {
             <SectionTypingTitle
               text="Projects"
               className={styles.sectionTitle}
-              typingSpeed={45}
+              typingSpeed={sectionTypingSpeed}
               once={false}
             />
             <span className={styles.sectionNote}>
@@ -157,7 +158,7 @@ export default function VariantTwoProduction() {
             <SectionTypingTitle
               text="About"
               className={styles.sectionTitle}
-              typingSpeed={45}
+              typingSpeed={sectionTypingSpeed}
               once={false}
             />
             <span className={styles.sectionNote}>Who I am</span>
@@ -188,7 +189,7 @@ export default function VariantTwoProduction() {
             <SectionTypingTitle
               text="Education"
               className={styles.sectionTitle}
-              typingSpeed={45}
+              typingSpeed={sectionTypingSpeed}
               once={false}
             />
             <span className={styles.sectionNote}>Timeline</span>
@@ -214,7 +215,7 @@ export default function VariantTwoProduction() {
             <SectionTypingTitle
               text="Skills"
               className={styles.sectionTitle}
-              typingSpeed={45}
+              typingSpeed={sectionTypingSpeed}
               once={false}
             />
             <span className={styles.sectionNote}>Structured by area</span>
@@ -245,7 +246,7 @@ export default function VariantTwoProduction() {
             <SectionTypingTitle
               text="Contact"
               className={styles.sectionTitle}
-              typingSpeed={45}
+              typingSpeed={sectionTypingSpeed}
               once={false}
             />
             <span className={styles.sectionNote}>Open to collaboration</span>

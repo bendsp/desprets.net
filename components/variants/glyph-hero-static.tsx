@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 interface GlyphHeroStaticProps {
   title: string;
   subtitle: string;
   children?: ReactNode;
+  subtitleTypingSpeed?: number;
   className?: string;
 }
 
@@ -218,11 +219,30 @@ export default function GlyphHeroStatic({
   title,
   subtitle,
   children,
+  subtitleTypingSpeed = 120,
   className = "",
 }: GlyphHeroStaticProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef<{ x: number; y: number } | null>(null);
+  const [displayedSubtitle, setDisplayedSubtitle] = useState("");
+  const [subtitleComplete, setSubtitleComplete] = useState(false);
+  const [firstName, ...restNameParts] = title.split(" ");
+  const restName = restNameParts.join(" ");
+
+  const renderTitleLockup = () => {
+    if (!restName) {
+      return title;
+    }
+
+    return (
+      <>
+        <span className="block md:inline">{firstName}</span>
+        <span className="hidden md:inline">&nbsp;</span>
+        <span className="block md:inline">{restName}</span>
+      </>
+    );
+  };
 
   useCanvasBackground(canvasRef, containerRef, mouseRef);
 
@@ -244,14 +264,60 @@ export default function GlyphHeroStatic({
     };
   }, []);
 
+  useEffect(() => {
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      setDisplayedSubtitle(subtitle);
+      setSubtitleComplete(true);
+      return;
+    }
+
+    let index = 0;
+    setDisplayedSubtitle("");
+    setSubtitleComplete(false);
+
+    const timer = window.setInterval(() => {
+      index += 1;
+      setDisplayedSubtitle(subtitle.slice(0, index));
+      if (index >= subtitle.length) {
+        setSubtitleComplete(true);
+        window.clearInterval(timer);
+      }
+    }, subtitleTypingSpeed);
+
+    return () => window.clearInterval(timer);
+  }, [subtitle, subtitleTypingSpeed]);
+
   return (
     <div ref={containerRef} className={className}>
       <canvas ref={canvasRef} className="absolute inset-0" aria-hidden="true" />
-      <div className="relative z-10 mx-auto w-[min(90%,820px)] text-center">
-        <h1 className="font-pixel-grid text-[clamp(2.2rem,7.2vw,5.2rem)] leading-[1.02] text-foreground">
-          {title}
+      <div className="relative z-10 mx-auto w-[min(96%,1320px)] text-center">
+        <h1
+          className="relative mx-auto text-[clamp(2.35rem,7.8vw,6.1rem)] leading-[1.02] select-none whitespace-normal"
+          aria-label={title}
+        >
+          <span
+            className="absolute inset-0 font-pixel text-foreground/35"
+            style={{ transform: "translateX(-0.038em)" }}
+            aria-hidden="true"
+          >
+            {renderTitleLockup()}
+          </span>
+          <span className="relative font-pixel text-foreground">{renderTitleLockup()}</span>
         </h1>
-        <p className="mt-3 text-[0.95rem] text-foreground/90">{subtitle}</p>
+        <p className="mt-3 text-[clamp(1.65rem,2.1vw,2.1rem)] text-muted-foreground">
+          {displayedSubtitle}
+          <span
+            className={`ml-1 inline-block h-[0.95em] w-[2px] bg-primary align-middle ${
+              subtitleComplete ? "animate-pulse" : "animate-blink"
+            }`}
+            aria-hidden="true"
+          />
+        </p>
         {children}
       </div>
     </div>
