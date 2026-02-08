@@ -1,22 +1,74 @@
 .page {
-  --bg: #030a08;
-  --bg-top: rgba(46, 143, 114, 0.24);
-  --bg-side: rgba(24, 87, 74, 0.22);
-  --panel: rgba(5, 19, 16, 0.86);
-  --panel-strong: rgba(3, 13, 11, 0.94);
-  --border: rgba(149, 245, 221, 0.2);
-  --text: #dcfff5;
-  --muted: rgba(198, 245, 233, 0.84);
-  --accent: #9af9df;
+  --bg: #eef7f4;
+  --bg-top: rgba(74, 170, 136, 0.22);
+  --bg-side: rgba(33, 119, 96, 0.18);
+  --overlay-radial-1: rgba(114, 201, 169, 0.34);
+  --overlay-radial-2: rgba(73, 158, 132, 0.24);
+  --overlay-base: linear-gradient(180deg, #dff3ec 0%, #d4efe6 38%, #cdeade 72%, #c4e5d8 100%);
+  --grid-line: rgba(23, 119, 96, 0.09);
+
+  --panel: rgba(249, 255, 252, 0.88);
+  --panel-strong: rgba(238, 252, 246, 0.94);
+  --section-bg: linear-gradient(155deg, rgba(245, 253, 249, 0.88), rgba(232, 248, 242, 0.92));
+  --card-bg: rgba(244, 253, 249, 0.9);
+  --chip-bg: rgba(231, 247, 241, 0.92);
+
+  --border: rgba(20, 107, 86, 0.26);
+  --text: #0f3c33;
+  --muted: rgba(19, 75, 63, 0.82);
+  --accent: #0d7f66;
+
+  --button-outline-bg: rgba(227, 246, 240, 0.9);
+  --button-outline-border: rgba(17, 116, 92, 0.4);
+  --button-solid-bg: #16b489;
+  --button-solid-bg-hover: #0ea277;
+  --button-solid-text: #f4fffb;
+
+  --icon-bg: rgba(232, 247, 242, 0.95);
+  --icon-border: rgba(17, 112, 88, 0.26);
+
+  --shadow: 0 16px 34px rgba(18, 74, 61, 0.14);
 
   min-height: 100vh;
   padding: 1.8rem 1rem 4rem;
   background:
     radial-gradient(circle at 12% 10%, var(--bg-top), transparent 36%),
     radial-gradient(circle at 88% 16%, var(--bg-side), transparent 42%),
-    linear-gradient(175deg, var(--bg), #010504 76%, #000 100%);
+    linear-gradient(175deg, var(--bg), #e9f7f2 76%, #e3f3ed 100%);
   color: var(--text);
   font-family: var(--font-geist-pixel-square), monospace;
+}
+
+:global(.dark) .page {
+  --bg: #030a08;
+  --bg-top: rgba(46, 143, 114, 0.24);
+  --bg-side: rgba(24, 87, 74, 0.22);
+  --overlay-radial-1: rgba(58, 164, 129, 0.36);
+  --overlay-radial-2: rgba(26, 104, 89, 0.28);
+  --overlay-base: linear-gradient(180deg, #062018 0%, #041812 34%, #020c09 68%, #010504 100%);
+  --grid-line: rgba(132, 226, 193, 0.06);
+
+  --panel: rgba(5, 19, 16, 0.86);
+  --panel-strong: rgba(3, 13, 11, 0.94);
+  --section-bg: linear-gradient(155deg, rgba(6, 23, 18, 0.78), rgba(4, 13, 11, 0.86));
+  --card-bg: rgba(8, 27, 22, 0.74);
+  --chip-bg: rgba(5, 21, 16, 0.75);
+
+  --border: rgba(149, 245, 221, 0.2);
+  --text: #dcfff5;
+  --muted: rgba(198, 245, 233, 0.84);
+  --accent: #9af9df;
+
+  --button-outline-bg: rgba(7, 29, 23, 0.72);
+  --button-outline-border: rgba(149, 245, 221, 0.52);
+  --button-solid-bg: #22c79f;
+  --button-solid-bg-hover: #2cdbb2;
+  --button-solid-text: #062018;
+
+  --icon-bg: rgba(7, 24, 19, 0.8);
+  --icon-border: rgba(149, 245, 221, 0.22);
+
+  --shadow: 0 18px 44px rgba(0, 0, 0, 0.35);
 }
 
 .page::before {
@@ -26,10 +78,10 @@
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(circle at 18% 2%, rgba(58, 164, 129, 0.36), transparent 34%),
-    radial-gradient(circle at 85% 12%, rgba(26, 104, 89, 0.28), transparent 40%),
-    linear-gradient(180deg, #062018 0%, #041812 34%, #020c09 68%, #010504 100%);
-  opacity: 0.95;
+    radial-gradient(circle at 18% 2%, var(--overlay-radial-1), transparent 34%),
+    radial-gradient(circle at 85% 12%, var(--overlay-radial-2), transparent 40%),
+    var(--overlay-base);
+  opacity: 0.98;
 }
 
 .page::after {
@@ -39,10 +91,10 @@
   pointer-events: none;
   z-index: 0;
   background-image:
-    linear-gradient(to right, rgba(132, 226, 193, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(132, 226, 193, 0.06) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 24px 24px;
-  opacity: 0.22;
+  opacity: 0.35;
 }
 
 .shell {
@@ -57,7 +109,7 @@
   overflow: hidden;
   border: 1px solid var(--border);
   background: linear-gradient(145deg, var(--panel), var(--panel-strong));
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow);
   padding: 0;
 }
 
@@ -70,30 +122,31 @@
 }
 
 .heroButtonOutline {
-  border-color: rgba(149, 245, 221, 0.52) !important;
+  border-color: var(--button-outline-border) !important;
   color: var(--accent) !important;
-  background: rgba(7, 29, 23, 0.68) !important;
+  background: var(--button-outline-bg) !important;
 }
 
 .heroButtonOutline:hover {
-  border-color: rgba(190, 255, 239, 0.7) !important;
+  border-color: var(--accent) !important;
   color: var(--text) !important;
 }
 
 .heroButtonSolid {
-  background: #22c79f !important;
-  color: #062018 !important;
-  border: 1px solid #22c79f !important;
+  background: var(--button-solid-bg) !important;
+  color: var(--button-solid-text) !important;
+  border: 1px solid var(--button-solid-bg) !important;
 }
 
 .heroButtonSolid:hover {
-  background: #2cdbb2 !important;
+  background: var(--button-solid-bg-hover) !important;
+  border-color: var(--button-solid-bg-hover) !important;
 }
 
 .section {
   margin-top: 1.25rem;
   border: 1px solid var(--border);
-  background: linear-gradient(155deg, rgba(6, 23, 18, 0.78), rgba(4, 13, 11, 0.86));
+  background: var(--section-bg);
   padding: clamp(0.9rem, 2.4vw, 1.45rem);
 }
 
@@ -130,7 +183,7 @@
 
 .projectCard {
   border: 1px solid var(--border);
-  background: rgba(8, 27, 22, 0.74);
+  background: var(--card-bg);
   overflow: hidden;
 }
 
@@ -139,7 +192,7 @@
   aspect-ratio: 4 / 3;
   height: auto;
   border-bottom: 1px solid var(--border);
-  background: rgba(4, 20, 16, 0.88);
+  background: var(--panel);
 }
 
 .projectBody {
@@ -188,17 +241,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(149, 245, 221, 0.22);
-  color: rgba(204, 249, 237, 0.82);
-  background: rgba(7, 24, 19, 0.8);
+  border: 1px solid var(--icon-border);
+  color: var(--muted);
+  background: var(--icon-bg);
   text-decoration: none;
   transition: color 150ms ease, border-color 150ms ease, background-color 150ms ease;
 }
 
 .projectIconLink:hover {
   color: var(--text);
-  border-color: rgba(182, 255, 235, 0.5);
-  background: rgba(10, 34, 27, 0.92);
+  border-color: var(--accent);
 }
 
 .projectActionIcon {
@@ -207,9 +259,9 @@
 }
 
 .learnMoreButton {
-  border: 1px solid #22c79f;
-  background: #22c79f;
-  color: #07231a;
+  border: 1px solid var(--button-solid-bg);
+  background: var(--button-solid-bg);
+  color: var(--button-solid-text);
   text-decoration: none;
   font-size: 0.78rem;
   letter-spacing: 0.03em;
@@ -219,9 +271,8 @@
 }
 
 .learnMoreButton:hover {
-  background: #2cdbb2;
-  border-color: #2cdbb2;
-  color: #041912;
+  background: var(--button-solid-bg-hover);
+  border-color: var(--button-solid-bg-hover);
 }
 
 .projectsToggle {
@@ -230,7 +281,7 @@
 
 .toggleButton {
   border: 1px solid var(--border);
-  background: rgba(8, 30, 24, 0.84);
+  background: var(--panel);
   color: var(--muted);
   font-family: inherit;
   font-size: 0.7rem;
@@ -243,7 +294,7 @@
 
 .toggleButton:hover {
   color: var(--text);
-  border-color: rgba(182, 255, 235, 0.5);
+  border-color: var(--accent);
 }
 
 .aboutGrid {
@@ -256,7 +307,7 @@
 
 .portraitWrap {
   border: 1px solid var(--border);
-  background: rgba(7, 27, 20, 0.74);
+  background: var(--card-bg);
   padding: 0.35rem;
 }
 
@@ -305,7 +356,7 @@
 
 .skillCard {
   border: 1px solid var(--border);
-  background: rgba(8, 28, 22, 0.74);
+  background: var(--card-bg);
   padding: 0.6rem;
 }
 
@@ -326,7 +377,7 @@
 
 .skillItem {
   border: 1px solid var(--border);
-  background: rgba(5, 21, 16, 0.75);
+  background: var(--chip-bg);
   color: var(--muted);
   font-size: 0.64rem;
   padding: 0.1rem 0.28rem;

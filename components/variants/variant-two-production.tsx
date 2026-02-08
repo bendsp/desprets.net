@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, Github, Linkedin, Mail } from "lucide-react";
 import { createLucideIcon } from "lucide-react";
+import { useTheme } from "next-themes";
 import GlyphHeroStatic from "@/components/variants/glyph-hero-static";
 import SectionTypingTitle from "@/components/variants/section-typing-title";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,12 @@ function contactIcon(kind: ContactKind) {
 export default function VariantTwoProduction() {
   const sectionTypingSpeed = 90;
   const [expandedProjects, setExpandedProjects] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const visibleProjects = useMemo(
     () => (expandedProjects ? portfolioProjects : productionTwoProjects.slice(0, 3)),
@@ -86,7 +93,13 @@ export default function VariantTwoProduction() {
 
           <div className={styles.projectsGrid}>
             {visibleProjects.map((project) => {
-              const image = project.darkImages?.[0] ?? project.images[0];
+              const image =
+                mounted &&
+                resolvedTheme === "dark" &&
+                project.darkImages &&
+                project.darkImages.length > 0
+                  ? project.darkImages[0]
+                  : project.images[0];
 
               return (
                 <article key={project.slug} className={styles.projectCard}>

@@ -301,20 +301,21 @@ export default function GlyphHeroStatic({
           aria-label={title}
         >
           <span
-            className="absolute inset-0 font-pixel text-foreground/35"
-            style={{ transform: "translateX(-0.038em)" }}
+            className="absolute inset-0 font-pixel text-current"
+            style={{ transform: "translateX(-0.038em)", opacity: 0.35 }}
             aria-hidden="true"
           >
             {renderTitleLockup()}
           </span>
-          <span className="relative font-pixel text-foreground">{renderTitleLockup()}</span>
+          <span className="relative font-pixel text-current">{renderTitleLockup()}</span>
         </h1>
-        <p className="mt-3 text-[clamp(1.65rem,2.1vw,2.1rem)] text-muted-foreground">
+        <p className="mt-3 text-[clamp(1.65rem,2.1vw,2.1rem)] text-current" style={{ opacity: 0.86 }}>
           {displayedSubtitle}
           <span
-            className={`ml-1 inline-block h-[0.95em] w-[2px] bg-primary align-middle ${
+            className={`ml-1 inline-block h-[0.95em] w-[2px] align-middle ${
               subtitleComplete ? "animate-pulse" : "animate-blink"
             }`}
+            style={{ backgroundColor: "currentColor" }}
             aria-hidden="true"
           />
         </p>
