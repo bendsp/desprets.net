@@ -122,10 +122,6 @@ export const contactLinks: ContactLink[] = [
 
 export const portfolioProjects = projects;
 
-export const featuredProjects = projects.filter((project) =>
-  ["bedrock", "fundamental", "imagn"].includes(project.slug)
-);
-
 export const productionTwoProjects: Project[] = [
   "bedrock",
   "fundamental",
