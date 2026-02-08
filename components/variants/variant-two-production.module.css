@@ -1,4 +1,5 @@
 .page {
+  --base-bg: #f2f7f5;
   --bg: #eef7f4;
   --bg-top: rgba(74, 170, 136, 0.22);
   --bg-side: rgba(33, 119, 96, 0.18);
@@ -26,20 +27,28 @@
 
   --icon-bg: rgba(232, 247, 242, 0.95);
   --icon-border: rgba(17, 112, 88, 0.26);
+  --nav-bleed: 96px;
+  --scroll-bg-height: clamp(620px, 106vh, 940px);
+  --scroll-fade: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 68%,
+    rgba(0, 0, 0, 0.72) 84%,
+    rgba(0, 0, 0, 0) 100%
+  );
 
   --shadow: 0 16px 34px rgba(18, 74, 61, 0.14);
 
+  position: relative;
   min-height: 100vh;
   padding: 1.8rem 1rem 4rem;
-  background:
-    radial-gradient(circle at 12% 10%, var(--bg-top), transparent 36%),
-    radial-gradient(circle at 88% 16%, var(--bg-side), transparent 42%),
-    linear-gradient(175deg, var(--bg), #e9f7f2 76%, #e3f3ed 100%);
+  background: var(--base-bg);
   color: var(--text);
   font-family: var(--font-geist-pixel-square), monospace;
 }
 
 :global(.dark) .page {
+  --base-bg: #020806;
   --bg: #030a08;
   --bg-top: rgba(46, 143, 114, 0.24);
   --bg-side: rgba(24, 87, 74, 0.22);
@@ -73,8 +82,11 @@
 
 .page::before {
   content: "";
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: calc(-1 * var(--nav-bleed));
+  left: 0;
+  right: 0;
+  height: calc(var(--scroll-bg-height) + var(--nav-bleed));
   pointer-events: none;
   z-index: 0;
   background:
@@ -82,12 +94,21 @@
     radial-gradient(circle at 85% 12%, var(--overlay-radial-2), transparent 40%),
     var(--overlay-base);
   opacity: 0.98;
+  -webkit-mask-image: var(--scroll-fade);
+  mask-image: var(--scroll-fade);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 .page::after {
   content: "";
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: calc(-1 * var(--nav-bleed));
+  left: 0;
+  right: 0;
+  bottom: 0;
   pointer-events: none;
   z-index: 0;
   background-image:

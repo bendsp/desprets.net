@@ -32,7 +32,7 @@ export default function RootLayout({
         >
           <Navbar />
           <div>{children}</div>
-          <footer className="border-t border-border py-8 text-center text-muted-foreground mt-20">
+          <footer className="border-t border-border py-8 text-center text-muted-foreground">
             <div className="container mx-auto px-4">
               <p>
                 2024 - {new Date().getFullYear()} Benjamin Desprets. All rights
