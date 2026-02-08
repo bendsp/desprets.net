@@ -14,6 +14,7 @@ import {
   contactLinks,
   education,
   heroCopy,
+  portfolioProjects,
   productionTwoProjects,
   skillCategories,
   type ContactKind,
@@ -43,11 +44,11 @@ export default function VariantTwoProduction() {
   const [expandedProjects, setExpandedProjects] = useState(false);
 
   const visibleProjects = useMemo(
-    () => (expandedProjects ? productionTwoProjects : productionTwoProjects.slice(0, 3)),
+    () => (expandedProjects ? portfolioProjects : productionTwoProjects.slice(0, 3)),
     [expandedProjects]
   );
 
-  const canExpand = productionTwoProjects.length > 3;
+  const canExpand = portfolioProjects.length > productionTwoProjects.length;
 
   return (
     <main className={styles.page}>
@@ -71,8 +72,15 @@ export default function VariantTwoProduction() {
 
         <section id="projects" className={`${styles.section} ${styles.reveal}`} style={{ animationDelay: "70ms" }}>
           <div className={styles.sectionHead}>
-            <SectionTypingTitle text="Projects" className={styles.sectionTitle} />
-            <span className={styles.sectionNote}>5 selected projects</span>
+            <SectionTypingTitle
+              text="Projects"
+              className={styles.sectionTitle}
+              typingSpeed={45}
+              once={false}
+            />
+            <span className={styles.sectionNote}>
+              {expandedProjects ? `${portfolioProjects.length} total projects` : "3 featured projects"}
+            </span>
           </div>
 
           <div className={styles.projectsGrid}>
@@ -87,29 +95,42 @@ export default function VariantTwoProduction() {
                       alt={`${project.title} screenshot`}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover object-top"
+                      className="object-contain"
                     />
                   </div>
                   <div className={styles.projectBody}>
-                    <div className={styles.projectHead}>
-                      <h3 className={styles.projectTitle}>{project.title}</h3>
-                      <span className={styles.projectTech}>{project.technologies.slice(0, 3).join(" • ")}</span>
-                    </div>
+                    <h3 className={styles.projectTitle}>{project.title}</h3>
                     <p className={styles.projectDesc}>{project.description}</p>
-                    <div className={styles.projectLinks}>
-                      <Link className={styles.link} href={`/projects/${project.slug}`}>
-                        Case Study
+                    <div className={styles.projectActions}>
+                      <div className={styles.projectIconLinks}>
+                        {project.github && (
+                          <a
+                            className={styles.projectIconLink}
+                            href={project.github}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Open ${project.title} source on GitHub`}
+                            title="GitHub"
+                          >
+                            <Github className={styles.projectActionIcon} />
+                          </a>
+                        )}
+                        {project.link && (
+                          <a
+                            className={styles.projectIconLink}
+                            href={project.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Open ${project.title} live site`}
+                            title="Live site"
+                          >
+                            <ExternalLink className={styles.projectActionIcon} />
+                          </a>
+                        )}
+                      </div>
+                      <Link className={styles.learnMoreButton} href={`/projects/${project.slug}`}>
+                        Learn More
                       </Link>
-                      {project.github && (
-                        <a className={styles.link} href={project.github} target="_blank" rel="noopener noreferrer">
-                          GitHub
-                        </a>
-                      )}
-                      {project.link && (
-                        <a className={styles.link} href={project.link} target="_blank" rel="noopener noreferrer">
-                          Live
-                        </a>
-                      )}
                     </div>
                   </div>
                 </article>
@@ -125,7 +146,7 @@ export default function VariantTwoProduction() {
                 aria-expanded={expandedProjects}
                 onClick={() => setExpandedProjects((state) => !state)}
               >
-                {expandedProjects ? "Show fewer projects" : "Show 2 more projects"}
+                {expandedProjects ? "Show fewer projects" : "Show all projects"}
               </button>
             </div>
           )}
@@ -133,7 +154,12 @@ export default function VariantTwoProduction() {
 
         <section id="about" className={`${styles.section} ${styles.reveal}`} style={{ animationDelay: "110ms" }}>
           <div className={styles.sectionHead}>
-            <SectionTypingTitle text="About" className={styles.sectionTitle} />
+            <SectionTypingTitle
+              text="About"
+              className={styles.sectionTitle}
+              typingSpeed={45}
+              once={false}
+            />
             <span className={styles.sectionNote}>Who I am</span>
           </div>
 
@@ -159,7 +185,12 @@ export default function VariantTwoProduction() {
 
         <section id="education" className={`${styles.section} ${styles.reveal}`} style={{ animationDelay: "150ms" }}>
           <div className={styles.sectionHead}>
-            <SectionTypingTitle text="Education" className={styles.sectionTitle} />
+            <SectionTypingTitle
+              text="Education"
+              className={styles.sectionTitle}
+              typingSpeed={45}
+              once={false}
+            />
             <span className={styles.sectionNote}>Timeline</span>
           </div>
 
@@ -180,7 +211,12 @@ export default function VariantTwoProduction() {
 
         <section id="skills" className={`${styles.section} ${styles.reveal}`} style={{ animationDelay: "190ms" }}>
           <div className={styles.sectionHead}>
-            <SectionTypingTitle text="Skills" className={styles.sectionTitle} />
+            <SectionTypingTitle
+              text="Skills"
+              className={styles.sectionTitle}
+              typingSpeed={45}
+              once={false}
+            />
             <span className={styles.sectionNote}>Structured by area</span>
           </div>
 
@@ -206,7 +242,12 @@ export default function VariantTwoProduction() {
 
         <section id="contact" className={`${styles.section} ${styles.reveal}`} style={{ animationDelay: "230ms" }}>
           <div className={styles.sectionHead}>
-            <SectionTypingTitle text="Contact" className={styles.sectionTitle} />
+            <SectionTypingTitle
+              text="Contact"
+              className={styles.sectionTitle}
+              typingSpeed={45}
+              once={false}
+            />
             <span className={styles.sectionNote}>Open to collaboration</span>
           </div>
 

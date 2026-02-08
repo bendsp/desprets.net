@@ -19,7 +19,6 @@ export default function SectionTypingTitle({
 }: SectionTypingTitleProps) {
   const Element = as as ElementType;
   const rootRef = useRef<HTMLElement | null>(null);
-  const [hasTriggered, setHasTriggered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
 
@@ -39,7 +38,6 @@ export default function SectionTypingTitle({
           }
 
           setIsVisible(true);
-          setHasTriggered(true);
 
           if (once) {
             observer.unobserve(entry.target);
@@ -81,7 +79,7 @@ export default function SectionTypingTitle({
     return () => window.clearInterval(timer);
   }, [isVisible, text, typingSpeed]);
 
-  const shouldShowCursor = (isVisible || hasTriggered) && displayedText.length < text.length;
+  const shouldShowCursor = isVisible && displayedText.length < text.length;
 
   return (
     <Element ref={rootRef} className={className} aria-label={text}>
