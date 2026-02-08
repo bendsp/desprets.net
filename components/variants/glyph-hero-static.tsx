@@ -53,11 +53,11 @@ function useCanvasBackground(
     if (!ctx) return;
 
     const CELL = 28;
-    const EFFECT_R = 64;
+    const EFFECT_R = 100;
     const AMBIENT_BASE = 4;
     const ANIM_MS = 2200;
     const HOVER_RISE = 28;
-    const HOVER_DECAY = 3.4;
+    const HOVER_DECAY = 7.2;
 
     let animStart: number | null = null;
     let frameId = 0;
