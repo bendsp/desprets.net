@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type React from "react";
 import Link from "next/link";
 import "@/app/globals.css";
+import { SiteNav } from "@/components/site-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -15,6 +16,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const currentYear = new Date().getFullYear();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
@@ -29,6 +32,9 @@ export default function RootLayout({
               <Link href="/" className="site-title">
                 Benjamin Desprets
               </Link>
+              <div className="site-header-center">
+                <SiteNav />
+              </div>
               <div className="site-header-right">
                 <ThemeToggle />
               </div>
@@ -37,7 +43,7 @@ export default function RootLayout({
             <main className="site-main">{children}</main>
 
             <footer className="site-footer">
-              <p>Benjamin Desprets</p>
+              <p>Benjamin Desprets / 2021 - {currentYear}</p>
             </footer>
           </div>
         </ThemeProvider>
