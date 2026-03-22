@@ -8,7 +8,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Ben Desprets",
-  description: "Ben Desprets is a full-stack developer building calm, useful software.",
+  description: "I'm Ben, a full-stack developer with a focus on data and engaging design.",
 };
 
 export default function RootLayout({
