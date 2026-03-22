@@ -16,7 +16,7 @@ export function SiteNav() {
     <nav aria-label="Primary" className="site-nav">
       {navItems.map((item, index) => (
         <span key={item.href} className="site-nav-item">
-          {index > 0 ? <span aria-hidden="true"> / </span> : null}
+          {index > 0 ? <span aria-hidden="true">/</span> : null}
           <Link
             href={item.href}
             data-active={pathname === item.href}

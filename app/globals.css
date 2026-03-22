@@ -178,12 +178,14 @@
 .site-nav {
   display: inline-flex;
   align-items: center;
+  gap: 0.45rem;
   color: var(--muted);
 }
 
 .site-nav-item {
   display: inline-flex;
   align-items: center;
+  gap: 0.45rem;
 }
 
 .site-nav a {
@@ -205,7 +207,6 @@
 
 .site-nav span {
   color: var(--muted);
-  white-space: pre;
 }
 
 .theme-toggle {
