@@ -238,21 +238,61 @@
   min-height: 60vh;
 }
 
-.project-list {
-  margin-top: 0;
+.project-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.15rem;
 }
 
-.project-list li {
-  margin-bottom: 0.9rem;
+.project-table tbody tr {
+  border-top: 1px solid var(--border);
 }
 
-.project-links {
-  display: inline;
+.project-table tbody tr:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.project-table td {
+  padding: 0.62rem 0 0.38rem;
+  vertical-align: top;
+}
+
+.project-table__years {
+  width: 6.75rem;
+  padding-right: 1rem;
   color: var(--muted);
+  white-space: nowrap;
 }
 
-.project-links .external-link {
-  color: inherit;
+.project-table__content .external-link {
+  display: inline-flex;
+}
+
+.project-table__content .subtle {
+  margin-top: 0.16rem;
+}
+
+@media (max-width: 720px) {
+  .project-table,
+  .project-table tbody,
+  .project-table tr,
+  .project-table td {
+    display: block;
+  }
+
+  .project-table td {
+    padding: 0;
+  }
+
+  .project-table tbody tr {
+    padding: 0.62rem 0 0.38rem;
+  }
+
+  .project-table__years {
+    width: auto;
+    padding-right: 0;
+    margin-bottom: 0.3rem;
+  }
 }
 
 .inline-list {

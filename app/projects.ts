@@ -2,6 +2,7 @@
 export interface Project {
   slug: string;
   title: string;
+  years: string;
   description: string;
   screenshot?: string;
   technologies: string[];
@@ -16,6 +17,7 @@ export const projects: Project[] = [
   {
     slug: "bedrock",
     title: "Bedrock",
+    years: "2025-",
     description: "Level up your notes with the power of Markdown",
     technologies: ["React", "Tailwind", "TypeScript", "Electron"],
     github: "https://github.com/bendsp/bedrock",
@@ -29,6 +31,7 @@ export const projects: Project[] = [
   {
     slug: "fundamental",
     title: "Fundamental",
+    years: "2024-2026",
     description: "The easiest wallet in the world!",
     technologies: ["React-Native", "Tailwind", "TypeScript", "Crypto"],
     github: "https://github.com/fdmntl/fundamental-app",
@@ -45,6 +48,7 @@ export const projects: Project[] = [
   {
     slug: "imagn",
     title: "imagn.xyz",
+    years: "2025-",
     description: "An AI-powered image editor and generator",
     technologies: [
       "Next.js",
@@ -66,6 +70,7 @@ export const projects: Project[] = [
   {
     slug: "emoji-picker",
     title: "Emoji Color Picker",
+    years: "2025",
     description: "Find out which emoji has the closest average RGB value",
     technologies: ["React", "Tailwind", "TypeScript"],
     github: "https://github.com/bendsp/emoji-color-picker",
@@ -80,6 +85,7 @@ export const projects: Project[] = [
   {
     slug: "skribbl-chat",
     title: "skribbl.chat",
+    years: "2025",
     description: "A Pictochat inspired chatroom",
     technologies: ["React-Native", "Tailwind", "TypeScript"],
     github: "https://github.com/bendsp/skribbl.chat",
@@ -92,6 +98,7 @@ export const projects: Project[] = [
   {
     slug: "desprets-net",
     title: "desprets.net",
+    years: "2021-",
     description: "To learn recursion, one must first understand recursion.",
     technologies: ["React", "Tailwind", "TypeScript"],
     github: "https://github.com/bendsp/desprets.net",

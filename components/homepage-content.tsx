@@ -29,31 +29,24 @@ export function ExternalLink({
 
 export function ProjectsSection() {
   return (
-    <ul className="project-list">
+    <table className="project-table">
+      <tbody>
       {projects.map((project) => {
         const primaryHref = project.link ?? project.github ?? "#";
 
         return (
-          <li key={project.slug}>
-            <ExternalLink href={primaryHref}>
-              {project.title}
-            </ExternalLink>{" "}
-            - {project.description}
-            {project.github && project.link ? (
-              <>
-                {" "}
-                <span className="project-links">
-                  (
-                  <ExternalLink href={project.github}>
-                    code
-                  </ExternalLink>
-                  )
-                </span>
-              </>
-            ) : null}
-          </li>
+          <tr key={project.slug}>
+            <td className="project-table__years">{project.years}</td>
+            <td className="project-table__content">
+              <ExternalLink href={primaryHref}>
+                {project.title}
+              </ExternalLink>
+              <div className="subtle">{project.description}</div>
+            </td>
+          </tr>
         );
       })}
-    </ul>
+      </tbody>
+    </table>
   );
 }
