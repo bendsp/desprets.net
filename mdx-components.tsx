@@ -2,7 +2,6 @@ import type { MDXComponents } from "mdx/types";
 import type { ComponentPropsWithoutRef } from "react";
 import {
   ExternalLink,
-  InlineIcon,
   ProjectsSection,
   Subtle,
 } from "@/components/homepage-content";
@@ -29,7 +28,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     code: (props) => <code {...props} />,
     a: (props) => <a {...props} />,
     ExternalLink,
-    InlineIcon,
     ProjectsSection,
     Subtle,
     ...components,

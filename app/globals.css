@@ -207,6 +207,10 @@
   color: var(--muted);
 }
 
+.project-links .external-link {
+  color: inherit;
+}
+
 .inline-list {
   list-style: none;
   padding: 0;
@@ -321,17 +325,21 @@
   line-height: 1.55;
 }
 
-.inline-icon {
+.external-link {
   display: inline-flex;
   align-items: center;
-  vertical-align: text-bottom;
-  margin-right: 0.3rem;
-  color: var(--muted);
+  gap: 0.12rem;
+  white-space: nowrap;
 }
 
-.inline-icon svg {
+.external-link svg {
   width: 0.92rem;
   height: 0.92rem;
+  transform: translateY(0.01em);
+}
+
+.external-link span {
+  display: inline;
 }
 
 @media (max-width: 720px) {
