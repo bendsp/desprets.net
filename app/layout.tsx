@@ -1,11 +1,14 @@
-import type React from "react";
-import "@/app/globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
-import Navbar from "@/components/navbar";
+import type React from "react";
+import Link from "next/link";
+import "@/app/globals.css";
+import { SiteNav } from "@/components/site-nav";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeToggle } from "@/components/theme-toggle";
+
 export const metadata: Metadata = {
-  title: "Benjamin Desprets | Full-Stack Developer",
-  description: "Personal portfolio showcasing projects and skills",
+  title: "Ben Desprets",
+  description: "Ben Desprets is a full-stack developer building calm, useful software.",
 };
 
 export default function RootLayout({
@@ -13,28 +16,36 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const currentYear = new Date().getFullYear();
+
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="font-mono bg-background text-foreground">
+      <body>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
-          <Navbar />
-          <div>{children}</div>
-          <footer className="border-t border-border py-8 text-center text-muted-foreground mt-20">
-            <div className="container mx-auto px-4">
-              <p>
-                2024 - {new Date().getFullYear()} Benjamin Desprets. All rights
-                reserved.
-              </p>
-              <p className="mt-2 text-sm">
-                Built with Next.js and Tailwind CSS
-              </p>
-            </div>
-          </footer>
+          <div className="site-shell">
+            <header className="site-header">
+              <Link href="/" className="site-title">
+                Ben Desprets
+              </Link>
+              <div className="site-header-center">
+                <SiteNav />
+              </div>
+              <div className="site-header-right">
+                <ThemeToggle />
+              </div>
+            </header>
+
+            <main className="site-main">{children}</main>
+
+            <footer className="site-footer">
+              <p>Benjamin Desprets / 2021 - {currentYear}</p>
+            </footer>
+          </div>
         </ThemeProvider>
       </body>
     </html>

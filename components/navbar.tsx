@@ -13,7 +13,7 @@ export default function Navbar() {
     <header className="container mx-auto py-6 px-4 sticky top-0 z-50 backdrop-blur-lg bg-background/50 border-b border-border">
       <nav className="flex justify-between items-center">
         <Link href="/" className="text-xl font-bold hover:text-primary transition-colors">
-          Benjamin Desprets
+          Ben Desprets
         </Link>
         <div className="ml-auto flex items-center space-x-6">
           <div className="hidden md:flex items-center space-x-6">
