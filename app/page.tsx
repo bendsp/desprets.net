@@ -1,557 +1,179 @@
-"use client";
-
-import { useEffect, useRef } from "react";
-import { Github, Mail, Linkedin, GraduationCap, MapPin } from "lucide-react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import AnimatedText from "@/components/animated-text";
-import SmoothScrollLink from "@/components/smooth-scroll-link";
-import ProjectCard from "@/components/project-card";
-import SectionDivider from "@/components/section-divider";
-import AboutMap, {
-  defaultLocations,
-  getCheatedCenter,
-  type AboutMapRef,
-} from "@/components/about-map";
-
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
-import { createLucideIcon } from "lucide-react";
 import { projects } from "@/app/projects";
 
-const XIcon = createLucideIcon("X", [
-  [
-    "path",
-    {
-      key: "x-icon-path",
-      d: "M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z",
-      stroke: "none",
-      fill: "currentColor",
-    },
-  ],
-]);
-
-// Check if element is in viewport
-const useScrollReveal = () => {
-  useEffect(() => {
-    const handleScroll = () => {
-      const reveals = document.querySelectorAll(".scroll-reveal");
-      const windowHeight = window.innerHeight;
-      const visibilityThreshold = 150;
-
-      for (let i = 0; i < reveals.length; i++) {
-        const el = reveals[i];
-        const rect = el.getBoundingClientRect();
-
-        const isInView =
-          rect.top < windowHeight - visibilityThreshold &&
-          rect.bottom > visibilityThreshold;
-
-        if (isInView) {
-          el.classList.add("active");
-        } else {
-          el.classList.remove("active");
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Check on initial load
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-};
-
-export default function Home() {
-  useScrollReveal();
-  const mapRef = useRef<AboutMapRef>(null);
-
-  const flyToLocation = (locationId: string) => {
-    if (mapRef.current) {
-      mapRef.current.openLocation(locationId);
-
-      // Scroll to map
-      const mapElement = document.getElementById("about-map");
-      if (mapElement) {
-        mapElement.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-background text-foreground font-mono">
-      <main className="container mx-auto px-4 py-12">
-        {/* Hero Section */}
-        <motion.section
-          className="py-8 flex flex-col items-center justify-center text-center relative"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="text-4xl md:text-6xl font-bold mb-4 relative z-10">
-            Benjamin Desprets
-          </div>
-          <AnimatedText
-            text="Full-stack developer"
-            className="text-xl md:text-2xl max-w-2xl mb-6 text-muted-foreground relative z-10"
-            typingSpeed={50}
-            showCursor={true}
-          />
-          <motion.div
-            className="flex space-x-4 relative z-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.5 }}
-          >
-            <SmoothScrollLink
-              href="#about"
-              className="inline-block"
-              title="Jump to About Me section"
-            >
-              <Button variant="outline">About Me</Button>
-            </SmoothScrollLink>
-            <SmoothScrollLink
-              href="#contact"
-              className="inline-block"
-              title="Jump to Contact section"
-            >
-              <Button>Contact Me</Button>
-            </SmoothScrollLink>
-          </motion.div>
-        </motion.section>
-
-        {/* Projects Section */}
-        <section id="projects" className="py-8 scroll-reveal scroll-mt-20">
-          <AnimatedText
-            text="Projects"
-            className="text-3xl font-bold mb-1"
-            typingSpeed={100}
-            showCursor={false}
-          />
-          <SectionDivider />
-          <div className="mx-auto relative px-2 md:px-12">
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-                dragFree: true,
-              }}
-              plugins={[WheelGesturesPlugin({ forceWheelAxis: "x" })]}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-4">
-                {projects.map((project, index) => (
-                  <CarouselItem
-                    key={project.slug}
-                    className="pl-4 basis-full md:basis-1/2 lg:basis-1/3 py-4"
-                  >
-                    <ProjectCard project={project} index={index} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="max-md:left-2 bg-primary text-primary-foreground hover:bg-primary/90" />
-              <CarouselNext className="max-md:right-2 bg-primary text-primary-foreground hover:bg-primary/90" />
-            </Carousel>
-          </div>
-        </section>
-
-        {/* About Section */}
-        <section id="about" className="py-8 scroll-reveal scroll-mt-20">
-          <AnimatedText
-            text="About Me"
-            className="text-3xl font-bold mb-1"
-            typingSpeed={100}
-            showCursor={false}
-          />
-          <SectionDivider />
-          <motion.div
-            className="flex flex-col md:flex-row items-start md:items-center md:space-x-8"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="w-full md:w-2/5 flex justify-center md:justify-start md:pl-4">
-              <img
-                src="/headshot.jpg"
-                loading="lazy"
-                width="256"
-                height="256"
-                alt="A headshot of me"
-                className="rounded-none object-cover w-64 h-64 md:w-256 md:h-256"
-              />
-            </div>
-            <div className="w-full mt-4 md:mt-0 md:pl-4">
-              <p className="text-muted-foreground mb-3 mx-4 text-justify md:mx-0 md:mr-10">
-                I'm a passionate developer with a focus on creating clean,
-                efficient, and user-friendly applications. With expertise in
-                both frontend and backend technologies, I enjoy building
-                complete solutions that solve real-world problems.
-              </p>
-              <p className="text-muted-foreground mb-3 mx-4 text-justify md:mx-0 md:mr-10">
-                I'm currently completing my master's degree in computer science
-                at Epitech. My academic journey has equipped me with a strong
-                foundation in software development, problem-solving, and
-                leadership skills.
-              </p>
-            </div>
-          </motion.div>
-
-          <div id="about-map" className="px-4 md:px-4 scroll-mt-24">
-            <AboutMap ref={mapRef} />
-          </div>
-        </section>
-
-        {/* Education Section */}
-        <section id="education" className="py-8 scroll-reveal scroll-mt-20">
-          <AnimatedText
-            text="Education"
-            className="text-3xl font-bold mb-1"
-            typingSpeed={100}
-            showCursor={false}
-          />
-          <SectionDivider />
-          <div className="space-y-6">
-            {education.map((item, index) => (
-              <motion.div
-                key={index}
-                className="relative pl-8 border-l-2 border-border scroll-mt-24"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: false }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-              >
-                {/* Dot marker */}
-                <div className="absolute left-[-9px] top-0 h-4 w-4 rounded-none bg-primary"></div>
-
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-1">
-                  <h3 className="text-lg font-semibold">{item.degree}</h3>
-                  <span className="text-primary text-sm font-mono">
-                    {item.startYear} - {item.endYear}
-                  </span>
-                </div>
-
-                <div className="flex flex-col md:flex-row md:items-center mb-2">
-                  <div className="flex items-center">
-                    <GraduationCap className="h-4 w-4 mr-2 text-muted-foreground" />
-                    <span className="text-muted-foreground">
-                      {item.institution}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 md:ml-4 mt-2 md:mt-0">
-                    {item.locations.map((loc, lIdx) => (
-                      <button
-                        key={lIdx}
-                        onClick={() => flyToLocation(loc.locationId)}
-                        className="flex items-center text-xs text-primary hover:underline group/loc transition-all"
-                        title={`Show ${loc.name} on map`}
-                      >
-                        <MapPin className="h-3 w-3 mr-1 opacity-50 group-hover/loc:opacity-100 transition-opacity" />
-                        {loc.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {item.description && (
-                  <p className="text-muted-foreground text-sm">
-                    {item.description}
-                  </p>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* Skills Section */}
-        <section id="skills" className="py-8 scroll-reveal scroll-mt-20">
-          <AnimatedText
-            text="Skills"
-            className="text-3xl font-bold mb-1"
-            typingSpeed={100}
-            showCursor={false}
-          />
-          <SectionDivider />
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false }}
-            transition={{ duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {Object.entries(skillsByCategory).map(
-              ([category, skills], categoryIndex) => (
-                <motion.div
-                  key={category}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: false }}
-                  transition={{ duration: 0.5 }}
-                  className="mb-4"
-                >
-                  <h3 className="text-xl font-semibold mb-2 text-primary">
-                    {category}
-                  </h3>
-                  <div className="grid grid-cols-1 gap-2">
-                    {skills.map((skill, index) => (
-                      <motion.div
-                        key={index}
-                        className="flex items-center"
-                        initial={{ opacity: 0, x: -10 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: false }}
-                        transition={{ duration: 0.3, delay: index * 0.2 }}
-                      >
-                        <div className="h-2 w-2 bg-primary mr-2"></div>
-                        <span>{skill}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              )
-            )}
-          </motion.div>
-        </section>
-
-        {/* Contact Section */}
-        <section id="contact" className="py-8 scroll-reveal scroll-mt-20">
-          <AnimatedText
-            text="Contact"
-            className="text-3xl font-bold mb-1"
-            typingSpeed={100}
-            showCursor={false}
-          />
-          <SectionDivider />
-          <div className="max-w-md">
-            <motion.p
-              className="text-muted-foreground mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false }}
-              transition={{ duration: 0.5 }}
-            >
-              Interested in working together? Feel free to reach out through any
-              of the following channels:
-            </motion.p>
-            <div className="space-y-3">
-              <motion.a
-                href="mailto:benjamin.desprets@epitech.eu"
-                title="Send email to benjamin.desprets@epitech.eu"
-                className="flex items-center group"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: false }}
-                transition={{
-                  opacity: { duration: 0.25, delay: 0 },
-                  x: { duration: 0.25, delay: 0 },
-                }}
-                whileHover={{
-                  x: 50,
-                  transition: { duration: 0.2, delay: 0 },
-                }}
-              >
-                <Mail className="mr-4 text-primary" />
-                <span className="group-hover:text-primary transition-colors">
-                  benjamin.desprets@epitech.eu
-                </span>
-              </motion.a>
-              <motion.a
-                href="https://www.linkedin.com/in/benjamindesprets"
-                title="Visit LinkedIn profile"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center group"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: false }}
-                transition={{
-                  opacity: { duration: 0.25, delay: 0 },
-                  x: { duration: 0.25, delay: 0 },
-                }}
-                whileHover={{
-                  x: 50,
-                  transition: { duration: 0.2, delay: 0 },
-                }}
-              >
-                <Linkedin className="mr-4 text-primary" />
-                <span className="group-hover:text-primary transition-colors">
-                  linkedin.com/in/benjamindesprets
-                </span>
-              </motion.a>
-              <motion.a
-                href="https://github.com/bendsp"
-                title="Visit GitHub profile"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center group"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: false }}
-                transition={{
-                  opacity: { duration: 0.25, delay: 0 },
-                  x: { duration: 0.25, delay: 0 },
-                }}
-                whileHover={{
-                  x: 50,
-                  transition: { duration: 0.2, delay: 0 },
-                }}
-              >
-                <Github className="mr-4 text-primary" />
-                <span className="group-hover:text-primary transition-colors">
-                  github.com/bendsp
-                </span>
-              </motion.a>
-              <motion.a
-                href="https://x.com/bendesprets"
-                title="Visit Twitter (X) profile"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center group"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: false }}
-                transition={{
-                  opacity: { duration: 0.25, delay: 0 },
-                  x: { duration: 0.25, delay: 0 },
-                }}
-                whileHover={{
-                  x: 50,
-                  transition: { duration: 0.2, delay: 0 },
-                }}
-              >
-                <XIcon className="mr-4 text-primary" />
-                <span className="group-hover:text-primary transition-colors">
-                  x.com/bendesprets
-                </span>
-              </motion.a>
-            </div>
-          </div>
-        </section>
-        <motion.button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-8 right-8 p-3 rounded-none bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all duration-300 z-50"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="lucide lucide-chevron-up"
-          >
-            <path d="m18 15-6-6-6 6" />
-          </svg>
-        </motion.button>
-      </main>
-    </div>
-  );
-}
-
-// Education data
 const education = [
   {
-    degree: "Master's in Software Engineering (Expected)",
+    years: "2024-2026",
+    degree: "Master's in Software Engineering",
     institution: "Epitech",
-    locations: [
-      {
-        name: "Montreal, Canada",
-        locationId: "mcgill",
-      },
-      {
-        name: "Paris, France",
-        locationId: "epitech-paris",
-      },
-    ],
-    startYear: "2024",
-    endYear: "2026",
-    description:
-      "Specialized in software engineering, full-stack development, and maintaining production systems.",
+    notes: "Expected 2026. Focused on full-stack development, software engineering, and production systems.",
   },
   {
+    years: "2024-2025",
     degree: "Certificate in Management",
     institution: "McGill University",
-    locations: [
-      {
-        name: "Montreal, Canada",
-        locationId: "mcgill",
-      },
-    ],
-    startYear: "2024",
-    endYear: "2025",
-    description:
-      "Focused on project management, leadership, finance, and business strategy.",
+    notes: "Project management, leadership, finance, and business strategy.",
   },
   {
+    years: "2020-2024",
     degree: "Bachelor's in Software Engineering",
     institution: "Epitech",
-    locations: [
-      {
-        name: "Paris, France",
-        locationId: "epitech-paris",
-      },
-      {
-        name: "Berlin, Germany",
-        locationId: "epitech-berlin",
-      },
-    ],
-    startYear: "2020",
-    endYear: "2024",
-    description:
-      "Part of the International Track program. Foundation in programming fundamentals, algorithms, and software development methodologies.",
+    notes: "International Track program with time in Paris, Berlin, and Montreal.",
   },
 ];
 
-const skillsByCategory = {
-  Languages: [
-    "C",
-    "C++",
-    "TypeScript",
-    "JavaScript",
-    "Solidity",
-    "Python",
-    "Lua",
-  ],
-  Technologies: [
-    "React",
-    "React Native",
-    "Next.js",
-    "Tailwind",
-    "Three.js",
-    "Node.js",
-    "UIPath",
-    "Power Automate",
-  ],
-  "Data & AI": ["SQL", "Pandas", "NumPy", "Ollama", "OpenAI API", "Gemini API"],
-  "Cloud & DevOps": [
-    "Azure",
-    "AWS",
-    "Railway",
-    "Git",
-    "GitHub Actions",
-    "Jenkins",
-    "CI/CD",
-    "Docker",
-  ],
-  Blockchain: ["Foundry", "Hardhat", "Viem", "Ethers.js", "OpenZeppelin"],
-  "Soft Skills": [
-    "Project Management",
-    "Teamwork",
-    "Leadership",
-    "Adaptability",
-    "Client Relations",
-  ],
-};
+const skillGroups = [
+  {
+    label: "Languages",
+    value: "C, C++, TypeScript, JavaScript, Solidity, Python, Lua",
+  },
+  {
+    label: "Web and product",
+    value: "React, React Native, Next.js, Tailwind, Node.js, PostgreSQL, Drizzle ORM, Clerk, Stripe",
+  },
+  {
+    label: "Infrastructure",
+    value: "Docker, GitHub Actions, Jenkins, Azure, AWS, Railway, CI/CD",
+  },
+  {
+    label: "Blockchain and AI",
+    value: "Foundry, Hardhat, Viem, Ethers.js, OpenZeppelin, OpenAI API, Gemini API, Ollama",
+  },
+];
+
+const contactLinks = [
+  {
+    label: "Email",
+    href: "mailto:benjamin.desprets@epitech.eu",
+    text: "benjamin.desprets@epitech.eu",
+    external: false,
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/bendsp",
+    text: "github.com/bendsp",
+    external: true,
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/benjamindesprets",
+    text: "linkedin.com/in/benjamindesprets",
+    external: true,
+  },
+  {
+    label: "X",
+    href: "https://x.com/bendesprets",
+    text: "x.com/bendesprets",
+    external: true,
+  },
+];
+
+export default function Home() {
+  return (
+    <article>
+      <section className="page-section" id="about">
+        <h1>About me</h1>
+        <p className="lede">
+          I&apos;m Benjamin Desprets, a full-stack developer focused on building
+          clean, useful software.
+        </p>
+        <p>
+          I&apos;m currently completing a master&apos;s degree in software
+          engineering at Epitech. I like working across frontend, backend, and
+          product, with an emphasis on clarity, maintainability, and calm user
+          experiences.
+        </p>
+      </section>
+
+      <section className="page-section" id="projects">
+        <h2>Projects</h2>
+        <p className="muted">
+          A few things I&apos;ve built or helped build.
+        </p>
+        <ul className="project-list">
+          {projects.map((project) => {
+            const primaryHref = project.link ?? project.github ?? "#";
+
+            return (
+              <li key={project.slug}>
+                <a href={primaryHref} target="_blank" rel="noreferrer">
+                  {project.title}
+                </a>{" "}
+                {"-"} {project.description}
+                {project.github && project.link ? (
+                  <>
+                    {" "}
+                    <span className="project-links">
+                      (
+                      <a href={project.github} target="_blank" rel="noreferrer">
+                        code
+                      </a>
+                      )
+                    </span>
+                  </>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <section className="page-section" id="education">
+        <h2>Education</h2>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Years</th>
+              <th scope="col">Degree</th>
+              <th scope="col">Institution</th>
+            </tr>
+          </thead>
+          <tbody>
+            {education.map((item) => (
+              <tr key={`${item.years}-${item.degree}`}>
+                <td>{item.years}</td>
+                <td>
+                  <strong>{item.degree}</strong>
+                  <br />
+                  <span className="muted">{item.notes}</span>
+                </td>
+                <td>{item.institution}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="page-section" id="skills">
+        <h2>Skills</h2>
+        <ul className="inline-list">
+          {skillGroups.map((group) => (
+            <li key={group.label}>
+              <strong>{group.label}:</strong> {group.value}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="page-section" id="contact">
+        <h2>Elsewhere</h2>
+        <p>
+          You can reach me by email or find me on the following platforms.
+        </p>
+        <ul>
+          {contactLinks.map((link) => (
+            <li key={link.href}>
+              {link.label}:{" "}
+              <a
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noreferrer" : undefined}
+              >
+                {link.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </article>
+  );
+}

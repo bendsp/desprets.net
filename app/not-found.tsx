@@ -1,17 +1,17 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono flex flex-col items-center justify-center p-4">
-      <h1 className="text-6xl font-bold mb-6">404</h1>
-      <h2 className="text-2xl mb-8">Project Not Found</h2>
-      <p className="text-muted-foreground mb-8 text-center max-w-md">
-        The project you're looking for doesn't exist or has been moved.
-      </p>
-      <Link href="/">
-        <Button>Return Home</Button>
-      </Link>
-    </div>
+    <article>
+      <section className="page-section">
+        <h1>Not found</h1>
+        <p>
+          This page is not part of the current public site.
+        </p>
+        <p>
+          <Link href="/">Return home</Link>
+        </p>
+      </section>
+    </article>
   );
 }

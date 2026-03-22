@@ -1,11 +1,13 @@
+import type { Metadata } from "next";
 import type React from "react";
+import Link from "next/link";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import type { Metadata } from "next";
-import Navbar from "@/components/navbar";
+import { ThemeToggle } from "@/components/theme-toggle";
+
 export const metadata: Metadata = {
-  title: "Benjamin Desprets | Full-Stack Developer",
-  description: "Personal portfolio showcasing projects and skills",
+  title: "Benjamin Desprets",
+  description: "Benjamin Desprets is a full-stack developer building calm, useful software.",
 };
 
 export default function RootLayout({
@@ -15,26 +17,29 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="font-mono bg-background text-foreground">
+      <body>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
+          enableSystem={false}
           disableTransitionOnChange
         >
-          <Navbar />
-          <div>{children}</div>
-          <footer className="border-t border-border py-8 text-center text-muted-foreground mt-20">
-            <div className="container mx-auto px-4">
-              <p>
-                2024 - {new Date().getFullYear()} Benjamin Desprets. All rights
-                reserved.
-              </p>
-              <p className="mt-2 text-sm">
-                Built with Next.js and Tailwind CSS
-              </p>
-            </div>
-          </footer>
+          <div className="site-shell">
+            <header className="site-header">
+              <Link href="/" className="site-title">
+                Benjamin Desprets
+              </Link>
+              <div className="site-header-right">
+                <ThemeToggle />
+              </div>
+            </header>
+
+            <main className="site-main">{children}</main>
+
+            <footer className="site-footer">
+              <p>Benjamin Desprets</p>
+            </footer>
+          </div>
         </ThemeProvider>
       </body>
     </html>
