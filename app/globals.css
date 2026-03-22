@@ -272,29 +272,6 @@
   margin-top: 0.16rem;
 }
 
-@media (max-width: 720px) {
-  .project-table,
-  .project-table tbody,
-  .project-table tr,
-  .project-table td {
-    display: block;
-  }
-
-  .project-table td {
-    padding: 0;
-  }
-
-  .project-table tbody tr {
-    padding: 0.62rem 0 0.38rem;
-  }
-
-  .project-table__years {
-    width: auto;
-    padding-right: 0;
-    margin-bottom: 0.3rem;
-  }
-}
-
 .inline-list {
   list-style: none;
   padding: 0;
@@ -449,5 +426,19 @@
 
   table {
     font-size: 0.95rem;
+  }
+
+  .project-table__years {
+    width: 5.7rem;
+    padding-right: 0.85rem;
+  }
+
+  .project-table td {
+    padding-top: 0.56rem;
+    padding-bottom: 0.34rem;
+  }
+
+  .project-table__content .subtle {
+    margin-top: 0.12rem;
   }
 }
