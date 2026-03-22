@@ -7,8 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
-  title: "Benjamin Desprets",
-  description: "Benjamin Desprets is a full-stack developer building calm, useful software.",
+  title: "Ben Desprets",
+  description: "Ben Desprets is a full-stack developer building calm, useful software.",
 };
 
 export default function RootLayout({
@@ -30,7 +30,7 @@ export default function RootLayout({
           <div className="site-shell">
             <header className="site-header">
               <Link href="/" className="site-title">
-                Benjamin Desprets
+                Ben Desprets
               </Link>
               <div className="site-header-center">
                 <SiteNav />
