@@ -1,4 +1,4 @@
-import type { MDXComponents } from "mdx/types";
+import type { MDXComponents } from "mdx/types.js";
 import type { ComponentPropsWithoutRef } from "react";
 import {
   ExternalLink,
