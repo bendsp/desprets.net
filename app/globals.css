@@ -194,23 +194,8 @@
   min-height: 60vh;
 }
 
-.page-section + .page-section {
-  margin-top: 3.5rem;
-}
-
-.lede {
-  font-size: 0.96rem;
-  line-height: 1.55;
-  color: var(--muted);
-}
-
-.muted {
-  color: var(--muted);
-  font-size: 0.96rem;
-}
-
 .project-list {
-  margin-top: 1rem;
+  margin-top: 0;
 }
 
 .project-list li {
@@ -238,6 +223,115 @@
   border-top: 1px solid var(--border);
   color: var(--muted);
   font-size: 0.96rem;
+}
+
+.document-prose {
+  max-width: none;
+  color: var(--foreground);
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: var(--foreground);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-bullets: var(--muted);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--border);
+  --tw-prose-captions: var(--muted);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-pre-code: var(--foreground);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+  --tw-prose-invert-body: var(--foreground);
+  --tw-prose-invert-headings: var(--foreground);
+  --tw-prose-invert-links: var(--foreground);
+  --tw-prose-invert-bold: var(--foreground);
+  --tw-prose-invert-counters: var(--muted);
+  --tw-prose-invert-bullets: var(--muted);
+  --tw-prose-invert-hr: var(--border);
+  --tw-prose-invert-quotes: var(--foreground);
+  --tw-prose-invert-quote-borders: var(--border);
+  --tw-prose-invert-captions: var(--muted);
+  --tw-prose-invert-code: var(--foreground);
+  --tw-prose-invert-pre-code: var(--foreground);
+  --tw-prose-invert-th-borders: var(--border);
+  --tw-prose-invert-td-borders: var(--border);
+  font-size: 1rem;
+}
+
+.document-prose :where(h1):not(:where([class~="not-prose"] *)) {
+  margin-bottom: 1.5rem;
+  font-size: clamp(2.5rem, 5vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.document-prose :where(h2):not(:where([class~="not-prose"] *)) {
+  margin-top: 3.5rem;
+  margin-bottom: 0.9rem;
+  font-size: clamp(1.5rem, 3vw, 1.95rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.document-prose :where(p, li, td, th):not(:where([class~="not-prose"] *)) {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.document-prose
+  :where(ul, ol, table):not(:where([class~="not-prose"] *)) {
+  margin-top: 0;
+  margin-bottom: 1.35rem;
+}
+
+.document-prose :where(p):not(:where([class~="not-prose"] *)) {
+  margin-top: 0;
+  margin-bottom: 1.35rem;
+}
+
+.document-prose :where(a):not(:where([class~="not-prose"] *)) {
+  font-weight: 400;
+  text-decoration-thickness: 0.06em;
+}
+
+.document-prose :where(code):not(:where([class~="not-prose"] *)) {
+  font-weight: 400;
+}
+
+.document-prose :where(code):not(:where([class~="not-prose"] *))::before,
+.document-prose :where(code):not(:where([class~="not-prose"] *))::after {
+  content: "";
+}
+
+.document-prose :where(th):not(:where([class~="not-prose"] *)) {
+  font-size: 0.96rem;
+  font-weight: 500;
+}
+
+.document-prose :where(td):not(:where([class~="not-prose"] *)) {
+  font-size: 0.96rem;
+}
+
+.subtle {
+  margin-top: 0;
+  margin-bottom: 1.35rem;
+  color: var(--muted);
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+.inline-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: text-bottom;
+  margin-right: 0.3rem;
+  color: var(--muted);
+}
+
+.inline-icon svg {
+  width: 0.92rem;
+  height: 0.92rem;
 }
 
 @media (max-width: 720px) {
