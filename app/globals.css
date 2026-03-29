@@ -268,8 +268,39 @@
   display: inline-flex;
 }
 
+.project-table__content a {
+  display: inline-flex;
+}
+
 .project-table__content .subtle {
   margin-top: 0.16rem;
+}
+
+.project-meta,
+.project-actions {
+  font-size: 0.96rem;
+}
+
+.project-meta,
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: var(--muted);
+}
+
+.project-meta {
+  margin-top: -0.3rem;
+  margin-bottom: 1rem;
+}
+
+.project-actions {
+  margin-top: 0;
+  margin-bottom: 1.7rem;
+}
+
+.project-actions .external-link {
+  color: var(--foreground);
 }
 
 .inline-list {
@@ -325,18 +356,18 @@
 }
 
 .document-prose :where(h1):not(:where([class~="not-prose"] *)) {
-  margin-bottom: 1.5rem;
-  font-size: clamp(2.5rem, 5vw, 3.6rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-}
-
-.document-prose :where(h2):not(:where([class~="not-prose"] *)) {
-  margin-top: 3.2rem;
   margin-bottom: 0.9rem;
   font-size: clamp(1.5rem, 3vw, 1.95rem);
   font-weight: 600;
   letter-spacing: -0.03em;
+}
+
+.document-prose :where(h2):not(:where([class~="not-prose"] *)) {
+  margin-top: 3.2rem;
+  margin-bottom: 0.8rem;
+  font-size: clamp(1.16rem, 2.2vw, 1.38rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .document-prose :where(p, li, td, th):not(:where([class~="not-prose"] *)) {
