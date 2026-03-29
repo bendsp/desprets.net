@@ -276,33 +276,6 @@
   margin-top: 0.16rem;
 }
 
-.project-meta,
-.project-actions {
-  font-size: 0.96rem;
-}
-
-.project-meta,
-.project-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  color: var(--muted);
-}
-
-.project-meta {
-  margin-top: -0.3rem;
-  margin-bottom: 1rem;
-}
-
-.project-actions {
-  margin-top: 0;
-  margin-bottom: 1.7rem;
-}
-
-.project-actions .external-link {
-  color: var(--foreground);
-}
-
 .inline-list {
   list-style: none;
   padding: 0;
