@@ -329,10 +329,15 @@
 }
 
 .document-prose :where(h1):not(:where([class~="not-prose"] *)) {
+  margin-top: 3.2rem;
   margin-bottom: 0.9rem;
   font-size: clamp(1.5rem, 3vw, 1.95rem);
   font-weight: 600;
   letter-spacing: -0.03em;
+}
+
+.document-prose > :where(h1):first-child:not(:where([class~="not-prose"] *)) {
+  margin-top: 0;
 }
 
 .document-prose :where(h2):not(:where([class~="not-prose"] *)) {
