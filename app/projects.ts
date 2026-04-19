@@ -63,7 +63,7 @@ export const projects: Project[] = [
   {
     slug: "desprets-net",
     title: "desprets.net",
-    years: "2021-",
+    years: "2022-",
     description: "To learn recursion, one must first understand recursion.",
     technologies: ["React", "Tailwind", "TypeScript"],
     github: "https://github.com/bendsp/desprets.net",

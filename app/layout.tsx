@@ -43,7 +43,7 @@ export default function RootLayout({
             <main className="site-main">{children}</main>
 
             <footer className="site-footer">
-              <p>Benjamin Desprets / 2021 - {currentYear}</p>
+              <p>Benjamin Desprets / 2022 - {currentYear}</p>
             </footer>
           </div>
         </ThemeProvider>
