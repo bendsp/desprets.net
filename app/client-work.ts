@@ -19,7 +19,7 @@ export const clientWork: ClientWork[] = [
     description: "Ethereum protocol funding infrastructure.",
   },
   {
-    slug: "EIC",
+    slug: "eth-investors-club",
     title: "Eth Investors Club",
     years: "2024 - 2025",
     description: "Web and onchain development.",

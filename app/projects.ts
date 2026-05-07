@@ -36,7 +36,7 @@ export const projects: Project[] = [
   {
     slug: "fundamental",
     title: "Fundamental",
-    years: "2024-2026",
+    years: "2024 - 2026",
     description: "The easiest wallet in the world!",
     technologies: ["React-Native", "Tailwind", "TypeScript", "Crypto"],
     github: "https://github.com/fdmntl/fundamental-app",
