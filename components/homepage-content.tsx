@@ -1,4 +1,5 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { projects } from "@/app/projects";
 
@@ -32,15 +33,11 @@ export function ProjectsSection() {
     <table className="project-table">
       <tbody>
       {projects.map((project) => {
-        const primaryHref = project.link ?? project.github ?? "#";
-
         return (
           <tr key={project.slug}>
             <td className="project-table__years">{project.years}</td>
             <td className="project-table__content">
-              <ExternalLink href={primaryHref}>
-                {project.title}
-              </ExternalLink>
+              <Link href={`/${project.slug}`}>{project.title}</Link>
               <div className="subtle">{project.description}</div>
             </td>
           </tr>

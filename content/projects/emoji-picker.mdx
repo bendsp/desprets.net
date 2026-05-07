@@ -1,0 +1,14 @@
+[Emoji Color Picker](https://emoji.desprets.net/) is a small experiment that matches a color to the emoji with
+the closest average RGB value.
+
+The hardest part of the project was not the picker UI itself, but generating
+the emoji color dataset. I built a separate script that rendered every
+pictorial emoji as a PNG using Apple's emoji font, ignored transparent pixels,
+and computed the average RGB value of the visible image.
+
+That produced a JSON dataset mapping each emoji to a representative color. The
+picker app then simply compares a chosen color against that dataset and returns
+the closest match.
+
+The color data lives in a separate repository:
+[emoji-color-data](https://github.com/bendsp/emoji-color-data).

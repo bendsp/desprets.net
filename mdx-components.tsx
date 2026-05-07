@@ -10,6 +10,14 @@ function Table(props: ComponentPropsWithoutRef<"table">) {
   return <table {...props} />;
 }
 
+function MdxLink(props: ComponentPropsWithoutRef<"a">) {
+  if (typeof props.href === "string" && /^https?:\/\//.test(props.href)) {
+    return <ExternalLink {...props} />;
+  }
+
+  return <a {...props} />;
+}
+
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     h1: (props) => <h1 {...props} />,
@@ -26,7 +34,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     td: (props) => <td {...props} />,
     hr: (props) => <hr {...props} />,
     code: (props) => <code {...props} />,
-    a: (props) => <a {...props} />,
+    a: MdxLink,
     ExternalLink,
     ProjectsSection,
     Subtle,
