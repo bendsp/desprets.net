@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { projects, type ProjectSlug } from "@/app/projects";
 import { projectArticles } from "@/content/projects";
 
@@ -29,7 +30,7 @@ export function ProjectArticle({ slug }: ProjectArticleProps) {
   const Content = projectArticles[slug] as ComponentType | undefined;
 
   if (!project || !Content) {
-    return null;
+    notFound();
   }
 
   return (
