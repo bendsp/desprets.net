@@ -64,7 +64,7 @@ export const projects: Project[] = [
     slug: "raybeam",
     title: "RayBeam",
     years: "2023",
-    description: "An old-school configurable C++ raytracer",
+    description: "C++ raytracer from scratch",
     technologies: ["C++", "SFML", "libconfig"],
     github: "https://github.com/bendsp/RayBeam",
   },
