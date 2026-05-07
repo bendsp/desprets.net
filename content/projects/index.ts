@@ -5,6 +5,7 @@ import DespretsNetArticle from "@/content/projects/desprets-net.mdx";
 import EmojiPickerArticle from "@/content/projects/emoji-picker.mdx";
 import FundamentalArticle from "@/content/projects/fundamental.mdx";
 import ImagnArticle from "@/content/projects/imagn.mdx";
+import RayBeamArticle from "@/content/projects/raybeam.mdx";
 import SkribblChatArticle from "@/content/projects/skribbl-chat.mdx";
 
 export const projectArticles: Record<ProjectSlug, ComponentType> = {
@@ -13,5 +14,6 @@ export const projectArticles: Record<ProjectSlug, ComponentType> = {
   imagn: ImagnArticle,
   "emoji-picker": EmojiPickerArticle,
   "skribbl-chat": SkribblChatArticle,
+  raybeam: RayBeamArticle,
   "desprets-net": DespretsNetArticle,
 };

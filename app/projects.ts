@@ -61,6 +61,14 @@ export const projects: Project[] = [
     link: "https://skribbl.chat/",
   },
   {
+    slug: "raybeam",
+    title: "RayBeam",
+    years: "2023",
+    description: "An old-school configurable C++ raytracer",
+    technologies: ["C++", "SFML", "libconfig"],
+    github: "https://github.com/bendsp/RayBeam",
+  },
+  {
     slug: "desprets-net",
     title: "desprets.net",
     years: "2022-",
