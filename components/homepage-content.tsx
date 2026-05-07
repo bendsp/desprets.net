@@ -1,6 +1,7 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { clientWork } from "@/app/client-work";
 import { projects } from "@/app/projects";
 
 interface SubtleProps {
@@ -39,6 +40,26 @@ export function ProjectsSection() {
             <td className="project-table__content">
               <Link href={`/${project.slug}`}>{project.title}</Link>
               <div className="subtle">{project.description}</div>
+            </td>
+          </tr>
+        );
+      })}
+      </tbody>
+    </table>
+  );
+}
+
+export function ClientWorkSection() {
+  return (
+    <table className="project-table">
+      <tbody>
+      {clientWork.map((client) => {
+        return (
+          <tr key={client.slug}>
+            <td className="project-table__years">{client.years}</td>
+            <td className="project-table__content">
+              <Link href={`/${client.slug}`}>{client.title}</Link>
+              <div className="subtle">{client.description}</div>
             </td>
           </tr>
         );
