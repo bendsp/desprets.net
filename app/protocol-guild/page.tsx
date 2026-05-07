@@ -15,14 +15,16 @@ export default function ProtocolGuildPage() {
           Protocol Guild
         </ExternalLink>{" "}
         is an independent organization focused on sustainable funding for
-        Ethereum core protocol development.
+        Ethereum core protocol development. Its 187 researchers and developers
+        maintain Ethereum's core protocol, and the organization has distributed
+        $38M to Ethereum core contributors since 2022.
       </p>
       <p>
         I built their{" "}
         <ExternalLink href="https://www.protocolguild.org/blog">
           blog system and page
         </ExternalLink>
-        , letting the team publish press releases and announcements by
+        , letting the team publish governance updates and announcements by
         uploading plain Markdown files. The latest or most important entry can
         be pinned as a highlighted feature, while the rest flow into a two-wide
         grid.
