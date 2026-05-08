@@ -31,7 +31,7 @@ export function ExternalLink({
 
 export function ProjectsSection() {
   return (
-    <table className="project-table">
+    <table className="project-table compact-table">
       <tbody>
       {projects.map((project) => {
         return (
@@ -51,7 +51,7 @@ export function ProjectsSection() {
 
 export function ClientWorkSection() {
   return (
-    <table className="project-table">
+    <table className="project-table compact-table">
       <tbody>
       {clientWork.map((client) => {
         return (

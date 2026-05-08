@@ -253,28 +253,44 @@
   padding-top: 0.4rem;
 }
 
-.project-table {
+.compact-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 0.15rem;
+  table-layout: fixed;
+  margin-top: 0.1rem;
+  font-variant-numeric: tabular-nums;
 }
 
-.project-table tbody tr {
+.compact-table tr {
   border-top: 1px solid var(--border);
 }
 
-.project-table tbody tr:last-child {
+.compact-table tr:last-child {
   border-bottom: 1px solid var(--border);
 }
 
-.project-table td {
-  padding: 0.62rem 0 0.38rem;
+.compact-table th,
+.compact-table td {
+  padding: 0.68rem 0;
   vertical-align: top;
 }
 
-.project-table__years {
-  width: 6.75rem;
+.compact-table th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.compact-table th:not(:last-child),
+.compact-table td:not(:last-child) {
   padding-right: 1rem;
+}
+
+.compact-table p {
+  margin-bottom: 0;
+}
+
+.project-table__years {
+  width: 6.6rem;
   color: var(--muted);
   white-space: nowrap;
 }
@@ -288,7 +304,18 @@
 }
 
 .project-table__content .subtle {
-  margin-top: 0.16rem;
+  margin-top: 0.12rem;
+  margin-bottom: 0;
+}
+
+.education-table td:first-child {
+  width: 6.6rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.education-table strong {
+  font-weight: 500;
 }
 
 .inline-list {
@@ -445,22 +472,31 @@
     padding: 1.25rem 1.1rem 3rem;
   }
 
-  table {
-    font-size: 0.95rem;
+  .compact-table {
+    table-layout: auto;
   }
 
   .project-table__years {
-    width: 6.35rem;
-    padding-right: 0.85rem;
+    width: 6.15rem;
   }
 
-  .project-table td {
-    padding-top: 0.56rem;
-    padding-bottom: 0.34rem;
+  .compact-table th,
+  .compact-table td {
+    padding-top: 0.58rem;
+    padding-bottom: 0.58rem;
+  }
+
+  .compact-table th:not(:last-child),
+  .compact-table td:not(:last-child) {
+    padding-right: 0.8rem;
   }
 
   .project-table__content .subtle {
     margin-top: 0.12rem;
+  }
+
+  .education-table td:first-child {
+    width: 6.15rem;
   }
 }
 
