@@ -30,6 +30,15 @@ export function SiteNav() {
     let animationFrame = 0;
 
     const updateActiveSection = () => {
+      const lastSection = sectionElements[sectionElements.length - 1];
+      const isAtPageBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+
+      if (isAtPageBottom && lastSection) {
+        setActiveSection(lastSection.id);
+        return;
+      }
+
       const marker = 140;
       const currentSection =
         sectionElements
