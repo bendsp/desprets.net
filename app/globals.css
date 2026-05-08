@@ -311,7 +311,7 @@
   display: inline-flex;
 }
 
-.project-table__content .subtle {
+.compact-table .subtle {
   margin-top: 0.12rem;
   margin-bottom: 0;
 }
@@ -495,7 +495,7 @@
     padding-right: 0.8rem;
   }
 
-  .project-table__content .subtle {
+  .compact-table .subtle {
     margin-top: 0.12rem;
   }
 
