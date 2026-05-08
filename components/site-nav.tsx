@@ -12,14 +12,19 @@ const navItems = [
   { href: "/#contact", label: "contact", sectionId: "contact", path: "/contact" },
 ];
 
+function getSectionIdForPathname(pathname: string) {
+  return navItems.find((item) => item.path === pathname)?.sectionId ?? "about";
+}
+
 export function SiteNav() {
   const pathname = usePathname();
-  const [activeSection, setActiveSection] = useState("about");
+  const [activeSection, setActiveSection] = useState(() =>
+    getSectionIdForPathname(pathname),
+  );
 
   useEffect(() => {
     if (pathname !== "/") {
-      const matchingItem = navItems.find((item) => item.path === pathname);
-      setActiveSection(matchingItem?.sectionId ?? "");
+      setActiveSection(getSectionIdForPathname(pathname));
       return;
     }
 
@@ -39,7 +44,10 @@ export function SiteNav() {
         return;
       }
 
-      const marker = 140;
+      const header = document.querySelector(".site-header");
+      const headerHeight =
+        header instanceof HTMLElement ? header.getBoundingClientRect().height : 0;
+      const marker = headerHeight + 48;
       const currentSection =
         sectionElements
           .map((section) => ({
@@ -86,7 +94,13 @@ export function SiteNav() {
     }
 
     event.preventDefault();
-    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    section.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
     window.history.pushState(null, "", `#${sectionId}`);
     setActiveSection(sectionId);
   };
