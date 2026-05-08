@@ -1,16 +1,8 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { clientWork } from "@/app/client-work";
 import { projects } from "@/app/projects";
-
-interface SubtleProps {
-  children: ReactNode;
-}
-
-export function Subtle({ children }: SubtleProps) {
-  return <div className="subtle">{children}</div>;
-}
 
 type LinkProps = ComponentPropsWithoutRef<"a">;
 

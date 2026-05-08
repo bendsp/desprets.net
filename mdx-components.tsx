@@ -4,7 +4,6 @@ import {
   ClientWorkSection,
   ExternalLink,
   ProjectsSection,
-  Subtle,
 } from "@/components/homepage-content";
 
 function Table(props: ComponentPropsWithoutRef<"table">) {
@@ -39,7 +38,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ClientWorkSection,
     ExternalLink,
     ProjectsSection,
-    Subtle,
     ...components,
   };
 }
