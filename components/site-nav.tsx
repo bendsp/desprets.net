@@ -6,15 +6,15 @@ import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
 
 const navItems = [
-  { href: "/#home", label: "home", sectionId: "home", path: "/" },
-  { href: "/#work", label: "work", sectionId: "work", path: "/work" },
   { href: "/#about", label: "about", sectionId: "about", path: "/about" },
+  { href: "/#work", label: "work", sectionId: "work", path: "/work" },
+  { href: "/#education", label: "education", sectionId: "education", path: "/education" },
   { href: "/#contact", label: "contact", sectionId: "contact", path: "/contact" },
 ];
 
 export function SiteNav() {
   const pathname = usePathname();
-  const [activeSection, setActiveSection] = useState("home");
+  const [activeSection, setActiveSection] = useState("about");
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -37,7 +37,7 @@ export function SiteNav() {
             id: section.id,
             distance: Math.abs(section.getBoundingClientRect().top - marker),
           }))
-          .sort((a, b) => a.distance - b.distance)[0]?.id ?? "home";
+          .sort((a, b) => a.distance - b.distance)[0]?.id ?? "about";
 
       setActiveSection(currentSection);
     };
