@@ -4,7 +4,7 @@ import Link from "next/link";
 import "@/app/globals.css";
 import { JsonLd } from "@/components/json-ld";
 import { SiteNav } from "@/components/site-nav";
-import { ThemeScript } from "@/components/theme-script";
+import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getSiteStructuredData } from "@/lib/structured-data";
 import { absoluteUrl, site } from "@/lib/site";
@@ -57,27 +57,33 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeScript />
         <JsonLd data={getSiteStructuredData()} />
-        <div className="site-shell">
-          <header className="site-header">
-            <Link href="/" className="site-title">
-              Ben Desprets
-            </Link>
-            <div className="site-header-center">
-              <SiteNav />
-            </div>
-            <div className="site-header-right">
-              <ThemeToggle />
-            </div>
-          </header>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <div className="site-shell">
+            <header className="site-header">
+              <Link href="/" className="site-title">
+                Ben Desprets
+              </Link>
+              <div className="site-header-center">
+                <SiteNav />
+              </div>
+              <div className="site-header-right">
+                <ThemeToggle />
+              </div>
+            </header>
 
-          <main className="site-main">{children}</main>
+            <main className="site-main">{children}</main>
 
-          <footer className="site-footer">
-            <p>Benjamin Desprets / 2022 - {currentYear}</p>
-          </footer>
-        </div>
+            <footer className="site-footer">
+              <p>Benjamin Desprets / 2022 - {currentYear}</p>
+            </footer>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

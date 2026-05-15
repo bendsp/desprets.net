@@ -2,6 +2,7 @@
 
 import MapLibreGL, { type PopupOptions, type MarkerOptions } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { useTheme } from "next-themes";
 import {
   createContext,
   forwardRef,
@@ -19,7 +20,6 @@ import { createPortal } from "react-dom";
 import { X, Minus, Plus, Locate, Maximize, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { useThemePreference } from "@/lib/use-theme-preference";
 import React from "react";
 
 type MapContextValue = {
@@ -75,7 +75,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   const [mapInstance, setMapInstance] = useState<MapLibreGL.Map | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isStyleLoaded, setIsStyleLoaded] = useState(false);
-  const { theme } = useThemePreference();
+  const { resolvedTheme } = useTheme();
   const currentStyleRef = useRef<MapStyleOption | null>(null);
 
   const mapStyles = useMemo(
@@ -92,7 +92,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     if (!containerRef.current) return;
 
     const initialStyle =
-      theme === "dark" ? mapStyles.dark : mapStyles.light;
+      resolvedTheme === "dark" ? mapStyles.dark : mapStyles.light;
     currentStyleRef.current = initialStyle;
 
     const map = new MapLibreGL.Map({
@@ -132,10 +132,10 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   }, []);
 
   useEffect(() => {
-    if (!mapInstance) return;
+    if (!mapInstance || !resolvedTheme) return;
 
     const newStyle =
-      theme === "dark" ? mapStyles.dark : mapStyles.light;
+      resolvedTheme === "dark" ? mapStyles.dark : mapStyles.light;
 
     if (currentStyleRef.current === newStyle) return;
 
@@ -147,7 +147,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     });
 
     return () => cancelAnimationFrame(frameId);
-  }, [mapInstance, theme, mapStyles]);
+  }, [mapInstance, resolvedTheme, mapStyles]);
 
   const isLoading = !isLoaded || !isStyleLoaded;
 

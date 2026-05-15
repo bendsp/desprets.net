@@ -1,17 +1,25 @@
 "use client";
 
-import { useThemePreference } from "@/lib/use-theme-preference";
+import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useThemePreference();
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const activeTheme = mounted ? resolvedTheme ?? "dark" : "dark";
 
   return (
     <div className="theme-toggle" aria-label="Theme switcher">
       <button
         type="button"
         onClick={() => setTheme("light")}
-        data-active={theme === "light"}
-        aria-pressed={theme === "light"}
+        data-active={activeTheme === "light"}
+        aria-pressed={activeTheme === "light"}
       >
         light
       </button>
@@ -19,8 +27,8 @@ export function ThemeToggle() {
       <button
         type="button"
         onClick={() => setTheme("dark")}
-        data-active={theme === "dark"}
-        aria-pressed={theme === "dark"}
+        data-active={activeTheme === "dark"}
+        aria-pressed={activeTheme === "dark"}
       >
         dark
       </button>
