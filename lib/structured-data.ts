@@ -60,13 +60,13 @@ export function getSiteStructuredData() {
 export function getProjectStructuredData(project: Project) {
   return {
     "@context": "https://schema.org",
-    "@type": project.slug === "raybeam" ? "SoftwareSourceCode" : "SoftwareApplication",
+    "@type": project.schemaType ?? "SoftwareApplication",
     "@id": `${site.url}/${project.slug}#software`,
     name: project.title,
     description: project.description,
     url: project.link ?? absoluteUrl(`/${project.slug}`),
     codeRepository: project.github,
-    programmingLanguage: project.technologies,
+    programmingLanguage: project.languages,
     keywords: project.technologies,
     author: {
       "@id": personId,

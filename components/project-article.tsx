@@ -2,18 +2,11 @@ import type { ComponentType } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
+import { ExternalLink } from "@/components/homepage-content";
 import { projects, type ProjectSlug } from "@/app/projects";
 import { projectArticles } from "@/content/projects";
 import { getProjectStructuredData } from "@/lib/structured-data";
 import { absoluteUrl, site } from "@/lib/site";
-
-const projectImageSlugs = new Set<ProjectSlug>([
-  "bedrock",
-  "desprets-net",
-  "emoji-picker",
-  "imagn",
-  "skribbl-chat",
-]);
 
 function getProject(slug: ProjectSlug) {
   return projects.find((project) => project.slug === slug);
@@ -27,9 +20,7 @@ export function getProjectMetadata(slug: ProjectSlug): Metadata {
   }
 
   const canonical = `/${project.slug}`;
-  const image = projectImageSlugs.has(slug)
-    ? absoluteUrl(`/assets/projects/${project.slug}/01-hero-desktop.webp`)
-    : absoluteUrl(site.image);
+  const image = absoluteUrl(project.ogImage ?? site.image);
 
   return {
     title: project.title,
@@ -88,9 +79,9 @@ export function ProjectArticle({ slug }: ProjectArticleProps) {
           <div>
             <dt>Links</dt>
             <dd>
-              {project.link && <a href={project.link}>Website</a>}
+              {project.link && <ExternalLink href={project.link}>Website</ExternalLink>}
               {project.link && project.github && <span aria-hidden="true"> / </span>}
-              {project.github && <a href={project.github}>Source</a>}
+              {project.github && <ExternalLink href={project.github}>Source</ExternalLink>}
             </dd>
           </div>
         )}

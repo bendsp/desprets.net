@@ -4,6 +4,9 @@ export interface Project {
   years: string;
   description: string;
   technologies: string[];
+  languages: string[];
+  schemaType?: "SoftwareApplication" | "SoftwareSourceCode";
+  ogImage?: string;
   github?: string;
   link?: string;
 }
@@ -15,6 +18,8 @@ export const projects: Project[] = [
     years: "Ongoing",
     description: "Level up your notes with the power of Markdown",
     technologies: ["React", "Tailwind", "TypeScript", "Electron"],
+    languages: ["TypeScript"],
+    ogImage: "/assets/projects/bedrock/01-hero-desktop.webp",
     github: "https://github.com/bendsp/bedrock",
     link: "https://bedrock.desprets.net/",
   },
@@ -31,6 +36,8 @@ export const projects: Project[] = [
       "Clerk",
       "Stripe",
     ],
+    languages: ["TypeScript"],
+    ogImage: "/assets/projects/imagn/01-hero-desktop.webp",
     link: "https://imagn.xyz/",
   },
   {
@@ -39,6 +46,7 @@ export const projects: Project[] = [
     years: "2024 - 2026",
     description: "The easiest wallet in the world!",
     technologies: ["React-Native", "Tailwind", "TypeScript", "Crypto"],
+    languages: ["TypeScript"],
     github: "https://github.com/fdmntl/fundamental-app",
     link: "https://www.fundamentalwallet.com/",
   },
@@ -48,6 +56,8 @@ export const projects: Project[] = [
     years: "2025",
     description: "Find out which emoji has the closest average RGB value",
     technologies: ["React", "Tailwind", "TypeScript"],
+    languages: ["TypeScript"],
+    ogImage: "/assets/projects/emoji-picker/01-hero-desktop.webp",
     github: "https://github.com/bendsp/emoji-color-picker",
     link: "https://emoji.desprets.net/",
   },
@@ -57,6 +67,8 @@ export const projects: Project[] = [
     years: "2025",
     description: "A Pictochat inspired chatroom",
     technologies: ["React-Native", "Tailwind", "TypeScript"],
+    languages: ["TypeScript"],
+    ogImage: "/assets/projects/skribbl-chat/01-hero-desktop.webp",
     github: "https://github.com/bendsp/skribbl.chat",
     link: "https://skribbl.chat/",
   },
@@ -66,6 +78,8 @@ export const projects: Project[] = [
     years: "2023",
     description: "C++ raytracer from scratch",
     technologies: ["C++", "SFML", "libconfig"],
+    languages: ["C++"],
+    schemaType: "SoftwareSourceCode",
     github: "https://github.com/bendsp/RayBeam",
   },
   {
@@ -74,6 +88,8 @@ export const projects: Project[] = [
     years: "Ongoing",
     description: "To understand recursion, one must first understand recursion.",
     technologies: ["React", "Tailwind", "TypeScript"],
+    languages: ["TypeScript"],
+    ogImage: "/assets/projects/desprets-net/01-hero-desktop.webp",
     github: "https://github.com/bendsp/desprets.net",
     link: "https://desprets.net/",
   },
