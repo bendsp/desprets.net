@@ -317,6 +317,38 @@
   margin-bottom: 0;
 }
 
+.project-table__stack {
+  margin-top: 0.16rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.project-meta {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0 0 1.35rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.94rem;
+}
+
+.project-meta div {
+  display: grid;
+  grid-template-columns: 5.2rem 1fr;
+  gap: 1rem;
+}
+
+.project-meta dt {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.project-meta dd {
+  margin: 0;
+}
+
 .education-table td:first-child {
   width: 7.35rem;
   color: var(--muted);
@@ -502,6 +534,11 @@
 
   .compact-table .subtle {
     margin-top: 0.12rem;
+  }
+
+  .project-meta div {
+    grid-template-columns: 4.6rem 1fr;
+    gap: 0.8rem;
   }
 
   .education-table td:first-child {

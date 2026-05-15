@@ -32,6 +32,9 @@ export function ProjectsSection() {
             <td className="project-table__content">
               <Link href={`/${project.slug}`}>{project.title}</Link>
               <div className="subtle">{project.description}</div>
+              <div className="project-table__stack">
+                {project.technologies.join(", ")}
+              </div>
             </td>
           </tr>
         );

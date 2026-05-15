@@ -1,6 +1,9 @@
 export const metadata = {
-  title: "McGill | Ben Desprets",
+  title: "McGill",
   description: "Notes on Ben Desprets' management studies at McGill.",
+  alternates: {
+    canonical: "/mcgill",
+  },
 };
 
 export default function McGillPage() {
