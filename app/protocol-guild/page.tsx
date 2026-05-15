@@ -1,8 +1,11 @@
 import { ExternalLink } from "@/components/homepage-content";
 
 export const metadata = {
-  title: "Protocol Guild | Ben Desprets",
+  title: "Protocol Guild",
   description: "Client work for Protocol Guild.",
+  alternates: {
+    canonical: "/protocol-guild",
+  },
 };
 
 export default function ProtocolGuildPage() {

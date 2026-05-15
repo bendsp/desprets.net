@@ -1,8 +1,11 @@
 import { ExternalLink } from "@/components/homepage-content";
 
 export const metadata = {
-  title: "ETH Investors Club | Ben Desprets",
+  title: "ETH Investors Club",
   description: "Client work for ETH Investors Club.",
+  alternates: {
+    canonical: "/eth-investors-club",
+  },
 };
 
 export default function EICPage() {
