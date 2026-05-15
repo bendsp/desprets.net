@@ -1,6 +1,9 @@
 export const metadata = {
-  title: "Epitech | Ben Desprets",
+  title: "Epitech",
   description: "Notes on Ben Desprets' software engineering studies at Epitech.",
+  alternates: {
+    canonical: "/epitech",
+  },
 };
 
 export default function EpitechPage() {

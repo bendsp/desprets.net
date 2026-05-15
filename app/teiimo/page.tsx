@@ -1,6 +1,9 @@
 export const metadata = {
-  title: "Teiimo | Ben Desprets",
+  title: "Teiimo",
   description: "Client work for Teiimo.",
+  alternates: {
+    canonical: "/teiimo",
+  },
 };
 
 export default function TeiimoPage() {
