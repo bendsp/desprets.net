@@ -8,18 +8,18 @@ import { useEffect, useState } from "react";
 const navItems = [
   { href: "/#about", label: "about", sectionId: "about", path: "/about" },
   { href: "/#work", label: "work", sectionId: "work", path: "/work" },
-  { href: "/#education", label: "education", sectionId: "education", path: "/education" },
+  { href: "/#education", label: "education", sectionId: "education" },
   { href: "/#contact", label: "contact", sectionId: "contact", path: "/contact" },
 ];
 
 function getSectionIdForPathname(pathname: string) {
-  return navItems.find((item) => item.path === pathname)?.sectionId ?? "about";
+  return navItems.find((item) => item.path === pathname)?.sectionId;
 }
 
 export function SiteNav() {
   const pathname = usePathname();
   const [activeSection, setActiveSection] = useState(() =>
-    getSectionIdForPathname(pathname),
+    pathname === "/" ? "about" : getSectionIdForPathname(pathname),
   );
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export function SiteNav() {
           <Link
             href={item.href}
             data-active={activeSection === item.sectionId}
-            aria-current={activeSection === item.sectionId ? "location" : undefined}
+            aria-current={activeSection === item.sectionId ? "page" : undefined}
             onClick={(event) => handleNavClick(event, item.sectionId)}
           >
             {item.label}

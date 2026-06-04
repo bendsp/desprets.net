@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 
 interface SwipeCarouselProps {
   images: string[];
+  imageAlt?: string;
   autoPlayInterval?: number;
   aspectRatio?: string;
   className?: string;
@@ -17,6 +18,7 @@ interface SwipeCarouselProps {
 
 export function SwipeCarousel({
   images,
+  imageAlt = "Carousel image",
   autoPlayInterval = 5000,
   aspectRatio = "aspect-[4/3]",
   className,
@@ -82,7 +84,7 @@ export function SwipeCarousel({
               <Image
                 fill
                 src={src}
-                alt={`Carousel image ${index + 1}`}
+                alt={`${imageAlt} ${index + 1}`}
                 className="object-cover"
                 priority={index === 0}
               />
@@ -98,6 +100,7 @@ export function SwipeCarousel({
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Previous image"
               className="size-8 rounded-none bg-background/40 hover:bg-background/60 text-foreground backdrop-blur-sm pointer-events-auto"
               onClick={(e) => {
                 e.stopPropagation();
@@ -110,6 +113,7 @@ export function SwipeCarousel({
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Next image"
               className="size-8 rounded-none bg-background/40 hover:bg-background/60 text-foreground backdrop-blur-sm pointer-events-auto"
               onClick={(e) => {
                 e.stopPropagation();
@@ -122,7 +126,10 @@ export function SwipeCarousel({
           </div>
 
           {/* Progress Indicators */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10 pointer-events-none">
+          <div
+            className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10 pointer-events-none"
+            aria-hidden="true"
+          >
             {images.map((_, i) => (
               <div
                 key={i}

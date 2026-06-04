@@ -14,12 +14,13 @@ export function ThemeToggle() {
   const activeTheme = mounted ? resolvedTheme ?? "dark" : "dark";
 
   return (
-    <div className="theme-toggle" aria-label="Theme switcher">
+    <div className="theme-toggle" role="group" aria-label="Theme switcher">
       <button
         type="button"
         onClick={() => setTheme("light")}
         data-active={activeTheme === "light"}
         aria-pressed={activeTheme === "light"}
+        aria-label="Use light theme"
       >
         light
       </button>
@@ -29,6 +30,7 @@ export function ThemeToggle() {
         onClick={() => setTheme("dark")}
         data-active={activeTheme === "dark"}
         aria-pressed={activeTheme === "dark"}
+        aria-label="Use dark theme"
       >
         dark
       </button>

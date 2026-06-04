@@ -317,10 +317,11 @@
   margin-bottom: 0;
 }
 
-.education-table td:first-child {
+.education-table :is(th, td):first-child {
   width: 7.35rem;
   color: var(--muted);
   white-space: nowrap;
+  font-weight: 400;
 }
 
 .education-table strong {
@@ -504,7 +505,7 @@
     margin-top: 0.12rem;
   }
 
-  .education-table td:first-child {
+  .education-table :is(th, td):first-child {
     width: 6.9rem;
   }
 }

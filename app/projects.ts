@@ -49,7 +49,6 @@ export const projects: Project[] = [
     description: "The easiest wallet in the world!",
     technologies: ["React-Native", "Tailwind", "TypeScript", "Crypto"],
     github: "https://github.com/fdmntl/fundamental-app",
-    link: "https://www.fundamentalwallet.com/",
   },
   {
     slug: "emoji-picker",

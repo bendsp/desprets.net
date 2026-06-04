@@ -1,7 +1,10 @@
-export const metadata = {
-  title: "Epitech | Ben Desprets",
+import { createPageMetadata } from "@/app/seo";
+
+export const metadata = createPageMetadata({
+  title: "Epitech",
   description: "Notes on Ben Desprets' software engineering studies at Epitech.",
-};
+  path: "/epitech",
+});
 
 export default function EpitechPage() {
   return (

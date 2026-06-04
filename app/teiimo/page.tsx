@@ -1,7 +1,10 @@
-export const metadata = {
-  title: "Teiimo | Ben Desprets",
+import { createPageMetadata } from "@/app/seo";
+
+export const metadata = createPageMetadata({
+  title: "Teiimo",
   description: "Client work for Teiimo.",
-};
+  path: "/teiimo",
+});
 
 export default function TeiimoPage() {
   return (

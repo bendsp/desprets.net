@@ -1,9 +1,11 @@
 import { ExternalLink } from "@/components/homepage-content";
+import { createPageMetadata } from "@/app/seo";
 
-export const metadata = {
-  title: "ETH Investors Club | Ben Desprets",
+export const metadata = createPageMetadata({
+  title: "ETH Investors Club",
   description: "Client work for ETH Investors Club.",
-};
+  path: "/eth-investors-club",
+});
 
 export default function EICPage() {
   return (

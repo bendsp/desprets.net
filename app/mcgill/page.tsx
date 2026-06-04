@@ -1,7 +1,10 @@
-export const metadata = {
-  title: "McGill | Ben Desprets",
+import { createPageMetadata } from "@/app/seo";
+
+export const metadata = createPageMetadata({
+  title: "McGill",
   description: "Notes on Ben Desprets' management studies at McGill.",
-};
+  path: "/mcgill",
+});
 
 export default function McGillPage() {
   return (

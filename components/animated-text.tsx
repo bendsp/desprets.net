@@ -34,13 +34,15 @@ export default function AnimatedText({
 
   return (
     <h1 className={className}>
-      {displayedText}
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true">{displayedText}</span>
       {showCursor && (
         <span
+          aria-hidden="true"
           className={`inline-block w-[2px] h-[1em] bg-primary ml-1 align-middle ${
             isComplete ? "animate-pulse" : "animate-blink"
           }`}
-        ></span>
+        />
       )}
     </h1>
   );
