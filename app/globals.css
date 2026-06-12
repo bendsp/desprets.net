@@ -421,6 +421,25 @@
   text-decoration-thickness: 0.06em;
 }
 
+.about-photo {
+  margin: 1.6rem 0 0;
+}
+
+.about-photo img {
+  display: block;
+  width: 380px;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+}
+
+.about-photo figcaption {
+  margin-top: 0.55rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
 .document-prose :where(code):not(:where([class~="not-prose"] *)) {
   font-weight: 400;
 }
