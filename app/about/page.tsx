@@ -5,7 +5,7 @@ import { StaticRedirect } from "@/components/static-redirect";
 export const metadata: Metadata = createPageMetadata({
   title: "About",
   description:
-    "About Ben Desprets, a full-stack developer focused on clean, useful software.",
+    "About Ben Desprets, a freelance developer focused on clean, useful software.",
   path: "/",
   index: false,
 });

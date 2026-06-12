@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
-    apple: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   appleWebApp: {
     capable: true,
@@ -43,19 +43,19 @@ export const metadata: Metadata = {
     description: site.description,
     images: [
       {
-        url: "/headshot.jpg",
-        width: 400,
-        height: 400,
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
         alt: "Ben Desprets",
       },
     ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: site.title,
     description: site.description,
     creator: "@bendesprets",
-    images: ["/headshot.jpg"],
+    images: ["/og.jpg"],
   },
   robots: {
     index: true,
@@ -90,7 +90,7 @@ export default function RootLayout({
     name: site.name,
     url: site.url,
     email: site.email,
-    jobTitle: "Full-stack developer",
+    jobTitle: "Freelance developer",
     sameAs: site.sameAs,
   };
 

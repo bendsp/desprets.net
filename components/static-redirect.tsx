@@ -14,6 +14,8 @@ export function StaticRedirect({ href, label }: StaticRedirectProps) {
 
   return (
     <article className="document-prose prose prose-neutral dark:prose-invert">
+      {/* No-JS fallback; browsers honor the refresh pragma outside <head> */}
+      <meta httpEquiv="refresh" content={`0;url=${href}`} />
       <h1>Redirecting</h1>
       <p>
         <a href={href}>{label}</a>

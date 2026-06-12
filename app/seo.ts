@@ -18,29 +18,31 @@ export function createPageMetadata({
     title,
     description,
     alternates: {
-      canonical: path,
+      // null blocks the canonical inherited from the root layout
+      canonical: index ? path : null,
     },
     openGraph: {
       type: "website",
+      locale: "en_US",
       siteName: site.name,
       title: `${title} | ${site.name}`,
       description,
       url: path,
       images: [
         {
-          url: "/headshot.jpg",
-          width: 400,
-          height: 400,
+          url: "/og.jpg",
+          width: 1200,
+          height: 630,
           alt: site.name,
         },
       ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: `${title} | ${site.name}`,
       description,
       creator: "@bendesprets",
-      images: ["/headshot.jpg"],
+      images: ["/og.jpg"],
     },
     robots: {
       index,
