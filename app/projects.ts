@@ -34,13 +34,21 @@ export const projects: Project[] = [
     link: "https://imagn.xyz/",
   },
   {
+    slug: "garden",
+    title: "Garden",
+    years: "2026",
+    description: "Hexagonal tile puzzle game",
+    technologies: [],
+    github: "https://github.com/bendsp/garden",
+    link: "https://garden.desprets.net/",
+  },
+  {
     slug: "fundamental",
     title: "Fundamental",
     years: "2024 - 2026",
     description: "The easiest wallet in the world!",
     technologies: ["React-Native", "Tailwind", "TypeScript", "Crypto"],
     github: "https://github.com/fdmntl/fundamental-app",
-    link: "https://www.fundamentalwallet.com/",
   },
   {
     slug: "emoji-picker",

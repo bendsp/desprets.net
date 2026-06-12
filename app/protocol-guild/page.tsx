@@ -1,9 +1,11 @@
 import { ExternalLink } from "@/components/homepage-content";
+import { createPageMetadata } from "@/app/seo";
 
-export const metadata = {
-  title: "Protocol Guild | Ben Desprets",
+export const metadata = createPageMetadata({
+  title: "Protocol Guild",
   description: "Client work for Protocol Guild.",
-};
+  path: "/protocol-guild",
+});
 
 export default function ProtocolGuildPage() {
   return (

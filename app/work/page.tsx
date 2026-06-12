@@ -1,9 +1,15 @@
-import WorkContent from "@/content/work.mdx";
+import type { Metadata } from "next";
+import { createPageMetadata } from "@/app/seo";
+import { StaticRedirect } from "@/components/static-redirect";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "Work",
+  description:
+    "Selected client work and personal projects by freelance developer Ben Desprets.",
+  path: "/",
+  index: false,
+});
 
 export default function WorkPage() {
-  return (
-    <article className="document-prose prose prose-neutral dark:prose-invert">
-      <WorkContent />
-    </article>
-  );
+  return <StaticRedirect href="/#work" label="Continue to Work" />;
 }
