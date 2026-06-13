@@ -1,5 +1,6 @@
 import type { MDXComponents } from "mdx/types";
 import type { ComponentPropsWithoutRef } from "react";
+import { Figure } from "@/components/figure";
 import {
   ClientWorkSection,
   ExternalLink,
@@ -37,6 +38,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     a: MdxLink,
     ClientWorkSection,
     ExternalLink,
+    Figure,
     ProjectsSection,
     ...components,
   };

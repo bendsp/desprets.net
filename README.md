@@ -38,6 +38,27 @@ My personal portfolio website built with **Next.js**, showcasing my projects, sk
 │  └─ types/        # TypeScript type definitions
 ```
 
+## Images
+
+Static export means no runtime image optimization, so images are pre-generated:
+
+```sh
+pnpm img <source> <base-name> [display-width]   # default width 380
+pnpm img ~/Downloads/photo.jpg garden-board 420
+```
+
+This writes `public/<base-name>-<w>.webp` (1x) and `-<2w>.webp` (2x) and prints
+the matching `<Figure>` tag. Use it in any MDX file (no import needed):
+
+```mdx
+<Figure src="/garden-board" alt="..." width={420} height={315}>
+  Optional caption, links allowed.
+</Figure>
+```
+
+`<Figure>` handles srcset, lazy-loading, and CLS-safe dimensions. Add `priority`
+only for above-the-fold images (skips lazy-loading, hints high fetch priority).
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).

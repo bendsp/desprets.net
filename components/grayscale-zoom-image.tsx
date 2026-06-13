@@ -8,6 +8,7 @@ interface GrayscaleZoomImageProps extends ImageProps {
 }
 
 export function GrayscaleZoomImage({
+  alt,
   className,
   wrapperClassName,
   ...props
@@ -16,6 +17,7 @@ export function GrayscaleZoomImage({
     <div className={cn("relative overflow-hidden group", wrapperClassName)}>
       <Image
         {...props}
+        alt={alt}
         className={cn(
           "object-cover transition-transform duration-500 group-hover:scale-110 grayscale group-hover:grayscale-0",
           className

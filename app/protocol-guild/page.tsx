@@ -18,7 +18,7 @@ export default function ProtocolGuildPage() {
         </ExternalLink>{" "}
         is an independent organization focused on sustainable funding for
         Ethereum core protocol development. Its 187 researchers and developers
-        maintain Ethereum's core protocol, and the organization has distributed
+        maintain Ethereum&apos;s core protocol, and the organization has distributed
         $38M to Ethereum core contributors since 2022.
       </p>
       <p>
