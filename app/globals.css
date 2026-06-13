@@ -422,7 +422,9 @@
 }
 
 .prose-figure {
-  margin: 1.6rem 0 1.35rem;
+  width: fit-content;
+  max-width: 100%;
+  margin: 1.6rem auto 1.35rem;
 }
 
 .prose-figure img {

@@ -26,7 +26,7 @@ export function createPageMetadata({
       locale: "en_US",
       siteName: site.name,
       title: `${title} | ${site.name}`,
-      description,
+      description: site.description,
       url: path,
       images: [
         {
@@ -40,7 +40,7 @@ export function createPageMetadata({
     twitter: {
       card: "summary_large_image",
       title: `${title} | ${site.name}`,
-      description,
+      description: site.description,
       creator: "@bendesprets",
       images: ["/og.jpg"],
     },
