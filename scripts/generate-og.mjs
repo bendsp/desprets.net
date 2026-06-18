@@ -35,7 +35,7 @@ const svg = Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
   ${textBlock(["Ben Desprets"], 86, 130, 76, 88, "#121212", 500)}
   ${textBlock(
     [
-      "Freelance developer focused",
+      "Full-stack developer focused",
       "on building clean, useful",
       "software. I like working on",
       "frontend, backend, data and ML.",

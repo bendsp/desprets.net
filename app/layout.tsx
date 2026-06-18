@@ -91,7 +91,7 @@ export default function RootLayout({
     url: site.url,
     email: site.email,
     image: `${site.url}/pfp.jpg`,
-    jobTitle: "Freelance developer",
+    jobTitle: "Full-stack developer",
     sameAs: site.sameAs,
   };
 
