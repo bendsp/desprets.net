@@ -1,3 +1,5 @@
+import { gameControl, newGame, tickGame, type Game, type GameId } from "./games";
+import { THEMES, type PaletteId } from "./themes";
 import { projects } from "../../app/projects";
 import { clientWork } from "../../app/client-work";
 
@@ -5,11 +7,11 @@ export type Control = "up" | "down" | "left" | "right" | "a" | "b" | "start" | "
 export const BOOT_DURATION = 6.4;
 export const SCREEN_WIDTH = 324;
 export const SCREEN_HEIGHT = 216;
-export const MENU = ["About", "Work", "Education", "Contact"] as const;
+export const MENU = ["About", "Work", "Education", "Contact", "Games", "Settings"] as const;
 export type Section = (typeof MENU)[number];
-export type Page = { kind: "menu"; selected: number } | { kind: "list"; section: "Work" | "Contact"; selected: number } | { kind: "article"; id: string; scroll: number; link?: number };
-export type ConsoleState = { page: Page; history: Page[]; palette: "color" | "pocket" };
-export type ConsoleAction = { type: "control"; control: Control } | { type: "open"; page: Page } | { type: "scroll"; delta: number; limit: number } | { type: "link"; direction: number };
+export type Page = { kind: "games"; selected: number } | { kind: "settings"; selected: number } | { kind: "game"; game: Game } | { kind: "menu"; selected: number } | { kind: "list"; section: "Work" | "Contact"; selected: number } | { kind: "article"; id: string; scroll: number; link?: number };
+export type ConsoleState = { page: Page; history: Page[]; palette: PaletteId; records: Record<GameId, number> };
+export type ConsoleAction = { type: "home" } | { type: "tick" } | { type: "pause-game" } | { type: "palette"; palette: PaletteId } | { type: "restore"; palette: PaletteId; records: Record<GameId, number> } | { type: "control"; control: Control } | { type: "open"; page: Page } | { type: "scroll"; delta: number; limit: number } | { type: "link"; direction: number };
 export type Entry = { id: string; title: string; subtitle: string; body: string; image?: string; links?: { label: string; url: string }[] };
 
 const bodies: Record<string, string> = {
@@ -47,7 +49,7 @@ export const contact: Entry[] = [
   { id: "linkedin", title: "LinkedIn", subtitle: "BENJAMINDESPRETS", body: "linkedin.com/in/benjamindesprets", links: [{ label: "OPEN PROFILE", url: "https://www.linkedin.com/in/benjamindesprets" }] },
 ];
 export const articles: Entry[] = [
-  { id: "about", title: "About Ben", subtitle: "FULL-STACK DEVELOPER", body: "I'm Ben, a freelance developer focused on data and engaging design.\n\nI'm completing a master's in software engineering at Epitech and working at Teiimo as a data scientist and app developer.\n\nI build across frontend, backend, data and ML. I like clean, useful interfaces with a bit of character.", links: [{ label: "ON STAGE / GLAZE", url: "https://x.com/bendesprets/status/2036940492672324018?s=20" }] },
+  { id: "about", image: "/pfp-380.webp", title: "About Ben", subtitle: "FULL-STACK DEVELOPER", body: "I'm Ben, a freelance developer focused on data and engaging design.\n\nI'm completing a master's in software engineering at Epitech and working at Teiimo as a data scientist and app developer.\n\nI build across frontend, backend, data and ML. I like clean, useful interfaces with a bit of character.", links: [{ label: "ON STAGE / GLAZE", url: "https://x.com/bendesprets/status/2036940492672324018?s=20" }] },
   { id: "education", title: "Education", subtitle: "PARIS / BERLIN / MONTREAL", body: "2024 - 2026\nMaster's in Software Engineering\nEpitech\n\nFull-stack development, software engineering and production systems.\n\n2024 - 2025\nCertificate in Management\nMcGill\n\nProject management, leadership, finance and business strategy.\n\n2020 - 2024\nBachelor's in Software Engineering\nEpitech\n\nInternational Track in Paris, Berlin and Montreal." },
   ...work, ...contact,
 ];
@@ -55,6 +57,8 @@ export function entryFor(id: string) { return articles.find(entry => entry.id ==
 export function entriesFor(section: "Work" | "Contact") { return section === "Work" ? work : contact; }
 export function sectionPage(index: number): Page {
   const section = MENU[index % MENU.length];
+  if (section === "Games") return { kind: "games", selected: 0 };
+  if (section === "Settings") return { kind: "settings", selected: 0 };
   if (section === "Work" || section === "Contact") return { kind: "list", section, selected: 0 };
   return { kind: "article", id: section.toLowerCase(), scroll: 0 };
 }
@@ -62,11 +66,22 @@ export function initialConsole(path: string, hash: string): ConsoleState {
   const route = path.replace(/^\/(projects\/)?/, "").replace(/\/$/, "") || hash.replace(/^#/, "");
   const id = route === "epitech" || route === "mcgill" ? "education" : route;
   const page: Page = id === "work" || id === "contact" ? { kind: "list", section: id === "work" ? "Work" : "Contact", selected: 0 } : articles.some(entry => entry.id === id) ? { kind: "article", id, scroll: 0 } : { kind: "menu", selected: 0 };
-  return { page, history: [], palette: "color" };
+  return { page, history: [], palette: "color", records: {snake:0,tetris:0} };
 }
 export function consoleReducer(state: ConsoleState, action: ConsoleAction): ConsoleState {
   const page = state.page;
-  if (action.type === "open") return { ...state, page: action.page, history: [...state.history, page] };
+  const withGame = (game: Game): ConsoleState => game === (page.kind === "game" ? page.game : null) ? state : { ...state, page: {kind:"game",game}, records:game.score>state.records[game.kind]?{...state.records,[game.kind]:game.score}:state.records };
+  if (action.type === "restore") return {...state,palette:action.palette,records:action.records};
+  if (action.type === "palette") return {...state,palette:action.palette,page:page.kind === "settings" ? {...page,selected:THEMES.findIndex(theme=>theme.id===action.palette)} : page};
+  if (action.type === "home") return {...state,page:{kind:"menu",selected:0},history:[]};
+  if (action.type === "tick") return page.kind === "game" ? withGame(tickGame(page.game)) : state;
+  if (action.type === "pause-game") return page.kind === "game" && page.game.status === "running" ? withGame({...page.game,status:"paused"}) : state;
+  if (action.type === "open") {
+    const next = action.page;
+    const selected = page.kind === "menu" ? MENU.findIndex((_,i)=>{const target=sectionPage(i);return target.kind===next.kind&&(target.kind!=="article"||next.kind==="article"&&target.id===next.id)&&(target.kind!=="list"||next.kind==="list"&&target.section===next.section);}) : -1;
+    const parent = page.kind === "menu" && selected >= 0 ? {...page,selected} : page.kind === "games" && next.kind === "game" ? {...page,selected:next.game.kind === "snake"?0:1} : page;
+    return {...state,page:next.kind === "settings"?{...next,selected:THEMES.findIndex(theme=>theme.id===state.palette)}:next,history:[...state.history,parent]};
+  }
   if (action.type === "scroll") return page.kind === "article" ? { ...state, page: { ...page, scroll: Math.max(0, Math.min(action.limit, page.scroll + action.delta)) } } : state;
   if (action.type === "link") {
     if (page.kind !== "article") return state;
@@ -74,20 +89,27 @@ export function consoleReducer(state: ConsoleState, action: ConsoleAction): Cons
     return length ? { ...state, page: { ...page, link: ((page.link ?? 0) + action.direction + length) % length } } : state;
   }
   const control = action.control;
-  if (control === "select") return { ...state, palette: state.palette === "color" ? "pocket" : "color" };
+  if (page.kind === "game") {
+    if (control === "b" && page.game.status !== "running") return {...state,page:state.history.at(-1) ?? {kind:"games",selected:page.game.kind === "snake"?0:1},history:state.history.slice(0,-1)};
+    return withGame(gameControl(page.game,control));
+  }
+  if (control === "select") return {...state,palette:THEMES[(THEMES.findIndex(theme=>theme.id===state.palette)+1)%THEMES.length].id};
   if (control === "b") return { ...state, page: state.history.at(-1) ?? { kind: "menu", selected: 0 }, history: state.history.slice(0, -1) };
-  if (control === "start") return { ...state, page: { kind: "menu", selected: 0 }, history: [] };
+  if (control === "start") return consoleReducer(state,{type:"home"});
   if (control === "a") {
     if (page.kind === "menu") return consoleReducer(state, { type: "open", page: sectionPage(page.selected) });
+    if (page.kind === "games") return consoleReducer(state,{type:"open",page:{kind:"game",game:newGame(page.selected === 0 ? "snake" : "tetris")}});
+    if (page.kind === "settings") return consoleReducer(state,{type:"palette",palette:THEMES[page.selected].id});
     if (page.kind === "list") return consoleReducer(state, { type: "open", page: { kind: "article", id: entriesFor(page.section)[page.selected].id, scroll: 0 } });
     return state;
   }
   if (page.kind !== "article" && ["up", "down", "left", "right"].includes(control)) {
-    if (page.kind === "menu") {
-      const selected = control === "up" || control === "down" ? (page.selected + 2) % 4 : page.selected ^ 1;
-      return { ...state, page: { ...page, selected } };
+    if (page.kind === "menu" || page.kind === "settings") {
+      const length = page.kind === "menu" ? MENU.length : THEMES.length;
+      const selected = control === "up" ? (page.selected-2+length)%length : control === "down" ? (page.selected+2)%length : page.selected^1;
+      return {...state,page:{...page,selected}};
     }
-    const length = entriesFor(page.section).length;
+    const length = page.kind === "games" ? 2 : entriesFor(page.section).length;
     const step = control === "up" || control === "left" ? -1 : 1;
     return { ...state, page: { ...page, selected: (page.selected + step + length) % length } };
   }

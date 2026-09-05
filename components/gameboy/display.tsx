@@ -4,16 +4,16 @@ import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { CanvasTexture, LinearFilter, NearestFilter, SRGBColorSpace } from "three";
 import { DisplayRenderer, type Hit, type ScreenLayout } from "./display-renderer";
-import { SCREEN_HEIGHT, SCREEN_WIDTH, type ConsoleState } from "./console";
+import { SCREEN_HEIGHT, SCREEN_WIDTH, type ConsoleState, type Control } from "./console";
 import { progress } from "./boot";
 
-type Props = { state: ConsoleState; time: MutableRefObject<number>; booting: boolean; power: boolean; bright: boolean; reduced: boolean; onHit: (action: Hit["action"]) => void; onScroll: (delta: number) => void; onTouch: (held: boolean) => void };
+type Props = { state: ConsoleState; time: MutableRefObject<number>; booting: boolean; power: boolean; bright: boolean; reduced: boolean; onHit: (action: Hit["action"]) => void; onSwipe: (control: Control) => void; onScroll: (delta: number) => void; onTouch: (held: boolean) => void };
 
-export function Display({ state, time, booting, power, bright, reduced, onHit, onScroll, onTouch }: Props) {
+export function Display({ state, time, booting, power, bright, reduced, onHit, onSwipe, onScroll, onTouch }: Props) {
   const { invalidate } = useThree();
   const activeRenderer = useRef<DisplayRenderer | null>(null);
   const dirty = useRef(true); const layout = useRef<ScreenLayout>({ hits: [], limit: 0 });
-  const touch = useRef<{ id: number; y: number; total: number }>();
+  const touch = useRef<{ id: number; x: number; y: number; total: number }>();
   const { texture, output, context, bootFrame } = useMemo(() => {
     const output = document.createElement("canvas"); output.width = SCREEN_WIDTH * 3; output.height = SCREEN_HEIGHT * 3;
     const texture = new CanvasTexture(output); texture.colorSpace = SRGBColorSpace; texture.magFilter = NearestFilter; texture.minFilter = LinearFilter; texture.generateMipmaps = false;
@@ -66,12 +66,18 @@ export function Display({ state, time, booting, power, bright, reduced, onHit, o
       onPointerOut={() => { document.body.style.cursor = "auto"; }}
       onPointerDown={event => {
         event.stopPropagation(); if (booting || !power) return;
-        touch.current = { id: event.pointerId, y: event.clientY, total: 0 }; onTouch(true);
+        touch.current = { id: event.pointerId, x: event.clientX, y: event.clientY, total: 0 }; onTouch(true);
         (event.target as Element).setPointerCapture?.(event.pointerId);
       }}
       onPointerMove={event => {
         const held = touch.current; if (!held || held.id !== event.pointerId) return;
-        event.stopPropagation(); const delta = held.y - event.clientY; held.y = event.clientY; held.total += Math.abs(delta);
+        event.stopPropagation();
+        if (state.page.kind === "game") {
+          const dx = event.clientX-held.x, dy = event.clientY-held.y;
+          if (Math.max(Math.abs(dx),Math.abs(dy)) >= 16) { onSwipe(Math.abs(dx)>Math.abs(dy)?dx>0?"right":"left":dy>0?"down":"up"); held.x=event.clientX; held.y=event.clientY; held.total+=Math.abs(dx)+Math.abs(dy); }
+          return;
+        }
+        const delta = held.y - event.clientY; held.y = event.clientY; held.total += Math.abs(delta);
         if (held.total > 5 && delta) onScroll(delta * .7);
       }}
       onPointerUp={release} onPointerCancel={event => { event.stopPropagation(); touch.current = undefined; onTouch(false); }}

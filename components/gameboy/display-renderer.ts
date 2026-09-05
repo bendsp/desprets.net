@@ -1,46 +1,23 @@
-import { articles, entryFor, entriesFor, MENU, SCREEN_WIDTH as W, SCREEN_HEIGHT as H, type ConsoleState, type Page, type Entry } from "./console";
+import { themeFor } from "./themes";
+import { rect, center, header, footer, scrollbar, shortened, type Hit, type ScreenLayout } from "./screen-ui";
+import { drawGame, drawGames, drawSettings } from "./game-display";
+export type { Hit, ScreenLayout } from "./screen-ui";
+import { articles, entryFor, entriesFor, MENU, SCREEN_WIDTH as W, SCREEN_HEIGHT as H, sectionPage, type ConsoleState, type Entry } from "./console";
 import { pixelText as text, textWidth, wrapText } from "./pixel-font";
 import { easeOut, progress } from "./boot";
 
-export type Hit = { x: number; y: number; w: number; h: number; action: { page: Page } | { url: string } | { control: "a" | "b" } };
-export type ScreenLayout = { hits: Hit[]; limit: number };
-type Palette = { paper: string; ink: string; muted: string; soft: string; accent: string; highlight: string };
-const palettes: Record<ConsoleState["palette"], Palette> = {
-  color: { paper: "#eeeede", ink: "#24374d", muted: "#68777a", soft: "#d8ddcd", accent: "#446cbe", highlight: "#f3c568" },
-  pocket: { paper: "#c4d59b", ink: "#263c31", muted: "#5a7650", soft: "#a1b879", accent: "#426249", highlight: "#d5e4af" },
-};
 const icons = [
   "000111000/001111100/001111100/000111000/000010000/011111110/111111111/111111111",
   "011100000/111110000/111111111/100000001/100000001/100000001/111111111/000000000",
   "000010000/001111100/111111111/001111100/001111101/001111101/000111001/000000001",
   "000000000/111111111/110000011/101000101/100101001/100010001/100000001/111111111",
+  "000000000/011111110/110000011/101000101/111100011/101001001/110000011/011111110",
+  "000111000/010111010/111000111/110010011/110010011/111000111/010111010/000111000",
 ];
 function icon(ctx: CanvasRenderingContext2D, index: number, x: number, y: number, scale: number, color: string) {
   ctx.fillStyle = color;
   icons[index].split("/").forEach((row, dy) => [...row].forEach((v, dx) => { if (v === "1") ctx.fillRect(x + dx * scale, y + dy * scale, scale, scale); }));
 }
-function rect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string) { ctx.fillStyle = color; ctx.fillRect(x, y, w, h); }
-function center(ctx: CanvasRenderingContext2D, value: string, y: number, scale: number, color: string) { text(ctx, value, (W - textWidth(value, scale)) / 2, y, scale, color); }
-function shortened(value: string, width: number, scale = 2) { let result = value; while (textWidth(result, scale) > width) result = result.slice(0, -1); return result.length < value.length ? `${result.slice(0, -2)}..` : result; }
-function header(ctx: CanvasRenderingContext2D, label: string, p: Palette) {
-  rect(ctx, 0, 0, W, 23, p.ink);
-  [0, 1, 2].forEach(i => rect(ctx, 10 + i * 4, 8, 2, 7, p.highlight));
-  text(ctx, label, 30, 8, 1, p.paper);
-  rect(ctx, 293, 7, 19, 9, p.paper); rect(ctx, 312, 10, 2, 3, p.paper); rect(ctx, 295, 9, 15, 5, p.ink);
-  [0, 1, 2].forEach(i => rect(ctx, 296 + i * 5, 9, 4, 5, p.highlight));
-}
-function footer(ctx: CanvasRenderingContext2D, p: Palette, a: string, b: string, hits: Hit[]) {
-  rect(ctx, 0, 194, W, 22, p.ink);
-  rect(ctx, 10, 200, 11, 11, p.highlight); text(ctx, "A", 13, 202, 1, p.ink); text(ctx, a, 27, 202, 1, p.paper);
-  rect(ctx, 187, 200, 11, 11, p.soft); text(ctx, "B", 190, 202, 1, p.ink); text(ctx, b, 204, 202, 1, p.paper);
-  hits.push({ x: 0, y: 194, w: 180, h: 22, action: { control: "a" } }, { x: 181, y: 194, w: 143, h: 22, action: { control: "b" } });
-}
-function scrollbar(ctx: CanvasRenderingContext2D, current: number, max: number, y: number, h: number, p: Palette) {
-  rect(ctx, 313, y, 3, h, p.soft);
-  const thumb = Math.max(10, Math.round(h * h / (h + max)));
-  rect(ctx, 313, y + Math.round(max ? current / max * (h - thumb) : 0), 3, thumb, p.accent);
-}
-
 export class DisplayRenderer {
   readonly canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -63,7 +40,8 @@ export class DisplayRenderer {
     const canvas = document.createElement("canvas"); canvas.width = canvas.height = 56;
     const ctx = canvas.getContext("2d")!; ctx.drawImage(image, 0, 0, 56, 56);
     const data = ctx.getImageData(0, 0, 56, 56);
-    const shades = palette === "color" ? [[36, 55, 77], [85, 104, 111], [156, 167, 149], [216, 221, 205], [243, 197, 104]] : [[38, 60, 49], [66, 98, 73], [90, 118, 80], [161, 184, 121], [196, 213, 155]];
+    const p = themeFor(palette);
+    const shades = [p.ink,p.muted,p.accent,p.soft,p.paper].map(hex => [1,3,5].map(start => parseInt(hex.slice(start,start+2),16)));
     const bayer = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
     for (let i = 0; i < data.data.length; i += 4) {
       const x = i / 4 % 56; const y = Math.floor(i / 4 / 56);
@@ -74,25 +52,26 @@ export class DisplayRenderer {
     ctx.putImageData(data, 0, 0); this.portraits.set(palette, canvas); return canvas;
   }
   draw(state: ConsoleState): ScreenLayout {
-    const ctx = this.ctx; const p = palettes[state.palette]; const hits: Hit[] = []; const page = state.page;
+    const ctx = this.ctx; const p = themeFor(state.palette); const hits: Hit[] = []; const page = state.page;
     ctx.imageSmoothingEnabled = false; rect(ctx, 0, 0, W, H, p.paper);
     if (page.kind === "menu") {
       header(ctx, "DESPRETS.NET", p);
-      rect(ctx, 16, 36, 66, 66, p.ink); rect(ctx, 18, 38, 62, 62, p.highlight);
-      const portrait = this.portrait(state.palette); if (portrait) ctx.drawImage(portrait, 21, 41);
-      text(ctx, "BEN", 98, 34, 3, p.ink); text(ctx, "DESPRETS", 98, 61, 3, p.ink);
-      text(ctx, "FULL-STACK DEVELOPER", 99, 93, 1, p.muted);
+      text(ctx, "BEN DESPRETS", 14, 31, 1, p.muted);
+      text(ctx, "HOME", 284, 31, 1, p.muted);
       MENU.forEach((section, index) => {
-        const x = 14 + index % 2 * 154; const y = 115 + Math.floor(index / 2) * 37; const active = index === page.selected;
-        rect(ctx, x + 2, y + 2, 142, 30, p.soft); rect(ctx, x, y, 142, 30, active ? p.accent : p.soft);
-        if (active) { rect(ctx, x, y, 3, 30, p.highlight); rect(ctx, x + 2, y + 2, 138, 1, "#ffffff30"); }
-        icon(ctx, index, x + 9, y + 7, 2, active ? p.highlight : p.muted);
-        text(ctx, section, x + 34, y + 9, 2, active ? p.paper : p.ink);
-        hits.push({ x, y, w: 142, h: 30, action: { page: section === "Work" || section === "Contact" ? { kind: "list", section, selected: 0 } : { kind: "article", id: section.toLowerCase(), scroll: 0 } } });
+        const x = 14 + index % 2 * 154; const y = 46 + Math.floor(index / 2) * 48; const active = index === page.selected;
+        rect(ctx, x + 2, y + 2, 142, 41, p.soft); rect(ctx, x, y, 142, 41, active ? p.accent : p.soft);
+        if (active) { rect(ctx, x, y, 3, 41, p.highlight); rect(ctx, x + 2, y + 2, 138, 1, "#ffffff30"); }
+        icon(ctx, index, x + 9, y + 13, 2, active ? p.highlight : p.muted);
+        text(ctx, section, x + 34, y + 15, 2, active ? p.paper : p.ink);
+        hits.push({ x, y, w: 142, h: 41, action: { page: sectionPage(index) } });
       });
       footer(ctx, p, "OPEN", "BACK", hits);
       return { hits, limit: 0 };
     }
+    if (page.kind === "games") return drawGames(ctx,state,page,p);
+    if (page.kind === "settings") return drawSettings(ctx,state,page,p);
+    if (page.kind === "game") return drawGame(ctx,state,page.game,p);
     if (page.kind === "list") {
       const entries = entriesFor(page.section); const first = Math.max(0, Math.min(entries.length - 4, page.selected - 2));
       header(ctx, `BEN / ${page.section.toUpperCase()}`, p);

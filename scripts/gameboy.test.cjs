@@ -13,7 +13,7 @@ const { wrapText, textWidth } = require(join(output, 'components/gameboy/pixel-f
 after(() => rmSync(output, { recursive: true, force: true }));
 const control = (state, button) => reduce(state, { type: 'control', control: button });
 
-test('the D-pad follows the physical arrangement of the four home tiles', () => {
+test('the D-pad follows the physical arrangement of the six home tiles', () => {
   const home = initialConsole('/', '');
   assert.equal(control(home, 'right').page.selected, 1);
   assert.equal(control(home, 'down').page.selected, 2);
@@ -78,4 +78,69 @@ test('bitmap text wraps long addresses and paragraphs without losing words or ov
     assert.equal(lines.join('').replace(/\s/g, ''), entry.body.replace(/\s/g, ''), entry.id);
   }
   assert.deepEqual(wrapText('Ben\n\nDesprets', 288, 2), ['Ben', '', 'Desprets']);
+});
+const { newGame, tickGame, gameControl, pieceCells, ghostPiece, fits } = require(join(output, 'components/gameboy/games.js'));
+const { THEMES } = require(join(output, 'components/gameboy/themes.js'));
+const running = kind => ({...newGame(kind),status:'running'});
+
+test('all six home tiles and themes are reachable with a two-column D-pad',()=>{
+  let state=initialConsole('/',''); state=control(control(state,'up'),'right'); assert.equal(state.page.selected,5);
+  state=control(state,'a');assert.equal(state.page.kind,'settings');
+  for(const theme of THEMES){state=reduce(state,{type:'palette',palette:theme.id});assert.equal(state.palette,theme.id);assert.equal(THEMES[state.page.selected].id,theme.id);}
+  assert.equal(articles.find(entry=>entry.id==='about').image,'/pfp-380.webp');
+});
+test('Snake rejects reversal and buffers quick turns across separate steps',()=>{
+  let game=running('snake');const head=game.snake[0];
+  assert.equal(gameControl(game,'left'),game);
+  game=gameControl(gameControl(game,'up'),'left');game=tickGame(game);
+  assert.deepEqual(game.snake[0],{x:head.x,y:head.y-1});game=tickGame(game);
+  assert.deepEqual(game.snake[0],{x:head.x-1,y:head.y-1});
+});
+test('Snake grows and places food off its body, but dies at walls',()=>{
+  let game=running('snake');game={...game,food:{x:8,y:8}};game=tickGame(game);
+  assert.equal(game.score,10);assert.equal(game.snake.length,5);assert.ok(!game.snake.some(c=>c.x===game.food.x&&c.y===game.food.y));
+  for(let i=0;i<30;i++)game=tickGame(game);assert.equal(game.status,'over');
+});
+test('Snake can move into its departing tail and wins when the board fills',()=>{
+  let game={...running('snake'),snake:[{x:1,y:1},{x:1,y:2},{x:0,y:2},{x:0,y:1}],direction:'left',food:{x:8,y:8}};
+  assert.equal(tickGame(game).status,'running');
+  const snake=[];for(let y=0;y<16;y++)for(let x=0;x<20;x++)if(x!==0||y!==0)snake.push({x,y});
+  game={...game,snake,direction:'left',food:{x:0,y:0}};assert.equal(tickGame(game).status,'won');
+});
+test('paused games remain frozen and can resume, retry, or quit',()=>{
+  for(const kind of ['snake','tetris']){
+    const game=gameControl(running(kind),'b');assert.equal(game.status,'paused');assert.equal(tickGame(game),game);
+    assert.equal(gameControl(game,'start').status,'running');assert.equal(gameControl({...game,status:'over'},'a').score,0);
+    let state=reduce(initialConsole('/',''),{type:'open',page:{kind:'games',selected:kind==='snake'?0:1}});
+    state=control(state,'a');state=control(state,'a');state=control(state,'b');assert.equal(state.page.game.status,'paused');
+    state=control(state,'b');assert.equal(state.page.kind,'games');
+  }
+});
+test('Tetris starts with a seven-piece bag and hard-drops onto its landing guide',()=>{
+  let game=running('tetris');assert.equal(new Set([game.active.kind,...game.queue.slice(0,6)]).size,7);
+  const ghost=pieceCells(ghostPiece(game));game=gameControl(game,'select');
+  assert.equal(game.board.flat().filter(Boolean).length,4);assert.ok(ghost.every(c=>game.board[c.y][c.x]));assert.ok(game.score>0);
+});
+test('Tetris clears four rows, scores them, and advances the level',()=>{
+  let game=running('tetris');game={...game,lines:6,active:{kind:'I',rotation:1,x:2,y:16}};
+  game.board=game.board.map((row,y)=>y>=16?row.map((_,x)=>x===4?0:1):row);
+  game=gameControl(game,'select');assert.equal(game.lines,10);assert.equal(game.score,800);assert.equal(game.board.flat().filter(Boolean).length,0);
+});
+test('Tetris rotation respects walls and an obstructed spawn ends the game',()=>{
+  let game={...running('tetris'),active:{kind:'T',rotation:0,x:0,y:5}};
+  for(let i=0;i<5;i++)game=gameControl(game,'left');game=gameControl(game,'a');assert.ok(fits(game.board,game.active));
+  game={...running('tetris'),active:{kind:'O',rotation:0,x:3,y:-1}};game.board[1]=Array(10).fill(1);
+  assert.equal(tickGame(game).status,'over');
+});
+test('game ticks update best scores without losing them when leaving',()=>{
+  let game={...running('snake'),food:{x:8,y:8}};
+  let state={...initialConsole('/',''),page:{kind:'game',game}};state=reduce(state,{type:'tick'});assert.equal(state.records.snake,10);
+  state=control(control(state,'b'),'b');assert.equal(state.records.snake,10);
+});
+test('long deterministic Tetris input sequences keep the board valid',()=>{
+  let game=running('tetris');const actions=['left','right','a','down','select'];
+  for(let i=0;i<500;i++){if(game.status==='over')game=gameControl(game,'a');game=gameControl(game,actions[(i*17+i*i)%actions.length]);game=tickGame(game);
+    assert.equal(game.board.length,20);assert.ok(game.board.every(row=>row.length===10&&row.every(v=>Number.isInteger(v)&&v>=0&&v<=7)));
+    if(game.status==='running')assert.ok(fits(game.board,game.active));assert.ok(Number.isSafeInteger(game.score)&&game.score>=0);
+  }
 });
