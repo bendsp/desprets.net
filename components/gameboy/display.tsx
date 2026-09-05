@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { CanvasTexture, LinearFilter, NearestFilter, SRGBColorSpace } from "three";
+import { CanvasTexture, LinearFilter, SRGBColorSpace } from "three";
 import { DisplayRenderer, type Hit, type ScreenLayout } from "./display-renderer";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, type ConsoleState, type Control } from "./console";
 import { BOOT } from "./boot-timeline";
@@ -17,7 +17,7 @@ export function Display({ state, time, booting, power, bright, reduced, onHit, o
   const touch = useRef<{ id: number; x: number; y: number; total: number }>();
   const { texture, output, context } = useMemo(() => {
     const output = document.createElement("canvas"); output.width = SCREEN_WIDTH * 3; output.height = SCREEN_HEIGHT * 3;
-    const texture = new CanvasTexture(output); texture.colorSpace = SRGBColorSpace; texture.magFilter = NearestFilter; texture.minFilter = LinearFilter; texture.generateMipmaps = false;
+    const texture = new CanvasTexture(output); texture.colorSpace = SRGBColorSpace; texture.magFilter = LinearFilter; texture.minFilter = LinearFilter; texture.generateMipmaps = false;
     return { texture, output, context: output.getContext("2d")! };
   }, []);
   useEffect(() => {
@@ -40,11 +40,11 @@ export function Display({ state, time, booting, power, bright, reduced, onHit, o
       }
     } else if (power) layout.current = renderer.draw(state);
     else { const ctx = renderer.canvas.getContext("2d")!; ctx.fillStyle = "#12252b"; ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT); }
-    context.imageSmoothingEnabled = false; context.drawImage(renderer.canvas, 0, 0, output.width, output.height);
+    context.imageSmoothingEnabled = true; context.imageSmoothingQuality = "high"; context.drawImage(renderer.canvas, 0, 0, output.width, output.height);
     // Each logical pixel has a fine horizontal gate and RGB-column boundary, visible only up close.
-    context.fillStyle = "#10252d"; context.globalAlpha = .07;
+    context.fillStyle = "#10252d"; context.globalAlpha = .025;
     for (let y = 2; y < output.height; y += 3) context.fillRect(0, y, output.width, 1);
-    context.globalAlpha = .025;
+    context.globalAlpha = .008;
     for (let x = 2; x < output.width; x += 3) context.fillRect(x, 0, 1, output.height);
     context.globalAlpha = 1;
     if (!bright && power) { context.fillStyle = "#12252b88"; context.fillRect(0, 0, output.width, output.height); }

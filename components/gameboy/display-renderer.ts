@@ -4,57 +4,39 @@ import { rect, center, header, footer, scrollbar, shortened, type Hit, type Scre
 import { drawGame, drawGames, drawSettings } from "./game-display";
 export type { Hit, ScreenLayout } from "./screen-ui";
 import { articles, entryFor, entriesFor, MENU, SCREEN_WIDTH as W, SCREEN_HEIGHT as H, sectionPage, type ConsoleState, type Entry } from "./console";
-import { pixelText as text, textWidth, wrapText } from "./pixel-font";
+import { screenText as text, textWidth, wrapText } from "./screen-font";
 import { easeOut, progress } from "./boot";
 
-const icons = [
-  "000111000/001111100/001111100/000111000/000010000/011111110/111111111/111111111",
-  "011100000/111110000/111111111/100000001/100000001/100000001/111111111/000000000",
-  "000010000/001111100/111111111/001111100/001111101/001111101/000111001/000000001",
-  "000000000/111111111/110000011/101000101/100101001/100010001/100000001/111111111",
-  "000000000/011111110/110000011/101000101/111100011/101001001/110000011/011111110",
-  "000111000/010111010/111000111/110010011/110010011/111000111/010111010/000111000",
-];
 function icon(ctx: CanvasRenderingContext2D, index: number, x: number, y: number, scale: number, color: string) {
-  ctx.fillStyle = color;
-  icons[index].split("/").forEach((row, dy) => [...row].forEach((v, dx) => { if (v === "1") ctx.fillRect(x + dx * scale, y + dy * scale, scale, scale); }));
+  ctx.save(); ctx.translate(x,y); ctx.scale(scale,scale); ctx.strokeStyle=color; ctx.lineWidth=.8; ctx.lineCap="round"; ctx.lineJoin="round";
+  ctx.beginPath();
+  if (index===0) { ctx.arc(4.5,2,1.6,0,Math.PI*2); ctx.moveTo(1,8); ctx.bezierCurveTo(1,3.9,8,3.9,8,8); }
+  if (index===1) { ctx.roundRect(.5,2.5,8,5.5,.7); ctx.moveTo(3,2.5); ctx.lineTo(3,1); ctx.lineTo(6,1); ctx.lineTo(6,2.5); ctx.moveTo(.5,4.5); ctx.lineTo(8.5,4.5); }
+  if (index===2) { ctx.moveTo(.3,3); ctx.lineTo(4.5,1); ctx.lineTo(8.7,3); ctx.lineTo(4.5,5); ctx.closePath(); ctx.moveTo(2,4); ctx.lineTo(2,6.5); ctx.quadraticCurveTo(4.5,8.5,7,6.5); ctx.lineTo(7,4); ctx.moveTo(8.7,3); ctx.lineTo(8.7,7); }
+  if (index===3) { ctx.roundRect(.5,1.5,8,6,.7); ctx.moveTo(.8,2); ctx.lineTo(4.5,5); ctx.lineTo(8.2,2); }
+  if (index===4) { ctx.roundRect(.5,2,8,5.8,2); ctx.moveTo(2,4.8); ctx.lineTo(4,4.8); ctx.moveTo(3,3.8); ctx.lineTo(3,5.8); ctx.moveTo(6.2,5.5); ctx.lineTo(6.25,5.5); ctx.moveTo(7.2,4.3); ctx.lineTo(7.25,4.3); }
+  if (index===5) { ctx.arc(4.5,4.5,2.6,0,Math.PI*2); ctx.moveTo(5.5,4.5); ctx.arc(4.5,4.5,1,0,Math.PI*2); for(let i=0;i<8;i++) { const a=i*Math.PI/4; ctx.moveTo(4.5+Math.cos(a)*2.8,4.5+Math.sin(a)*2.8); ctx.lineTo(4.5+Math.cos(a)*3.8,4.5+Math.sin(a)*3.8); } }
+  ctx.stroke(); ctx.restore();
 }
+
 export class DisplayRenderer {
   readonly canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private images = new Map<string, HTMLImageElement>();
-  private portraits = new Map<string, HTMLCanvasElement>();
   private disposed = false;
   constructor(onImage: () => void) {
-    this.canvas = document.createElement("canvas"); this.canvas.width = W; this.canvas.height = H;
-    this.ctx = this.canvas.getContext("2d")!;
+    this.canvas = document.createElement("canvas"); this.canvas.width = W*3; this.canvas.height = H*3;
+    this.ctx = this.canvas.getContext("2d")!; this.ctx.scale(3,3);
     for (const src of new Set(["/pfp-380.webp", ...articles.flatMap(item => item.image ? [item.image] : [])])) {
       const image = new Image();
       image.onload = () => { if (!this.disposed) { this.images.set(src, image); onImage(); } };
       image.src = src;
     }
   }
-  dispose() { this.disposed = true; this.images.clear(); this.portraits.clear(); }
-  private portrait(palette: ConsoleState["palette"]) {
-    const cached = this.portraits.get(palette); if (cached) return cached;
-    const image = this.images.get("/pfp-380.webp"); if (!image) return;
-    const canvas = document.createElement("canvas"); canvas.width = canvas.height = 56;
-    const ctx = canvas.getContext("2d")!; ctx.drawImage(image, 0, 0, 56, 56);
-    const data = ctx.getImageData(0, 0, 56, 56);
-    const p = themeFor(palette);
-    const shades = [p.ink,p.muted,p.accent,p.soft,p.paper].map(hex => [1,3,5].map(start => parseInt(hex.slice(start,start+2),16)));
-    const bayer = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-    for (let i = 0; i < data.data.length; i += 4) {
-      const x = i / 4 % 56; const y = Math.floor(i / 4 / 56);
-      const luma = .2126 * data.data[i] + .7152 * data.data[i + 1] + .0722 * data.data[i + 2] + (bayer[y % 4 * 4 + x % 4] - 7.5) * 3;
-      const shade = shades[Math.max(0, Math.min(4, Math.floor(luma / 52)))];
-      data.data[i] = shade[0]; data.data[i + 1] = shade[1]; data.data[i + 2] = shade[2];
-    }
-    ctx.putImageData(data, 0, 0); this.portraits.set(palette, canvas); return canvas;
-  }
+  dispose() { this.disposed = true; this.images.clear(); }
   draw(state: ConsoleState): ScreenLayout {
     const ctx = this.ctx; const p = themeFor(state.palette); const hits: Hit[] = []; const page = state.page;
-    ctx.imageSmoothingEnabled = false; rect(ctx, 0, 0, W, H, p.paper);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high"; rect(ctx, 0, 0, W, H, p.paper);
     if (page.kind === "menu") {
       header(ctx, "DESPRETS.NET", p);
       text(ctx, "BEN DESPRETS", 14, 31, 1, p.muted);
@@ -101,8 +83,8 @@ export class DisplayRenderer {
     y += 10; rect(ctx, 14, y, 290, 1, p.soft); y += 13;
     if (entry.image) {
       if (entry.id === "about") {
-        const portrait = this.portrait(state.palette);
-        rect(ctx, 15, y + 2, 58, 58, p.ink); if (portrait) ctx.drawImage(portrait, 16, y + 3);
+        const portrait = this.images.get("/pfp-380.webp");
+        rect(ctx, 15, y + 2, 58, 58, p.ink); if (portrait) ctx.drawImage(portrait, 16, y + 3,56,56);
         text(ctx, "Ben", 88, y + 10, 2, p.ink); text(ctx, "Desprets", 88, y + 30, 2, p.ink);
         y += 75;
       } else {
@@ -138,15 +120,15 @@ export class DisplayRenderer {
     // Fit every glyph into the same arrival window before the original highlight.
     const stagger = (BOOT.settled-BOOT.letters-BOOT.letterFlight) / (word.length-1);
     const colors = ["#2543c7","#159cdc","#16bdaa","#3bcc44","#d3d70b","#ffa821","#f14c63","#ed33c6"];
-    let x = left;
     [...word].forEach((letter,index)=>{
+      const x = left+textWidth(word.slice(0,index),scale);
       const flight = progress(t,BOOT.letters+index*stagger,BOOT.letterFlight);
-      if (flight <= 0) { x += textWidth(letter,scale)+scale; return; }
+      if (flight <= 0) return;
       const p = easeOut(flight), size = 1+(1-p)*1.8;
       const y = 87+(1-p)*70-Math.sin(p*Math.PI)*55;
       ctx.save(); ctx.translate(x+(1-p)*220,y); ctx.transform(1,0,-.12,1,0,0); ctx.scale(size,size);
       text(ctx,letter,0,0,scale,flight >= 1 ? blue : colors[Math.min(colors.length-1,Math.floor((1-flight)*colors.length))]);
-      ctx.restore(); x += textWidth(letter,scale)+scale;
+      ctx.restore();
     });
     // The original's highlight travels through the settled word before the chime finishes.
     const shine = progress(t,BOOT.shineStart,BOOT.shineDuration);
@@ -158,7 +140,7 @@ export class DisplayRenderer {
       }
     }
     ctx.globalAlpha = (1-fade)*progress(t,.05,.18);
-    center(ctx,"desprets.net",165,1,"#cc43bc"); ctx.restore();
+    center(ctx,"desprets.net",161,1.65,"#cc43bc"); ctx.restore();
   }
 }
 

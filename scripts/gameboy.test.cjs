@@ -6,10 +6,10 @@ const { join, resolve } = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const output = mkdtempSync(join(tmpdir(), 'desprets-console-'));
-const compiled = spawnSync(process.execPath, [require.resolve('typescript/bin/tsc'), '--module', 'commonjs', '--target', 'ES2022', '--skipLibCheck', '--outDir', output, 'components/gameboy/console.ts', 'components/gameboy/pixel-font.ts'], { cwd: resolve(__dirname, '..'), encoding: 'utf8' });
+const compiled = spawnSync(process.execPath, [require.resolve('typescript/bin/tsc'), '--module', 'commonjs', '--target', 'ES2022', '--skipLibCheck', '--outDir', output, 'components/gameboy/console.ts', 'components/gameboy/screen-font.ts'], { cwd: resolve(__dirname, '..'), encoding: 'utf8' });
 assert.equal(compiled.status, 0, compiled.stdout + compiled.stderr);
 const { consoleReducer: reduce, initialConsole, work, contact, articles, keyControl } = require(join(output, 'components/gameboy/console.js'));
-const { wrapText, textWidth } = require(join(output, 'components/gameboy/pixel-font.js'));
+const { wrapText, textWidth } = require(join(output, 'components/gameboy/screen-font.js'));
 after(() => rmSync(output, { recursive: true, force: true }));
 const control = (state, button) => reduce(state, { type: 'control', control: button });
 
@@ -71,7 +71,7 @@ test('keyboard directions and emulator action keys remain distinct', () => {
   assert.equal(keyControl('KeyQ'), undefined);
 });
 
-test('bitmap text wraps long addresses and paragraphs without losing words or overflowing', () => {
+test('screen text wraps long addresses and paragraphs without losing words or overflowing', () => {
   for (const entry of articles) {
     const lines = wrapText(entry.body, 288, 2);
     assert.ok(lines.every(line => textWidth(line, 2) <= 288), entry.id);

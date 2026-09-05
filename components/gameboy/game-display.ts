@@ -1,7 +1,7 @@
 import { type ConsoleState, type Page } from "./console";
 import { newGame, pieceCells, ghostPiece, PIECES, type Game, type FallingPiece } from "./games";
 import { THEMES, type Palette } from "./themes";
-import { pixelText as text } from "./pixel-font";
+import { screenText as text } from "./screen-font";
 import { rect, center, header, footer, type Hit, type ScreenLayout } from "./screen-ui";
 
 export function drawSettings(ctx: CanvasRenderingContext2D, state: ConsoleState, page: Extract<Page,{kind:"settings"}>, p: Palette): ScreenLayout {

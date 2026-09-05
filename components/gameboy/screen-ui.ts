@@ -1,6 +1,6 @@
 import { SCREEN_WIDTH as W, type Page, type Control } from "./console";
 import type { Palette, PaletteId } from "./themes";
-import { pixelText as text, textWidth } from "./pixel-font";
+import { screenText as text, textWidth } from "./screen-font";
 export type Hit = { x:number; y:number; w:number; h:number; action: {page:Page} | {url:string} | {control:Control} | {palette:PaletteId} };
 export type ScreenLayout = { hits:Hit[]; limit:number };
 export function rect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string) { ctx.fillStyle = color; ctx.fillRect(x, y, w, h); }
