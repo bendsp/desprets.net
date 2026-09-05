@@ -2,10 +2,12 @@ import type { Metadata, Viewport } from "next";
 import type React from "react";
 import Link from "next/link";
 import "@/app/globals.css";
+import "@/components/gameboy/scene.css";
 import { SiteNav } from "@/components/site-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { site } from "@/lib/site";
+import { PortfolioExperience } from "@/components/portfolio-experience";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -58,11 +60,11 @@ export const metadata: Metadata = {
     images: ["/og.jpg"],
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
     googleBot: {
-      index: true,
-      follow: true,
+      index: false,
+      follow: false,
       "max-image-preview": "large",
       "max-snippet": -1,
       "max-video-preview": -1,
@@ -108,7 +110,7 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <div className="site-shell">
+          <PortfolioExperience><div className="site-shell">
             <header className="site-header">
               <Link href="/" className="site-title">
                 Ben Desprets
@@ -126,7 +128,7 @@ export default function RootLayout({
             <footer className="site-footer">
               <p>Benjamin Desprets / 2022 - {currentYear}</p>
             </footer>
-          </div>
+          </div></PortfolioExperience>
         </ThemeProvider>
       </body>
     </html>
