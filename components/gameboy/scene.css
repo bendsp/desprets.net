@@ -26,3 +26,8 @@ html[data-portfolio="scene"], html[data-portfolio="scene"] body { overflow: clip
 .sp-accessible { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .sp-accessible:focus-within { width: min(540px, 90vw); height: auto; max-height: 60vh; overflow: auto; clip-path: none; top: 20px; left: 50%; transform: translateX(-50%); z-index: 30; padding: 24px; background: #eeeede; color: #24374d; border: 2px solid #446cbe; border-radius: 8px; }
 .sp-accessible button, .sp-accessible a { display: block; margin: 10px 0; padding: 4px; }
+
+.sp-open-hint { position: absolute; z-index: 10; left: 50%; bottom: max(104px, calc(env(safe-area-inset-bottom) + 88px)); transform: translateX(-50%); padding: 10px 18px; border: 0; background: none; color: #c4cdd8; font: inherit; font-size: 12px; letter-spacing: .04em; line-height: 1; white-space: nowrap; opacity: 0; cursor: pointer; transition: opacity 200ms ease; }
+.sp-experience[data-ready="true"] .sp-open-hint { opacity: .6; }
+@media (hover: hover) and (pointer: fine) { .sp-experience[data-ready="true"] .sp-open-hint:hover { opacity: 1; } }
+.sp-open-hint:focus-visible { outline: 1px solid #d4e7fb88; outline-offset: 2px; border-radius: 6px; opacity: 1; }

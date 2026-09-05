@@ -5,6 +5,7 @@ import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { CanvasTexture, LinearFilter, NearestFilter, SRGBColorSpace } from "three";
 import { DisplayRenderer, type Hit, type ScreenLayout } from "./display-renderer";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, type ConsoleState, type Control } from "./console";
+import { BOOT } from "./boot-timeline";
 import { progress } from "./boot";
 
 type Props = { state: ConsoleState; time: MutableRefObject<number>; booting: boolean; power: boolean; bright: boolean; reduced: boolean; onHit: (action: Hit["action"]) => void; onSwipe: (control: Control) => void; onScroll: (delta: number) => void; onTouch: (held: boolean) => void };
@@ -14,11 +15,10 @@ export function Display({ state, time, booting, power, bright, reduced, onHit, o
   const activeRenderer = useRef<DisplayRenderer | null>(null);
   const dirty = useRef(true); const layout = useRef<ScreenLayout>({ hits: [], limit: 0 });
   const touch = useRef<{ id: number; x: number; y: number; total: number }>();
-  const { texture, output, context, bootFrame } = useMemo(() => {
+  const { texture, output, context } = useMemo(() => {
     const output = document.createElement("canvas"); output.width = SCREEN_WIDTH * 3; output.height = SCREEN_HEIGHT * 3;
     const texture = new CanvasTexture(output); texture.colorSpace = SRGBColorSpace; texture.magFilter = NearestFilter; texture.minFilter = LinearFilter; texture.generateMipmaps = false;
-    const bootFrame = document.createElement("canvas"); bootFrame.width = SCREEN_WIDTH; bootFrame.height = SCREEN_HEIGHT;
-    return { texture, output, bootFrame, context: output.getContext("2d")! };
+    return { texture, output, context: output.getContext("2d")! };
   }, []);
   useEffect(() => {
     const renderer = new DisplayRenderer(() => { dirty.current = true; invalidate(); });
@@ -32,13 +32,12 @@ export function Display({ state, time, booting, power, bright, reduced, onHit, o
     if (!dirty.current && !booting) return;
     if (power && booting) {
       renderer.boot(time.current, reduced);
-      if (!reduced && time.current > 4.75 && time.current < 5.15) {
-        // The OS wipes upward through the same physical display; it never becomes an HTML overlay.
-        bootFrame.getContext("2d")!.drawImage(renderer.canvas, 0, 0);
+      if (!reduced && time.current >= BOOT.menuAt) {
         layout.current = renderer.draw(state);
-        const ctx = renderer.canvas.getContext("2d")!; const reveal = Math.round(SCREEN_HEIGHT * progress(time.current, 4.75, .4));
-        ctx.drawImage(bootFrame, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - reveal, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - reveal);
-      } else if (!reduced && time.current >= 5.15) layout.current = renderer.draw(state);
+        const ctx = renderer.canvas.getContext("2d")!;
+        ctx.globalAlpha = 1-progress(time.current, BOOT.menuAt, BOOT.menuFade);
+        ctx.fillStyle = "#faf7fc"; ctx.fillRect(0,0,SCREEN_WIDTH,SCREEN_HEIGHT); ctx.globalAlpha = 1;
+      }
     } else if (power) layout.current = renderer.draw(state);
     else { const ctx = renderer.canvas.getContext("2d")!; ctx.fillStyle = "#12252b"; ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT); }
     context.imageSmoothingEnabled = false; context.drawImage(renderer.canvas, 0, 0, output.width, output.height);

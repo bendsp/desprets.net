@@ -1,9 +1,12 @@
 "use client";
 
+import { BOOT } from "./boot-timeline";
 import { useCallback, useEffect, useRef } from "react";
 
 /** User-supplied cue: https://youtu.be/CoWTz0jEfAI. */
 export function useStartupSound(enabled: boolean, reduced: boolean) {
+  const startedAt = useRef<number | null>(null);
+  const elapsed = useCallback(() => startedAt.current === null ? 0 : (performance.now()-startedAt.current)/1000, []);
   const context = useRef<AudioContext | null>(null);
   const source = useRef<AudioBufferSourceNode | null>(null);
   const bytes = useRef<Promise<ArrayBuffer | null>>();
@@ -21,7 +24,8 @@ export function useStartupSound(enabled: boolean, reduced: boolean) {
   }, []);
   const start = useCallback(async () => {
     stop();
-    if (!enabled) return;
+    startedAt.current = performance.now();
+    if (!enabled) { startedAt.current = performance.now(); return; }
     const attempt = generation.current;
     // Must run synchronously inside the user's pointer/keyboard event.
     const player = context.current ?? new AudioContext(); context.current = player;
@@ -36,13 +40,14 @@ export function useStartupSound(enabled: boolean, reduced: boolean) {
         if (attempt !== generation.current) return;
         const cue = player.createBufferSource(); cue.buffer = buffer;
         cue.connect(player.destination); source.current = cue;
-        cue.start(player.currentTime + (reduced ? 0 : 2.15));
+        cue.start(player.currentTime + (reduced ? 0 : BOOT.screenOn));
       } catch { /* A failed audio asset must not prevent opening the portfolio. */ }
     };
     await Promise.race([prepare(), cancelled]);
+    startedAt.current = performance.now();
     if (attempt === generation.current) cancelPreparation.current = null;
   }, [enabled, reduced, stop]);
   useEffect(() => { if (!enabled) stop(); }, [enabled, stop]);
   useEffect(() => () => { stop(); void context.current?.close().catch(() => {}); context.current = null; }, [stop]);
-  return { start, stop };
+  return { start, stop, elapsed };
 }

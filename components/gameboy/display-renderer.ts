@@ -1,3 +1,4 @@
+import { BOOT } from "./boot-timeline";
 import { themeFor } from "./themes";
 import { rect, center, header, footer, scrollbar, shortened, type Hit, type ScreenLayout } from "./screen-ui";
 import { drawGame, drawGames, drawSettings } from "./game-display";
@@ -127,27 +128,35 @@ export class DisplayRenderer {
     return { hits, limit: layout.limit };
   }
   boot(time: number, reduced: boolean) {
-    const ctx = this.ctx; const t = reduced ? 4.25 : time;
-    rect(ctx, 0, 0, W, H, t < 1.8 ? "#15272d" : "#f3f4e8");
-    if (t < 1.8) return;
-    const colors = ["#d95d72", "#ecaa54", "#c2bf54", "#60ab82", "#5698c4", "#8374be"];
-    const word = "DESPRETS"; const scale = 5; const left = (W - textWidth(word, scale)) / 2;
+    const ctx = this.ctx; const t = reduced ? 3.3 : time - BOOT.screenOn;
+    const paper = "#faf7fc", blue = "#243cba";
+    rect(ctx,0,0,W,H,t < 0 ? "#15272d" : paper);
+    if (t < 0) return;
+    const fade = reduced ? 0 : progress(t,BOOT.fadeStart,BOOT.fadeDuration);
+    ctx.save(); ctx.globalAlpha = 1-fade;
+    const word = "DESPRETS", scale = 5, left = (W-textWidth(word,scale))/2;
+    const colors = ["#2543c7","#159cdc","#16bdaa","#3bcc44","#d3d70b","#ffa821","#f14c63","#ed33c6"];
     let x = left;
-    [...word].forEach((letter, index) => {
-      const p = easeOut(progress(t, 2.15 + index * .055, .9));
-      const y = 84 - (1 - p) * (100 + index * 8);
-      // Six offset colors converge into the lettering, like light settling in an LCD.
-      for (let band = 5; band >= 0; band--) {
-        const spread = (1 - easeOut(progress(t, 2.7 + index * .04, .95))) * (band + 1) * 8;
-        text(ctx, letter, x + spread * .2, y - spread, scale, colors[band]);
-      }
-      text(ctx, letter, x, y, scale, t > 3.7 ? "#4668aa" : colors[index % colors.length]);
-      x += textWidth(letter, scale) + scale;
+    [...word].forEach((letter,index)=>{
+      const flight = progress(t,BOOT.letters+index*BOOT.letterStagger,BOOT.letterFlight);
+      if (flight <= 0) { x += textWidth(letter,scale)+scale; return; }
+      const p = easeOut(flight), size = 1+(1-p)*1.8;
+      const y = 87+(1-p)*70-Math.sin(p*Math.PI)*55;
+      ctx.save(); ctx.translate(x+(1-p)*220,y); ctx.transform(1,0,-.12,1,0,0); ctx.scale(size,size);
+      text(ctx,letter,0,0,scale,flight >= 1 ? blue : colors[Math.min(colors.length-1,Math.floor((1-flight)*colors.length))]);
+      ctx.restore(); x += textWidth(letter,scale)+scale;
     });
-    if (t > 3.5) {
-      ctx.globalAlpha = progress(t, 3.5, .45); center(ctx, "desprets.net", 132, 1, "#56677c");
-      center(ctx, "BEN DESPRETS", 180, 1, "#85908d"); ctx.globalAlpha = 1;
+    // The original's highlight travels through the settled word before the chime finishes.
+    const shine = progress(t,BOOT.shineStart,BOOT.shineDuration);
+    if (shine > 0 && shine < 1) {
+      const sweep = left-44+shine*(textWidth(word,scale)+88);
+      for (const [offset,width,color] of [[-26,16,"#8259d4"],[-10,13,"#d65be0"],[3,8,"#f9c9f5"],[11,13,"#cf63db"],[24,12,"#8761d2"]] as const) {
+        ctx.save(); ctx.beginPath(); ctx.rect(sweep+offset,84,width,43); ctx.clip();
+        ctx.translate(left,87); ctx.transform(1,0,-.12,1,0,0); text(ctx,word,0,0,scale,color); ctx.restore();
+      }
     }
+    ctx.globalAlpha = (1-fade)*progress(t,.05,.18);
+    center(ctx,"BEN DESPRETS",165,1,"#cc43bc"); ctx.restore();
   }
 }
 

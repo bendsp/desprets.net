@@ -1,4 +1,5 @@
 "use client";
+import { BOOT, bootStage } from "./boot-timeline";
 import { gameDelay, newGame } from "./games";
 import { THEMES, isPalette } from "./themes";
 
@@ -18,16 +19,15 @@ import { useStartupSound } from "./startup-sound";
 type OrbitControlsImpl = ComponentRef<typeof OrbitControls>;
 type CameraMotion = { returning: boolean; dragging: boolean };
 
-function CameraRig({ waiting, sticky, article, reset, reduced, booting, time, onBootEnd, onStage, controls, motion }: {
-  waiting: boolean;
+function CameraRig({ elapsed, waiting, sticky, article, reset, reduced, booting, time, onBootEnd, onStage, controls, motion }: {
+  elapsed: () => number; waiting: boolean;
   sticky: boolean; reset: number; reduced: boolean; booting: boolean; time: MutableRefObject<number>; onBootEnd: () => void;
   article: boolean;
   onStage: (stage: string) => void;
   controls: React.RefObject<OrbitControlsImpl>; motion: MutableRefObject<CameraMotion>;
 }) {
   const { camera, size, invalidate } = useThree();
-  const firstBootFrame = useRef(true);
-  useEffect(() => { firstBootFrame.current = true; invalidate(); }, [waiting, invalidate]);
+  useEffect(() => { invalidate(); }, [waiting, invalidate]);
   const targets = useRef({ read: new Vector3(), readLook: new Vector3(), hero: new Vector3(), heroLook: new Vector3(), overview: new Vector3(), overviewLook: new Vector3() });
   useEffect(() => {
     const aspect = size.width / size.height; const t = targets.current;
@@ -42,18 +42,17 @@ function CameraRig({ waiting, sticky, article, reset, reduced, booting, time, on
     const orbit = controls.current; if (!orbit) return;
     const t = targets.current;
     if (booting) {
-      time.current = Math.min(reduced ? .65 : BOOT_DURATION, time.current + (waiting || firstBootFrame.current ? 0 : Math.min(delta, .25)));
-      firstBootFrame.current = false;
-      onStage(waiting ? "closed" : reduced ? "logo" : time.current < .5 ? "closed" : time.current < 2.3 ? "opening" : time.current < 3.6 ? "rainbow" : time.current < 4.75 ? "logo" : "menu");
+      time.current = waiting ? 0 : Math.min(reduced ? BOOT.reducedDuration : BOOT_DURATION, elapsed());
+      onStage(bootStage(time.current, waiting, reduced));
       if (reduced && !waiting) { camera.position.copy(t.read); orbit.target.copy(t.readLook); }
       else {
-        const opening = easeInOut(progress(time.current, .5, 1.8));
-        const framing = easeInOut(progress(time.current, 2.5, 3.3));
+        const opening = easeInOut(progress(time.current, BOOT.lidStart, BOOT.lidDuration));
+        const framing = easeInOut(progress(time.current, BOOT.framingStart, BOOT.framingDuration));
         camera.position.copy(t.hero).lerp(t.overview, opening).lerp(t.read, framing);
         orbit.target.copy(t.heroLook).lerp(t.overviewLook, opening).lerp(t.readLook, framing);
       }
       orbit.update(); if (!waiting) invalidate();
-      if (time.current >= (reduced ? .65 : BOOT_DURATION)) onBootEnd();
+      if (time.current >= (reduced ? BOOT.reducedDuration : BOOT_DURATION)) onBootEnd();
       return;
     }
     if (!motion.current.returning || motion.current.dragging) return;
@@ -258,7 +257,7 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
       <directionalLight position={[-4, 8, 5]} intensity={2.8} color="#f4f5ff" />
       <directionalLight position={[5, 3, -4]} intensity={2.3} color="#a6c8ef" />
       <spotLight position={[-4, 6, 1]} color="#e0e6ec" intensity={36} angle={.8} penumbra={1} distance={18} />
-      <CameraRig waiting={waiting} sticky={sticky} article={page.kind === "article" || page.kind === "game"} reset={reset} reduced={reduced} booting={booting} time={time} onBootEnd={bootEnd} onStage={setStage} controls={controls} motion={motion} />
+      <CameraRig elapsed={startup.elapsed} waiting={waiting} sticky={sticky} article={page.kind === "article" || page.kind === "game"} reset={reset} reduced={reduced} booting={booting} time={time} onBootEnd={bootEnd} onStage={setStage} controls={controls} motion={motion} />
       <Suspense fallback={null}>
         <Environment resolution={256}>
           <Lightformer form="rect" intensity={5} color="#ffffff" position={[-4, 5, 3]} scale={[4, 6, 1]} target={[0, 0, 0]} />
@@ -285,7 +284,7 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
       }} />
     </Canvas>
     <div className="sp-vignette" aria-hidden="true" />
-    {waiting && <div className="sp-keyboard-controls"><button onClick={startOpening}>Open handheld</button></div>}
+    {waiting && <button className="sp-open-hint" onClick={startOpening}>Tap to open</button>}
     <div className="sp-toolbar" role="toolbar" aria-label="Scene controls">
       <button disabled={booting} aria-label={sticky ? "Inspect handheld freely" : "Return to reading view"} title={sticky ? "Inspect handheld freely" : "Return to reading view"} aria-pressed={!sticky} onClick={() => { if (sticky) dispatch({type:"pause-game"}); setOpen(true); setSticky(value => !value); setReset(value => value + 1); }}>{sticky ? <Orbit /> : <Scan />}</button>
       <button disabled={waiting} aria-label={booting ? "Skip startup" : "Replay startup"} title={booting ? "Skip startup · Esc" : "Replay startup"} onClick={booting ? () => { stopStartup(); time.current = BOOT_DURATION; setBooting(false); setReset(value => value + 1); } : replay}>{booting ? <SkipForward /> : <RotateCcw />}</button>

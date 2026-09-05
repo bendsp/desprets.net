@@ -1,10 +1,11 @@
+import { BOOT } from "./boot-timeline";
 import { gameControl, newGame, tickGame, type Game, type GameId } from "./games";
 import { THEMES, type PaletteId } from "./themes";
 import { projects } from "../../app/projects";
 import { clientWork } from "../../app/client-work";
 
 export type Control = "up" | "down" | "left" | "right" | "a" | "b" | "start" | "select" | "light";
-export const BOOT_DURATION = 6.4;
+export const BOOT_DURATION = BOOT.duration;
 export const SCREEN_WIDTH = 324;
 export const SCREEN_HEIGHT = 216;
 export const MENU = ["About", "Work", "Education", "Contact", "Games", "Settings"] as const;
