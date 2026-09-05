@@ -26,3 +26,6 @@ html[data-portfolio="scene"], html[data-portfolio="scene"] body { overflow: clip
 .sp-accessible { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .sp-accessible:focus-within { width: min(540px, 90vw); height: auto; max-height: 60vh; overflow: auto; clip-path: none; top: 20px; left: 50%; transform: translateX(-50%); z-index: 30; padding: 24px; background: #eeeede; color: #24374d; border: 2px solid #446cbe; border-radius: 8px; }
 .sp-accessible button, .sp-accessible a { display: block; margin: 10px 0; padding: 4px; }
+.sp-start-audio { position: absolute; z-index: 21; left: 50%; top: 50%; transform: translate(-50%, -50%); display: grid; place-items: center; width: 64px; height: 64px; border: 1px solid #e3efff66; border-radius: 50%; color: #f3f7ff; background: #17222cdd; backdrop-filter: blur(16px); box-shadow: 0 8px 40px #0005; cursor: pointer; }
+.sp-start-audio svg { width: 24px; height: 24px; margin-left: 3px; fill: currentColor; }
+.sp-start-audio:focus-visible { outline: 2px solid #d4e7fb; outline-offset: 5px; }

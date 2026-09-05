@@ -3,24 +3,27 @@
 import { Suspense, useCallback, useEffect, useReducer, useRef, useState, type ComponentRef, type MutableRefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer, OrbitControls } from "@react-three/drei";
-import { Scan, Orbit, RotateCcw, SkipForward, Volume2, VolumeX, ExternalLink } from "lucide-react";
+import { Play, Scan, Orbit, RotateCcw, SkipForward, Volume2, VolumeX, ExternalLink } from "lucide-react";
 import { Vector3 } from "three";
 import { Handheld } from "./handheld";
 import { Display } from "./display";
 import { articleLayout, type Hit } from "./display-renderer";
 import { BOOT_DURATION, consoleReducer, entriesFor, entryFor, initialConsole, keyControl, MENU, sectionPage, type Control } from "./console";
 import { easeInOut, progress } from "./boot";
+import { useStartupSound } from "./startup-sound";
 
 type OrbitControlsImpl = ComponentRef<typeof OrbitControls>;
 type CameraMotion = { returning: boolean; dragging: boolean };
 
-function CameraRig({ sticky, article, reset, reduced, booting, time, onBootEnd, onStage, controls, motion }: {
+function CameraRig({ awaitingTap, paused, sticky, article, reset, reduced, booting, time, onBootEnd, onStage, controls, motion }: {
+  awaitingTap: boolean; paused: MutableRefObject<boolean>;
   sticky: boolean; reset: number; reduced: boolean; booting: boolean; time: MutableRefObject<number>; onBootEnd: () => void;
   article: boolean;
   onStage: (stage: string) => void;
   controls: React.RefObject<OrbitControlsImpl>; motion: MutableRefObject<CameraMotion>;
 }) {
   const { camera, size, invalidate } = useThree();
+  useEffect(() => { invalidate(); }, [awaitingTap, invalidate]);
   const targets = useRef({ read: new Vector3(), readLook: new Vector3(), hero: new Vector3(), heroLook: new Vector3(), overview: new Vector3(), overviewLook: new Vector3() });
   useEffect(() => {
     const aspect = size.width / size.height; const t = targets.current;
@@ -35,7 +38,7 @@ function CameraRig({ sticky, article, reset, reduced, booting, time, onBootEnd, 
     const orbit = controls.current; if (!orbit) return;
     const t = targets.current;
     if (booting) {
-      time.current = Math.min(reduced ? .65 : BOOT_DURATION, time.current + Math.min(delta, .25));
+      time.current = Math.min(reduced ? .65 : BOOT_DURATION, time.current + (paused.current ? 0 : Math.min(delta, .25)));
       onStage(reduced ? "logo" : time.current < .5 ? "closed" : time.current < 2.3 ? "opening" : time.current < 3.6 ? "rainbow" : time.current < 4.75 ? "logo" : "menu");
       if (reduced) { camera.position.copy(t.read); orbit.target.copy(t.readLook); }
       else {
@@ -44,7 +47,7 @@ function CameraRig({ sticky, article, reset, reduced, booting, time, onBootEnd, 
         camera.position.copy(t.hero).lerp(t.overview, opening).lerp(t.read, framing);
         orbit.target.copy(t.heroLook).lerp(t.overviewLook, opening).lerp(t.readLook, framing);
       }
-      orbit.update(); invalidate();
+      orbit.update(); if (!awaitingTap) invalidate();
       if (time.current >= (reduced ? .65 : BOOT_DURATION)) onBootEnd();
       return;
     }
@@ -71,10 +74,12 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
   const [stage, setStage] = useState("closed");
   const [sticky, setSticky] = useState(true);
   const [open, setOpen] = useState(true); const [power, setPower] = useState(true);
-  const [sound, setSound] = useState(false); const [bright, setBright] = useState(true);
+  const [sound, setSound] = useState(true); const [bright, setBright] = useState(true);
   const [reset, setReset] = useState(0); const [pressed, setPressed] = useState<ReadonlySet<Control>>(new Set());
   const [touching, setTouching] = useState(false); const [ready, setReady] = useState(false);
   const [reduced, setReduced] = useState(() => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const startup = useStartupSound(time, booting, reduced, sound);
+  const stopStartup = startup.stop;
   const current = useRef(state); current.current = state;
   const available = !booting && power && open;
   const availableRef = useRef(available); availableRef.current = available;
@@ -86,18 +91,13 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
   }, []);
   const clickSound = useCallback((pitch = 520, duration = .055) => {
     if (!sound) return;
-    const context = audio.current ?? new AudioContext(); audio.current = context; void context.resume();
+    const context = audio.current ?? new AudioContext(); audio.current = context; void context.resume().catch(() => {});
+    if (context.state !== "running") return;
     const oscillator = context.createOscillator(); const gain = context.createGain();
     oscillator.type = "triangle"; oscillator.frequency.setValueAtTime(pitch, context.currentTime);
     gain.gain.setValueAtTime(.027, context.currentTime); gain.gain.exponentialRampToValueAtTime(.001, context.currentTime + duration);
     oscillator.connect(gain); gain.connect(context.destination); oscillator.start(); oscillator.stop(context.currentTime + duration);
   }, [sound]);
-  useEffect(() => {
-    if (!booting || !sound) return;
-    const first = setTimeout(() => clickSound(784, .16), Math.max(0, (3.65 - time.current) * 1000));
-    const second = setTimeout(() => clickSound(1046.5, .28), Math.max(0, (3.83 - time.current) * 1000));
-    return () => { clearTimeout(first); clearTimeout(second); };
-  }, [booting, sound, clickSound]);
   const openLink = useCallback((url: string) => { window.open(url, "_blank", "noopener,noreferrer"); }, []);
   const perform = useCallback((control: Control) => {
     if (!availableRef.current) return;
@@ -165,7 +165,7 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
       if (event.target instanceof HTMLElement && (event.target.closest("input,textarea,select") || (["Enter", "Space"].includes(event.code) && event.target.closest("button,a")))) return;
       const control = keyControl(event.code); if (!control) return;
       event.preventDefault(); if (event.repeat) return;
-      if (booting && event.code === "Escape") { time.current = BOOT_DURATION; setBooting(false); setReset(value => value + 1); return; }
+      if (booting && event.code === "Escape") { stopStartup(); time.current = BOOT_DURATION; setBooting(false); setReset(value => value + 1); return; }
       press(control, `key-${event.code}`);
     };
     const keyup = (event: KeyboardEvent) => release(`key-${event.code}`);
@@ -178,14 +178,14 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
     window.addEventListener("keydown", keydown); window.addEventListener("keyup", keyup); window.addEventListener("pointerup", pointerup); window.addEventListener("pointercancel", pointerup);
     window.addEventListener("blur", clearHeld); window.addEventListener("wheel", wheel, { passive: false }); document.addEventListener("visibilitychange", visibility);
     return () => { window.removeEventListener("keydown", keydown); window.removeEventListener("keyup", keyup); window.removeEventListener("pointerup", pointerup); window.removeEventListener("pointercancel", pointerup); window.removeEventListener("blur", clearHeld); window.removeEventListener("wheel", wheel); document.removeEventListener("visibilitychange", visibility); };
-  }, [press, release, scroll, booting, clearHeld]);
+  }, [press, release, scroll, booting, clearHeld, stopStartup]);
   useEffect(() => {
     const timers = pulses.current;
     return () => { clearTimeout(snap.current); timers.forEach(clearTimeout); void audio.current?.close(); document.body.style.cursor = "auto"; };
   }, []);
   const bootEnd = useCallback(() => { setBooting(false); }, []);
   const replay = () => {
-    clearHeld(); clearTimeout(snap.current); setOpen(true); setPower(true); setSticky(true);
+    stopStartup(); clearHeld(); clearTimeout(snap.current); setOpen(true); setPower(true); setSticky(true);
     dispatch({ type: "control", control: "start" }); time.current = 0; motion.current = { returning: true, dragging: false }; setBooting(true);
   };
   const onHit = (action: Hit["action"]) => {
@@ -204,13 +204,14 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
   const screenName = entry?.title ?? (page.kind === "list" ? page.section : "Ben Desprets");
 
   return <div className="sp-experience" data-ready={ready} data-phase={booting ? "boot" : "ready"} data-boot-stage={booting ? stage : "ready"} data-page={page.kind === "article" ? page.id : page.kind === "list" ? page.section : "menu"} data-scroll={page.kind === "article" ? page.scroll : 0} data-selected={page.kind !== "article" ? page.selected : page.link ?? 0} data-pressed={[...pressed].join(",")} data-palette={state.palette}>
+    <audio ref={startup.element} src="/audio/gameboy-startup.mp3" preload="auto" aria-hidden="true" />
     <Canvas shadows dpr={[1, 1.8]} frameloop="demand" camera={{ position: [5, 5.8, 7.6], fov: 34, near: .1, far: 100 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { gl.setClearColor("#171e24", 0); setReady(true); }}>
       <color attach="background" args={["#171e24"]} /><fog attach="fog" args={["#171e24", 20, 48]} />
       <ambientLight intensity={.38} />
       <directionalLight position={[-4, 8, 5]} intensity={2.8} color="#f4f5ff" />
       <directionalLight position={[5, 3, -4]} intensity={2.3} color="#a6c8ef" />
       <spotLight position={[-4, 6, 1]} color="#e0e6ec" intensity={36} angle={.8} penumbra={1} distance={18} />
-      <CameraRig sticky={sticky} article={page.kind === "article"} reset={reset} reduced={reduced} booting={booting} time={time} onBootEnd={bootEnd} onStage={setStage} controls={controls} motion={motion} />
+      <CameraRig awaitingTap={startup.awaitingTap} paused={startup.paused} sticky={sticky} article={page.kind === "article"} reset={reset} reduced={reduced} booting={booting} time={time} onBootEnd={bootEnd} onStage={setStage} controls={controls} motion={motion} />
       <Suspense fallback={null}>
         <Environment resolution={256}>
           <Lightformer form="rect" intensity={5} color="#ffffff" position={[-4, 5, 3]} scale={[4, 6, 1]} target={[0, 0, 0]} />
@@ -228,10 +229,11 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
       }} />
     </Canvas>
     <div className="sp-vignette" aria-hidden="true" />
+    {startup.awaitingTap && <button className="sp-start-audio" aria-label="Play startup with sound" title="Play startup with sound" onClick={startup.play}><Play /></button>}
     <div className="sp-toolbar" role="toolbar" aria-label="Scene controls">
       <button disabled={booting} aria-label={sticky ? "Inspect handheld freely" : "Return to reading view"} title={sticky ? "Inspect handheld freely" : "Return to reading view"} aria-pressed={!sticky} onClick={() => { setOpen(true); setSticky(value => !value); setReset(value => value + 1); }}>{sticky ? <Orbit /> : <Scan />}</button>
-      <button aria-label={booting ? "Skip startup" : "Replay startup"} title={booting ? "Skip startup · Esc" : "Replay startup"} onClick={booting ? () => { time.current = BOOT_DURATION; setBooting(false); setReset(value => value + 1); } : replay}>{booting ? <SkipForward /> : <RotateCcw />}</button>
-      <button aria-label={sound ? "Mute sound" : "Enable sound"} title={sound ? "Mute sound" : "Enable sound"} aria-pressed={sound} onClick={() => { if (!sound) { audio.current ??= new AudioContext(); void audio.current.resume(); } setSound(value => !value); }}>{sound ? <Volume2 /> : <VolumeX />}</button>
+      <button aria-label={booting ? "Skip startup" : "Replay startup"} title={booting ? "Skip startup · Esc" : "Replay startup"} onClick={booting ? () => { stopStartup(); time.current = BOOT_DURATION; setBooting(false); setReset(value => value + 1); } : replay}>{booting ? <SkipForward /> : <RotateCcw />}</button>
+      <button aria-label={sound ? "Mute sound" : "Enable sound"} title={sound ? "Mute sound" : "Enable sound"} aria-pressed={sound} onClick={() => { if (!sound) { audio.current ??= new AudioContext(); void audio.current.resume().catch(() => {}); } setSound(value => !value); }}>{sound ? <Volume2 /> : <VolumeX />}</button>
       <span className="sp-toolbar-divider" /><a href={`${initialPath}?flat=1${initialHash}`} aria-label="Open portfolio without 3D" title="Open portfolio without 3D"><ExternalLink /></a>
     </div>
     {available && <section className="sp-accessible" aria-label="Portfolio screen">
