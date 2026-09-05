@@ -3,7 +3,7 @@
 export const BOOT = {
   lidStart: .08, lidDuration: 1.12,
   screenOn: 1.22,
-  letters: .33, letterStagger: .1, letterFlight: .62,
+  letters: .33, letterFlight: .62,
   settled: 1.7, shineStart: 1.95, shineDuration: 1.2,
   fadeStart: 3.6, fadeDuration: .4,
   menuAt: 5.24, menuFade: .22,

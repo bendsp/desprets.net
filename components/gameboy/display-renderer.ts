@@ -134,11 +134,13 @@ export class DisplayRenderer {
     if (t < 0) return;
     const fade = reduced ? 0 : progress(t,BOOT.fadeStart,BOOT.fadeDuration);
     ctx.save(); ctx.globalAlpha = 1-fade;
-    const word = "DESPRETS", scale = 5, left = (W-textWidth(word,scale))/2;
+    const word = "Ben Desprets", scale = 4, left = (W-textWidth(word,scale))/2;
+    // Fit every glyph into the same arrival window before the original highlight.
+    const stagger = (BOOT.settled-BOOT.letters-BOOT.letterFlight) / (word.length-1);
     const colors = ["#2543c7","#159cdc","#16bdaa","#3bcc44","#d3d70b","#ffa821","#f14c63","#ed33c6"];
     let x = left;
     [...word].forEach((letter,index)=>{
-      const flight = progress(t,BOOT.letters+index*BOOT.letterStagger,BOOT.letterFlight);
+      const flight = progress(t,BOOT.letters+index*stagger,BOOT.letterFlight);
       if (flight <= 0) { x += textWidth(letter,scale)+scale; return; }
       const p = easeOut(flight), size = 1+(1-p)*1.8;
       const y = 87+(1-p)*70-Math.sin(p*Math.PI)*55;
@@ -156,7 +158,7 @@ export class DisplayRenderer {
       }
     }
     ctx.globalAlpha = (1-fade)*progress(t,.05,.18);
-    center(ctx,"BEN DESPRETS",165,1,"#cc43bc"); ctx.restore();
+    center(ctx,"desprets.net",165,1,"#cc43bc"); ctx.restore();
   }
 }
 
