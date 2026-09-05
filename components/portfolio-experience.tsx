@@ -12,9 +12,13 @@ const GameboyScene = dynamic(() => import("./gameboy/scene"), {
 export function PortfolioExperience({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [mode, setMode] = useState<"loading" | "scene" | "page">("loading");
+  const [initialHash, setInitialHash] = useState("");
 
   useEffect(() => {
     const embedded = window.self !== window.top;
+    const syncHash = () => setInitialHash(window.location.hash);
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
     const flat = new URLSearchParams(window.location.search).has("flat");
     const canvas = document.createElement("canvas");
     const context = !embedded && !flat ? canvas.getContext("webgl2") : null;
@@ -24,6 +28,7 @@ export function PortfolioExperience({ children }: { children: ReactNode }) {
     if (embedded) document.documentElement.dataset.embedded = "true";
     setMode(showPage ? "page" : "scene");
     return () => {
+      window.removeEventListener("hashchange", syncHash);
       delete document.documentElement.dataset.portfolio;
       delete document.documentElement.dataset.embedded;
     };
@@ -38,7 +43,18 @@ export function PortfolioExperience({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", keydown);
   }, []);
 
-  if (mode === "loading") return <><div className="sp-loading" aria-label="Loading portfolio"><span /></div><noscript>{children}</noscript></>;
+  useEffect(() => {
+    if (mode !== "page" || window.self === window.top || !window.location.hash) return;
+    const section = document.getElementById(window.location.hash.slice(1));
+    if (!section) return;
+    const frame = window.requestAnimationFrame(() => {
+      const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height ?? 0;
+      window.scrollTo({ top: window.scrollY + section.getBoundingClientRect().top - headerHeight - 24, behavior: "instant" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [mode, pathname]);
+
+  if (mode === "loading") return <><div className="sp-loading" aria-label="Loading portfolio"><span /></div><noscript><style>{".sp-loading { display: none !important; }"}</style>{children}</noscript></>;
   if (mode === "page") return children;
-  return <GameboyScene initialPath={pathname} />;
+  return <GameboyScene initialPath={pathname} initialHash={initialHash} />;
 }

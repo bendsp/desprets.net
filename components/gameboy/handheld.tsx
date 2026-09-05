@@ -8,7 +8,7 @@ import type { Control } from "./scene";
 
 type Position = [number, number, number];
 type Props = {
-  iframe: RefObject<HTMLIFrameElement>; initialPath: string; open: boolean; power: boolean; bright: boolean; focus: boolean;
+  iframe: RefObject<HTMLIFrameElement>; initialPath: string; initialHash: string; open: boolean; power: boolean; bright: boolean; focus: boolean;
   reduced: boolean; pressed: Control | null; onControl: (control: Control) => void; onFold: () => void; onPower: () => void; onFocus: () => void;
 };
 
@@ -37,7 +37,7 @@ function Label({ text, position, width, height = .1, color = "#333841", rotation
 }
 
 function Disc({ position, radius, depth = .035, color = "#363b42", metalness = .15, onClick }: { position: Position; radius: number; depth?: number; color?: string; metalness?: number; onClick?: () => void }) {
-  return <mesh position={position} castShadow receiveShadow onPointerOver={onClick ? hover : undefined} onPointerOut={onClick ? unhover : undefined} onClick={onClick ? event => { event.stopPropagation(); onClick(); } : undefined}>
+  return <mesh position={position} castShadow receiveShadow onPointerOver={onClick ? hover : undefined} onPointerOut={onClick ? unhover : undefined} onClick={onClick ? event => { if (event.delta > 4) return; event.stopPropagation(); onClick(); } : undefined}>
     <cylinderGeometry args={[radius, radius * 1.03, depth, 48]} /><meshStandardMaterial color={color} roughness={.42} metalness={metalness} />
   </mesh>;
 }
@@ -50,9 +50,10 @@ function Screw({ position, face = "top" }: { position: Position; face?: "top" | 
   </group>;
 }
 
-export function Handheld({ iframe, initialPath, open, power, bright, focus, reduced, pressed, onControl, onFold, onPower, onFocus }: Props) {
+export function Handheld({ iframe, initialPath, initialHash, open, power, bright, focus, reduced, pressed, onControl, onFold, onPower, onFocus }: Props) {
   const lid = useRef<Group>(null);
-  const { invalidate } = useThree();
+  const { invalidate, size } = useThree();
+  const screenWidth = size.width < 600 ? 360 : 600;
   const lidAngle = useRef(reduced ? -.24 : .48);
   const [grain, dpad] = useMemo(() => {
     const data = new Uint8Array(128 * 128 * 4);
@@ -93,10 +94,10 @@ export function Handheld({ iframe, initialPath, open, power, bright, focus, redu
     <RoundedBox args={[3.42, .24, 3.4]} radius={.11} smoothness={6} position={[0, .065, 0]} castShadow receiveShadow>{silver}</RoundedBox>
     {/* Shoulder buttons and segmented hinge, with a separate rotating lid. */}
     {[-1, 1].map(side => <group key={side}>
-      <RoundedBox args={[.65, .22, .38]} radius={.085} smoothness={4} position={[side * 1.27, -.01, -1.56]} castShadow onClick={event => { event.stopPropagation(); onControl(side < 0 ? "left" : "right"); }} onPointerOver={hover} onPointerOut={unhover}><meshStandardMaterial color="#4d5968" roughness={.42} metalness={.35} /></RoundedBox>
+      <RoundedBox args={[.65, .22, .38]} radius={.085} smoothness={4} position={[side * 1.27, -.01, -1.56]} castShadow onClick={event => { if (event.delta > 4) return; event.stopPropagation(); onControl(side < 0 ? "left" : "right"); }} onPointerOver={hover} onPointerOut={unhover}><meshStandardMaterial color="#4d5968" roughness={.42} metalness={.35} /></RoundedBox>
       <Label text={side < 0 ? "L" : "R"} position={[side * 1.27, .112, -1.54]} rotation={[-Math.PI / 2, 0, 0]} width={.1} height={.1} color="#aab3be" />
     </group>)}
-    {[-1.36, -.83, 0, .83, 1.36].map((x, i) => <mesh key={x} position={[x, .25, -1.42]} rotation={[0, 0, Math.PI / 2]} castShadow onClick={event => { event.stopPropagation(); onFold(); }} onPointerOver={hover} onPointerOut={unhover}>
+    {[-1.36, -.83, 0, .83, 1.36].map((x, i) => <mesh key={x} position={[x, .25, -1.42]} rotation={[0, 0, Math.PI / 2]} castShadow onClick={event => { if (event.delta > 4) return; event.stopPropagation(); onFold(); }} onPointerOver={hover} onPointerOut={unhover}>
       <cylinderGeometry args={[.235, .235, i === 2 ? 1.04 : .5, 64]} />{i % 2 === 0 ? silver : darkSilver}
     </mesh>)}
     {[-1.645, 1.645].map(x => <mesh key={x} position={[x, .25, -1.42]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[.17, .17, .018, 48]} /><meshStandardMaterial color="#6b7581" roughness={.35} metalness={.65} /></mesh>)}
@@ -107,7 +108,7 @@ export function Handheld({ iframe, initialPath, open, power, bright, focus, redu
       <mesh rotation={[-Math.PI / 2, 0, 0]} castShadow><extrudeGeometry args={[dpad, { depth: .066, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: .019, bevelThickness: .018 }]} /><meshStandardMaterial color="#303943" roughness={.43} metalness={.22} /></mesh>
       <Disc position={[0, .087, 0]} radius={.113} depth={.004} color="#252e38" />
       {([['up', 0, -.32], ['down', 0, .32], ['left', -.32, 0], ['right', .32, 0]] as const).map(([control, x, z]) => <group key={control}>
-        <mesh position={[x, .102, z]} rotation={[-Math.PI / 2, 0, 0]} onClick={event => { event.stopPropagation(); onControl(control); }} onPointerOver={hover} onPointerOut={unhover}><planeGeometry args={[.30, .30]} /><meshBasicMaterial transparent opacity={0} depthWrite={false} /></mesh>
+        <mesh position={[x, .102, z]} rotation={[-Math.PI / 2, 0, 0]} onClick={event => { if (event.delta > 4) return; event.stopPropagation(); onControl(control); }} onPointerOver={hover} onPointerOut={unhover}><planeGeometry args={[.30, .30]} /><meshBasicMaterial transparent opacity={0} depthWrite={false} /></mesh>
         {[0, 1, 2].map(index => <mesh key={index} position={[x + (x ? (index - 1) * .045 : 0), .09, z + (z ? (index - 1) * .045 : 0)]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[x ? .013 : .15, z ? .013 : .15]} /><meshBasicMaterial color="#687583" /></mesh>)}
       </group>)}
     </group>
@@ -133,7 +134,7 @@ export function Handheld({ iframe, initialPath, open, power, bright, focus, redu
 
     {/* Power slider, charge LED, volume wheel, and cartridge opening. */}
     <RoundedBox args={[.028, .115, .38]} radius={.012} position={[1.718, -.01, -.79]}><meshStandardMaterial color="#27313a" roughness={.48} /></RoundedBox>
-    <RoundedBox args={[.05, .10, .16]} radius={.012} position={[1.741, -.01, power ? -.86 : -.69]} onClick={event => { event.stopPropagation(); onPower(); }} onPointerOver={hover} onPointerOut={unhover}><meshStandardMaterial color="#3e4855" roughness={.5} /></RoundedBox>
+    <RoundedBox args={[.05, .10, .16]} radius={.012} position={[1.741, -.01, power ? -.86 : -.69]} onClick={event => { if (event.delta > 4) return; event.stopPropagation(); onPower(); }} onPointerOver={hover} onPointerOut={unhover}><meshStandardMaterial color="#3e4855" roughness={.5} /></RoundedBox>
     <mesh position={[1.722, .104, -.46]}><boxGeometry args={[.024, .059, .102]} /><meshStandardMaterial color={power ? "#95fc76" : "#223c29"} emissive={power ? "#79ff52" : "#000000"} emissiveIntensity={2} /></mesh>
     <mesh position={[1.722, .104, -.27]}><boxGeometry args={[.024, .048, .073]} /><meshStandardMaterial color="#58411f" roughness={.3} /></mesh>
     <RoundedBox args={[.027, .105, .53]} radius={.012} position={[-1.715, -.026, -.6]}><meshStandardMaterial color="#26313d" /></RoundedBox>
@@ -143,15 +144,15 @@ export function Handheld({ iframe, initialPath, open, power, bright, focus, redu
     {[-1.38, 1.38].map(x => <Screw key={x} position={[x, -.146, 1.67]} face="front" />)}
 
     <group ref={lid} position={[0, .27, -1.42]} rotation={[lidAngle.current, 0, 0]}>
-      <RoundedBox args={[3.4, 3.15, .23]} radius={.108} smoothness={8} position={[0, 1.58, -.028]} castShadow receiveShadow onClick={event => { event.stopPropagation(); onFold(); }} onPointerOver={hover} onPointerOut={unhover}>{silver}</RoundedBox>
+      <RoundedBox args={[3.4, 3.15, .23]} radius={.108} smoothness={8} position={[0, 1.58, -.028]} castShadow receiveShadow onClick={event => { if (event.delta > 4) return; event.stopPropagation(); onFold(); }} onPointerOver={hover} onPointerOut={unhover}>{silver}</RoundedBox>
       <RoundedBox args={[3.34, 3.09, .027]} radius={.012} smoothness={4} position={[0, 1.58, .088]}>{darkSilver}</RoundedBox>
       <RoundedBox args={[3.31, 3.06, .075]} radius={.035} smoothness={6} position={[0, 1.58, .122]} castShadow receiveShadow>{silver}</RoundedBox>
       <RoundedBox args={[2.98, 2.38, .034]} radius={.016} smoothness={4} position={[0, 1.69, .168]}><meshStandardMaterial color="#313b4b" metalness={.25} roughness={.32} /></RoundedBox>
       <RoundedBox args={[2.75, 1.872, .023]} radius={.01} smoothness={4} position={[0, 1.83, .191]}><meshStandardMaterial color="#111a22" roughness={.25} metalness={.3} /></RoundedBox>
       <mesh position={[0, 1.83, .207]}><planeGeometry args={[2.65, 1.7667]} /><meshPhysicalMaterial color="#122329" metalness={.45} roughness={.13} clearcoat={1} /></mesh>
-      <Html transform occlude position={[0, 1.83, .211]} distanceFactor={1.7667} zIndexRange={[10, 0]} style={{ display: open ? "block" : "none" }}>
-        <div className="sp-screen" data-powered={power} data-bright={bright}>
-          <iframe ref={iframe} src={`${initialPath}?screen=1`} title="Ben Desprets portfolio" tabIndex={focus && power && open ? 0 : -1} style={{ pointerEvents: focus && power ? "auto" : "none" }} />
+      <Html transform occlude wrapperClass="sp-display-projection" position={[0, 1.83, .211]} distanceFactor={1060 / screenWidth} zIndexRange={[10, 0]} style={{ display: open ? "block" : "none" }}>
+        <div className="sp-screen" data-powered={power} data-bright={bright} style={{ width: screenWidth, height: screenWidth * 2 / 3 }}>
+          <iframe ref={iframe} src={`${initialPath}?screen=1${initialHash}`} title="Ben Desprets portfolio" tabIndex={focus && power && open ? 0 : -1} style={{ pointerEvents: focus && power ? "auto" : "none" }} />
           <div className="sp-screen-glass" />
           {!focus && power && <button className="sp-screen-enter" aria-label="Focus portfolio screen" onClick={onFocus} />}
         </div>

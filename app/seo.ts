@@ -45,8 +45,8 @@ export function createPageMetadata({
       images: ["/og.jpg"],
     },
     robots: {
-      index,
-      follow: true,
+      index: false,
+      follow: false,
     },
   };
 }

@@ -97,9 +97,10 @@ export function SiteNav() {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    section.scrollIntoView({
+    const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height ?? 0;
+    window.scrollTo({
+      top: window.scrollY + section.getBoundingClientRect().top - headerHeight - 24,
       behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "start",
     });
     window.history.pushState(null, "", `#${sectionId}`);
     setActiveSection(sectionId);

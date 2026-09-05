@@ -11,6 +11,11 @@ export type Control = "up" | "down" | "left" | "right" | "a" | "b" | "start" | "
 type OrbitControlsImpl = ComponentRef<typeof OrbitControls>;
 const sections = ["about", "work", "education", "contact"];
 
+function SceneControls({ focus, controls }: { focus: boolean; controls: React.RefObject<OrbitControlsImpl> }) {
+  const size = useThree(state => state.size);
+  return <OrbitControls ref={controls} makeDefault enabled={!focus} enablePan={false} enableDamping dampingFactor={.08} minDistance={focus ? 1 : 5.5} maxDistance={Math.max(30, 12 * .78 * size.height / size.width)} minPolarAngle={.3} maxPolarAngle={Math.PI / 2.05} target={[0, 1.17, -.15]} />;
+}
+
 function CameraRig({ focus, reset, reduced, controls }: { focus: boolean; reset: number; reduced: boolean; controls: React.RefObject<OrbitControlsImpl> }) {
   const { camera, size, invalidate } = useThree();
   const animating = useRef(true);
@@ -23,7 +28,7 @@ function CameraRig({ focus, reset, reduced, controls }: { focus: boolean; reset:
       targetLook.current.set(0, 2.047, -1.855);
       targetPosition.current.copy(targetLook.current).add(new Vector3(0, .238 * distance, .971 * distance));
     } else {
-      const factor = aspect < .8 ? 1.26 : 1;
+      const factor = Math.max(1, .78 / aspect);
       targetPosition.current.set(5.4 * factor, 5.1 * factor, 8.6 * factor);
       targetLook.current.set(0, 1.17, -.15);
     }
@@ -43,7 +48,7 @@ function CameraRig({ focus, reset, reduced, controls }: { focus: boolean; reset:
   return null;
 }
 
-export default function GameboyScene({ initialPath }: { initialPath: string }) {
+export default function GameboyScene({ initialPath, initialHash }: { initialPath: string; initialHash: string }) {
   const iframe = useRef<HTMLIFrameElement>(null);
   const controls = useRef<OrbitControlsImpl>(null);
   const audio = useRef<AudioContext | null>(null);
@@ -97,7 +102,8 @@ export default function GameboyScene({ initialPath }: { initialPath: string }) {
       const next = (Math.max(0, current) + (control === "right" ? 1 : -1) + sections.length) % sections.length;
       const section = frame.document.getElementById(sections[next]);
       if (section) {
-        section.scrollIntoView({ behavior: reduced ? "instant" : "smooth" });
+        const headerHeight = frame.document.querySelector(".site-header")?.getBoundingClientRect().height ?? 0;
+        frame.scrollTo({ top: frame.scrollY + section.getBoundingClientRect().top - headerHeight - 24, behavior: reduced ? "instant" : "smooth" });
         frame.history.replaceState(null, "", `#${sections[next]}`);
         frame.dispatchEvent(new HashChangeEvent("hashchange"));
       } else frame.location.href = `/?screen=1#${sections[next]}`;
@@ -147,14 +153,14 @@ export default function GameboyScene({ initialPath }: { initialPath: string }) {
             <Lightformer form="rect" intensity={2} color="#fff2e1" position={[1, 7, 4]} scale={[7, 2, 1]} target={[0, 0, 0]} />
             <Lightformer form="rect" intensity={.7} position={[0, 1, 8]} scale={[6, 6, 1]} target={[0, 1, 0]} />
           </Environment>
-          <Handheld iframe={iframe} initialPath={initialPath} open={open} power={power} bright={bright} focus={focus} reduced={reduced} pressed={pressed} onControl={interact} onFold={toggleOpen} onPower={() => { setPower(value => !value); clickSound(380); }} onFocus={() => { setFocus(true); clickSound(); }} />
+          <Handheld iframe={iframe} initialPath={initialPath} initialHash={initialHash} open={open} power={power} bright={bright} focus={focus} reduced={reduced} pressed={pressed} onControl={interact} onFold={toggleOpen} onPower={() => { setPower(value => !value); clickSound(380); }} onFocus={() => { setFocus(true); clickSound(); }} />
           <ContactShadows position={[0, -.37, 0]} opacity={.62} scale={14} blur={2.4} far={5} resolution={512} frames={reduced ? 1 : Infinity} color="#060b13" />
         </Suspense>
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -.39, 0]} receiveShadow>
           <planeGeometry args={[200, 200]} />
           <meshStandardMaterial color="#28323c" roughness={.82} metalness={.15} />
         </mesh>
-        <OrbitControls ref={controls} makeDefault enabled={!focus} enablePan={false} enableDamping dampingFactor={.08} minDistance={5.5} maxDistance={15} minPolarAngle={.3} maxPolarAngle={Math.PI / 2.05} target={[0, 1.17, -.15]} />
+        <SceneControls focus={focus} controls={controls} />
         <CameraRig focus={focus} reset={reset} reduced={reduced} controls={controls} />
       </Canvas>
       <div className="sp-vignette" aria-hidden="true" />
@@ -166,7 +172,7 @@ export default function GameboyScene({ initialPath }: { initialPath: string }) {
         <button aria-label={power ? "Turn power off" : "Turn power on"} title={power ? "Turn power off" : "Turn power on"} aria-pressed={power} onClick={() => { setPower(value => !value); clickSound(380); }}><Power /></button>
         <button aria-label={sound ? "Mute sound" : "Enable sound"} title={sound ? "Mute sound" : "Enable sound"} aria-pressed={sound} onClick={() => setSound(value => !value)}>{sound ? <Volume2 /> : <VolumeX />}</button>
         <span className="sp-toolbar-divider" />
-        <a href={`${initialPath}?flat=1`} aria-label="Open portfolio without 3D" title="Open portfolio without 3D"><ExternalLink /></a>
+        <a href={`${initialPath}?flat=1${initialHash}`} aria-label="Open portfolio without 3D" title="Open portfolio without 3D"><ExternalLink /></a>
       </div>
       <div className="sp-keyboard-controls">
         {(["up", "down", "left", "right", "a", "b", "start", "select", "light"] as const).map(control => <button key={control} onClick={() => interact(control)}>{control}</button>)}
