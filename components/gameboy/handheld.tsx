@@ -198,8 +198,9 @@ export function Handheld({ bootOpening, waiting, onStart, display, time, booting
       <RoundedBox args={[2.75, 1.872, .023]} radius={.01} smoothness={4} position={[0, 1.83, .191]}><meshStandardMaterial color="#111a22" roughness={.25} metalness={.3} /></RoundedBox>
       {display}
       <Label text="GAME BOY ADVANCE SP" position={[0, .665, .194]} width={1.58} height={.119} color="#a0a49d" />
-      {([[-1.43,.23],[1.43,.23],[-1.43,2.93],[0,2.93],[1.43,2.93]] as const).map(([x,y]) => <group key={`${x}-${y}`} position={[x,y,.161]} rotation={[Math.PI/2,0,0]}>
-        <Disc position={[0,0,0]} radius={y>2.9 && x!==0?.108:.09} depth={.012} color="#888e87" metalness={.08} />
+      {/* Keep each pad inside the silver border: lens ends at y=2.85, hinge radius is .205. */}
+      {([[-1.46,.355],[1.46,.355],[-1.46,2.985],[0,2.985],[1.46,2.985]] as const).map(([x,y]) => <group key={`${x}-${y}`} position={[x,y,.161]} rotation={[Math.PI/2,0,0]}>
+        <Disc position={[0,0,0]} radius={.085} depth={.012} color="#888e87" metalness={.08} />
       </group>)}
       <mesh position={[0,1.67,-.15]} scale={[1,.43,1]}><torusGeometry args={[.55,.009,8,64]} /><meshStandardMaterial color="#828787" metalness={.35} roughness={.5} /></mesh>
       <Label text="Nintendo" position={[0, 1.67, -.15]} rotation={[0, Math.PI, 0]} width={.86} height={.18} color="#727d8a" />
