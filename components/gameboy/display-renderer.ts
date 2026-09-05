@@ -1,6 +1,6 @@
 import { BOOT } from "./boot-timeline";
 import { themeFor } from "./themes";
-import { rect, center, header, footer, scrollbar, shortened, type Hit, type ScreenLayout } from "./screen-ui";
+import { rect, center, scrollbar, shortened, type Hit, type ScreenLayout } from "./screen-ui";
 import { drawGame, drawGames, drawSettings } from "./game-display";
 export type { Hit, ScreenLayout } from "./screen-ui";
 import { articles, entryFor, entriesFor, MENU, SCREEN_WIDTH as W, SCREEN_HEIGHT as H, sectionPage, type ConsoleState, type Entry } from "./console";
@@ -38,18 +38,14 @@ export class DisplayRenderer {
     const ctx = this.ctx; const p = themeFor(state.palette); const hits: Hit[] = []; const page = state.page;
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high"; rect(ctx, 0, 0, W, H, p.paper);
     if (page.kind === "menu") {
-      header(ctx, "DESPRETS.NET", p);
-      text(ctx, "BEN DESPRETS", 14, 31, 1, p.muted);
-      text(ctx, "HOME", 284, 31, 1, p.muted);
       MENU.forEach((section, index) => {
-        const x = 14 + index % 2 * 154; const y = 46 + Math.floor(index / 2) * 48; const active = index === page.selected;
-        rect(ctx, x + 2, y + 2, 142, 41, p.soft); rect(ctx, x, y, 142, 41, active ? p.accent : p.soft);
-        if (active) { rect(ctx, x, y, 3, 41, p.highlight); rect(ctx, x + 2, y + 2, 138, 1, "#ffffff30"); }
-        icon(ctx, index, x + 9, y + 13, 2, active ? p.highlight : p.muted);
-        text(ctx, section, x + 34, y + 15, 2, active ? p.paper : p.ink);
-        hits.push({ x, y, w: 142, h: 41, action: { page: sectionPage(index) } });
+        const x = 14 + index % 2 * 154; const y = 12 + Math.floor(index / 2) * 66; const active = index === page.selected;
+        rect(ctx, x + 2, y + 2, 142, 60, p.soft); rect(ctx, x, y, 142, 60, active ? p.accent : p.soft);
+        if (active) { rect(ctx, x, y, 3, 60, p.highlight); rect(ctx, x + 2, y + 2, 138, 1, "#ffffff30"); }
+        icon(ctx, index, x + 9, y + 22, 2, active ? p.highlight : p.muted);
+        text(ctx, section, x + 34, y + 24, 2, active ? p.paper : p.ink);
+        hits.push({ x, y, w: 142, h: 60, action: { page: sectionPage(index) } });
       });
-      footer(ctx, p, "OPEN", "BACK", hits);
       return { hits, limit: 0 };
     }
     if (page.kind === "games") return drawGames(ctx,state,page,p);
@@ -57,30 +53,30 @@ export class DisplayRenderer {
     if (page.kind === "game") return drawGame(ctx,state,page.game,p);
     if (page.kind === "list") {
       const entries = entriesFor(page.section); const first = Math.max(0, Math.min(entries.length - 4, page.selected - 2));
-      header(ctx, `BEN / ${page.section.toUpperCase()}`, p);
-      text(ctx, page.section, 14, 32, 2, p.ink);
+      text(ctx, page.section, 14, 12, 2, p.ink);
       const count = `${String(page.selected + 1).padStart(2, "0")} / ${String(entries.length).padStart(2, "0")}`;
-      text(ctx, count, W - 17 - textWidth(count), 37, 1, p.muted);
+      text(ctx, count, W - 17 - textWidth(count), 17, 1, p.muted);
       entries.slice(first, first + 4).forEach((entry, index) => {
-        const y = 57 + index * 33; const selected = first + index === page.selected;
-        if (selected) { rect(ctx, 9, y, 297, 31, p.accent); rect(ctx, 9, y, 3, 31, p.highlight); }
+        const y = 42 + index * 40; const selected = first + index === page.selected;
+        if (selected) { rect(ctx, 9, y, 297, 38, p.accent); rect(ctx, 9, y, 3, 38, p.highlight); }
         text(ctx, selected ? ">" : String(first + index + 1).padStart(2, "0"), 18, y + 7, 1, selected ? p.highlight : p.muted);
         text(ctx, shortened(entry.title, 257), 36, y + 4, 2, selected ? p.paper : p.ink);
         text(ctx, shortened(entry.subtitle, 257, 1), 36, y + 22, 1, selected ? p.soft : p.muted);
-        hits.push({ x: 9, y, w: 297, h: 31, action: { page: { kind: "article", id: entry.id, scroll: 0 } } });
+        hits.push({ x: 9, y, w: 297, h: 38, action: { page: { kind: "article", id: entry.id, scroll: 0 } } });
       });
-      if (entries.length > 4) scrollbar(ctx, page.selected, entries.length - 1, 58, 127, p);
-      footer(ctx, p, "OPEN", "BACK", hits);
+      if (entries.length > 4) scrollbar(ctx, page.selected, entries.length - 1, 43, 155, p);
       return { hits, limit: 0 };
     }
     const entry = entryFor(page.id); const layout = articleLayout(entry);
     const scroll = Math.max(0, Math.min(page.scroll, layout.limit));
-    ctx.save(); ctx.beginPath(); ctx.rect(0, 28, W, 161); ctx.clip();
-    let y = 34 - scroll;
-    for (const line of layout.title) { text(ctx, line, 14, y, 2, p.ink); y += 19; }
-    y += 6;
-    for (const line of layout.subtitle) { text(ctx, line, 14, y, 1, p.muted); y += 11; }
-    y += 10; rect(ctx, 14, y, 290, 1, p.soft); y += 13;
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 8, W, H - 16); ctx.clip();
+    let y = 12 - scroll;
+    if (entry.id !== "about") {
+      for (const line of layout.title) { text(ctx, line, 14, y, 2, p.ink); y += 19; }
+      y += 6;
+      for (const line of layout.subtitle) { text(ctx, line, 14, y, 1, p.muted); y += 11; }
+      y += 10; rect(ctx, 14, y, 290, 1, p.soft); y += 13;
+    }
     if (entry.image) {
       if (entry.id === "about") {
         const portrait = this.images.get("/pfp-380.webp");
@@ -99,14 +95,12 @@ export class DisplayRenderer {
       const selected = index === (page.link ?? 0);
       rect(ctx, 14, y, 290, 28, selected ? p.accent : p.soft);
       text(ctx, ">", 24, y + 8, 2, selected ? p.highlight : p.ink); text(ctx, link.label, 43, y + 10, 1, selected ? p.paper : p.ink);
-      const visibleY = Math.max(28, y); const visibleHeight = Math.min(189, y + 28) - visibleY;
+      const visibleY = Math.max(8, y); const visibleHeight = Math.min(H - 8, y + 28) - visibleY;
       if (visibleHeight > 0) hits.push({ x: 14, y: visibleY, w: 290, h: visibleHeight, action: { url: link.url } });
       y += 34;
     });
     ctx.restore();
-    header(ctx, `BEN / ${shortened(entry.title.toUpperCase(), 251, 1)}`, p);
-    if (layout.limit) scrollbar(ctx, scroll, layout.limit, 32, 152, p);
-    footer(ctx, p, scroll >= layout.limit && entry.links?.length ? "OPEN LINK" : "SCROLL", "BACK", hits);
+    if (layout.limit) scrollbar(ctx, scroll, layout.limit, 12, H - 24, p);
     return { hits, limit: layout.limit };
   }
   boot(time: number, reduced: boolean) {
@@ -146,6 +140,6 @@ export class DisplayRenderer {
 
 export function articleLayout(entry: Entry) {
   const title = wrapText(entry.title, 290, 2); const subtitle = wrapText(entry.subtitle, 290, 1); const body = wrapText(entry.body, 288, 2);
-  const height = title.length * 19 + 6 + subtitle.length * 11 + 24 + (entry.image ? entry.id === "about" ? 75 : 113 : 0) + body.reduce((sum, line) => sum + (line ? 20 : 11), 0) + 11 + (entry.links?.length ?? 0) * 34;
-  return { title, subtitle, body, limit: Math.max(0, height - 151) };
+  const height = (entry.id === "about" ? 0 : title.length * 19 + 6 + subtitle.length * 11 + 23) + (entry.image ? entry.id === "about" ? 75 : 113 : 0) + body.reduce((sum, line) => sum + (line ? 20 : 11), 0) + 11 + (entry.links?.length ?? 0) * 34;
+  return { title, subtitle, body, limit: Math.max(0, height - (H - 24)) };
 }
