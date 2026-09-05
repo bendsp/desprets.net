@@ -9,6 +9,7 @@ import { lidAt } from "./boot";
 
 type Position = [number, number, number];
 type Props = {
+  waiting: boolean; onStart: () => void;
   display: ReactNode; time: MutableRefObject<number>; booting: boolean; open: boolean; power: boolean;
   reduced: boolean; pressed: ReadonlySet<Control>; onControl: (control: Control) => void;
   onPress: (control: Control, source: string) => void; onRelease: (source: string) => void; onFold: () => void; onPower: () => void;
@@ -65,7 +66,7 @@ function Screw({ position, face = "top" }: { position: Position; face?: "top" | 
   </group>;
 }
 
-export function Handheld({ display, time, booting, open, power, reduced, pressed, onControl, onPress, onRelease, onFold, onPower }: Props) {
+export function Handheld({ waiting, onStart, display, time, booting, open, power, reduced, pressed, onControl, onPress, onRelease, onFold, onPower }: Props) {
   const lid = useRef<Group>(null);
   const cross = useRef<Group>(null);
   const { invalidate } = useThree();
@@ -89,7 +90,7 @@ export function Handheld({ display, time, booting, open, power, reduced, pressed
   useEffect(() => { invalidate(); }, [open, reduced, invalidate]);
   useFrame((_, delta) => {
     const target = open ? -.24 : Math.PI / 2;
-    lidAngle.current = booting ? reduced ? -.24 : lidAt(time.current) : reduced ? target : MathUtils.damp(lidAngle.current, target, 8, Math.min(delta, .05));
+    lidAngle.current = waiting ? Math.PI / 2 : booting ? reduced ? -.24 : lidAt(time.current) : reduced ? target : MathUtils.damp(lidAngle.current, target, 8, Math.min(delta, .05));
     if (lid.current) lid.current.rotation.x = lidAngle.current;
     if (!booting && Math.abs(lidAngle.current - target) > .0001) invalidate();
     if (cross.current) {
@@ -113,7 +114,7 @@ export function Handheld({ display, time, booting, open, power, reduced, pressed
     </ButtonTravel>
   </group>;
 
-  return <group>
+  return <group onClick={waiting ? event => { if (event.delta > 4) return; event.stopPropagation(); onStart(); } : undefined} onPointerOver={waiting ? hover : undefined} onPointerOut={waiting ? unhover : undefined}>
     {/* Two molded shells meet at the dark, continuous parting line. */}
     <RoundedBox args={[3.4, .30, 3.38]} radius={.145} smoothness={6} position={[0, -.135, 0]} castShadow receiveShadow>{darkSilver}</RoundedBox>
     <RoundedBox args={[3.408, .026, 3.382]} radius={.012} smoothness={4} position={[0, -.02, 0]}><meshStandardMaterial color="#48525e" roughness={.65} /></RoundedBox>
