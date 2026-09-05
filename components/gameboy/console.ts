@@ -1,5 +1,6 @@
 import { BOOT } from "./boot-timeline";
 import { gameControl, newGame, tickGame, type Game, type GameId } from "./games";
+import { SHELLS, type ShellId } from "./shells";
 import { THEMES, type PaletteId } from "./themes";
 import { projects } from "../../app/projects";
 import { clientWork } from "../../app/client-work";
@@ -11,8 +12,8 @@ export const SCREEN_HEIGHT = 216;
 export const MENU = ["About", "Work", "Education", "Contact", "Games", "Settings"] as const;
 export type Section = (typeof MENU)[number];
 export type Page = { kind: "games"; selected: number } | { kind: "settings"; selected: number } | { kind: "game"; game: Game } | { kind: "menu"; selected: number } | { kind: "list"; section: "Work" | "Contact"; selected: number } | { kind: "article"; id: string; scroll: number; link?: number };
-export type ConsoleState = { page: Page; history: Page[]; palette: PaletteId; records: Record<GameId, number> };
-export type ConsoleAction = { type: "home" } | { type: "tick" } | { type: "pause-game" } | { type: "palette"; palette: PaletteId } | { type: "restore"; palette: PaletteId; records: Record<GameId, number> } | { type: "control"; control: Control } | { type: "open"; page: Page } | { type: "scroll"; delta: number; limit: number } | { type: "link"; direction: number };
+export type ConsoleState = { page: Page; history: Page[]; palette: PaletteId; shell: ShellId; records: Record<GameId, number> };
+export type ConsoleAction = { type:"settings-step"; row:0|1; direction:number } | { type:"shell"; shell:ShellId } | { type: "home" } | { type: "tick" } | { type: "pause-game" } | { type: "palette"; palette: PaletteId } | { type: "restore"; shell?: ShellId; palette: PaletteId; records: Record<GameId, number> } | { type: "control"; control: Control } | { type: "open"; page: Page } | { type: "scroll"; delta: number; limit: number } | { type: "link"; direction: number };
 export type Entry = { id: string; title: string; subtitle: string; body: string; image?: string; links?: { label: string; url: string }[] };
 
 const bodies: Record<string, string> = {
@@ -67,13 +68,20 @@ export function initialConsole(path: string, hash: string): ConsoleState {
   const route = path.replace(/^\/(projects\/)?/, "").replace(/\/$/, "") || hash.replace(/^#/, "");
   const id = route === "epitech" || route === "mcgill" ? "education" : route;
   const page: Page = id === "work" || id === "contact" ? { kind: "list", section: id === "work" ? "Work" : "Contact", selected: 0 } : articles.some(entry => entry.id === id) ? { kind: "article", id, scroll: 0 } : { kind: "menu", selected: 0 };
-  return { page, history: [], palette: "color", records: {snake:0,tetris:0} };
+  return { page, history: [], palette: "color", shell:"platinum", records: {snake:0,tetris:0} };
 }
 export function consoleReducer(state: ConsoleState, action: ConsoleAction): ConsoleState {
   const page = state.page;
   const withGame = (game: Game): ConsoleState => game === (page.kind === "game" ? page.game : null) ? state : { ...state, page: {kind:"game",game}, records:game.score>state.records[game.kind]?{...state.records,[game.kind]:game.score}:state.records };
-  if (action.type === "restore") return {...state,palette:action.palette,records:action.records};
-  if (action.type === "palette") return {...state,palette:action.palette,page:page.kind === "settings" ? {...page,selected:THEMES.findIndex(theme=>theme.id===action.palette)} : page};
+  if (action.type === "restore") return {...state,palette:action.palette,shell:action.shell ?? "platinum",records:action.records};
+  if (action.type === "shell") return {...state,shell:action.shell,page:page.kind==="settings"?{...page,selected:1}:page};
+  if (action.type === "settings-step") {
+    if (page.kind!=="settings") return state;
+    const next={...state,page:{...page,selected:action.row}};
+    if(action.row===0) return {...next,palette:THEMES[(THEMES.findIndex(t=>t.id===state.palette)+action.direction%THEMES.length+THEMES.length)%THEMES.length].id};
+    return {...next,shell:SHELLS[(SHELLS.findIndex(t=>t.id===state.shell)+action.direction%SHELLS.length+SHELLS.length)%SHELLS.length].id};
+  }
+  if (action.type === "palette") return {...state,palette:action.palette,page:page.kind === "settings" ? {...page,selected:0} : page};
   if (action.type === "home") return {...state,page:{kind:"menu",selected:0},history:[]};
   if (action.type === "tick") return page.kind === "game" ? withGame(tickGame(page.game)) : state;
   if (action.type === "pause-game") return page.kind === "game" && page.game.status === "running" ? withGame({...page.game,status:"paused"}) : state;
@@ -81,7 +89,7 @@ export function consoleReducer(state: ConsoleState, action: ConsoleAction): Cons
     const next = action.page;
     const selected = page.kind === "menu" ? MENU.findIndex((_,i)=>{const target=sectionPage(i);return target.kind===next.kind&&(target.kind!=="article"||next.kind==="article"&&target.id===next.id)&&(target.kind!=="list"||next.kind==="list"&&target.section===next.section);}) : -1;
     const parent = page.kind === "menu" && selected >= 0 ? {...page,selected} : page.kind === "games" && next.kind === "game" ? {...page,selected:next.game.kind === "snake"?0:1} : page;
-    return {...state,page:next.kind === "settings"?{...next,selected:THEMES.findIndex(theme=>theme.id===state.palette)}:next,history:[...state.history,parent]};
+    return {...state,page:next.kind === "settings"?{...next,selected:0}:next,history:[...state.history,parent]};
   }
   if (action.type === "scroll") return page.kind === "article" ? { ...state, page: { ...page, scroll: Math.max(0, Math.min(action.limit, page.scroll + action.delta)) } } : state;
   if (action.type === "link") {
@@ -100,13 +108,17 @@ export function consoleReducer(state: ConsoleState, action: ConsoleAction): Cons
   if (control === "a") {
     if (page.kind === "menu") return consoleReducer(state, { type: "open", page: sectionPage(page.selected) });
     if (page.kind === "games") return consoleReducer(state,{type:"open",page:{kind:"game",game:newGame(page.selected === 0 ? "snake" : "tetris")}});
-    if (page.kind === "settings") return consoleReducer(state,{type:"palette",palette:THEMES[page.selected].id});
+    if (page.kind === "settings") return consoleReducer(state,{type:"settings-step",row:page.selected===0?0:1,direction:1});
     if (page.kind === "list") return consoleReducer(state, { type: "open", page: { kind: "article", id: entriesFor(page.section)[page.selected].id, scroll: 0 } });
     return state;
   }
   if (page.kind !== "article" && ["up", "down", "left", "right"].includes(control)) {
-    if (page.kind === "menu" || page.kind === "settings") {
-      const length = page.kind === "menu" ? MENU.length : THEMES.length;
+    if (page.kind === "settings") {
+      if(control==="up" || control==="down") return {...state,page:{...page,selected:1-page.selected}};
+      return consoleReducer(state,{type:"settings-step",row:page.selected===0?0:1,direction:control==="left"?-1:1});
+    }
+    if (page.kind === "menu") {
+      const length = MENU.length;
       const selected = control === "up" ? (page.selected-2+length)%length : control === "down" ? (page.selected+2)%length : page.selected^1;
       return {...state,page:{...page,selected}};
     }

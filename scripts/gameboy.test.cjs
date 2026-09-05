@@ -30,7 +30,7 @@ test('work browsing returns to the same selection and preserves the palette', ()
   assert.equal(state.page.id, work[selected].id);
   state = control(state, 'b');
   assert.equal(state.page.selected, selected);
-  assert.equal(state.palette, 'pocket');
+  assert.equal(state.palette, 'dmg');
   assert.equal(control(state, 'b').page.kind, 'menu');
 });
 
@@ -83,10 +83,19 @@ const { newGame, tickGame, gameControl, pieceCells, ghostPiece, fits } = require
 const { THEMES } = require(join(output, 'components/gameboy/themes.js'));
 const running = kind => ({...newGame(kind),status:'running'});
 
-test('all six home tiles and themes are reachable with a two-column D-pad',()=>{
+test('both settings carousels cycle independently through every finish',()=>{
   let state=initialConsole('/',''); state=control(control(state,'up'),'right'); assert.equal(state.page.selected,5);
   state=control(state,'a');assert.equal(state.page.kind,'settings');
-  for(const theme of THEMES){state=reduce(state,{type:'palette',palette:theme.id});assert.equal(state.palette,theme.id);assert.equal(THEMES[state.page.selected].id,theme.id);}
+  const { SHELLS } = require(join(output,'components/gameboy/shells.js'));
+  for(let i=0;i<THEMES.length;i++){assert.equal(state.palette,THEMES[i].id);state=control(state,'right');assert.equal(state.shell,'platinum');}
+  assert.equal(state.palette,'color');state=control(state,'left');assert.equal(state.palette,THEMES.at(-1).id);
+  state=control(state,'down');assert.equal(state.page.selected,1);
+  for(let i=0;i<SHELLS.length;i++){assert.equal(state.shell,SHELLS[i].id);state=control(state,'right');assert.equal(state.palette,THEMES.at(-1).id);}
+  assert.equal(state.shell,'platinum');state=control(state,'left');assert.equal(state.shell,SHELLS.at(-1).id);
+  state=reduce(state,{type:'settings-step',row:0,direction:1});assert.equal(state.palette,'color');assert.equal(state.page.selected,0);
+  const restored=reduce(initialConsole('/',''),{type:'restore',palette:state.palette,shell:state.shell,records:{snake:10,tetris:20}});
+  assert.equal(restored.shell,state.shell);assert.equal(restored.records.tetris,20);
+  const legacy=reduce(initialConsole('/',''),{type:'restore',palette:'color',records:{snake:10,tetris:20}});assert.equal(legacy.shell,'platinum');
   assert.equal(articles.find(entry=>entry.id==='about').image,'/pfp-380.webp');
 });
 test('Snake rejects reversal and buffers quick turns across separate steps',()=>{

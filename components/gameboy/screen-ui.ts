@@ -1,7 +1,8 @@
 import { SCREEN_WIDTH as W, type Page, type Control } from "./console";
+import type { ShellId } from "./shells";
 import type { Palette, PaletteId } from "./themes";
 import { screenText as text, textWidth } from "./screen-font";
-export type Hit = { x:number; y:number; w:number; h:number; action: {page:Page} | {url:string} | {control:Control} | {palette:PaletteId} };
+export type Hit = { x:number; y:number; w:number; h:number; action: {page:Page} | {url:string} | {control:Control} | {palette:PaletteId} | {shell:ShellId} | {settingsRow:0|1; direction:number} };
 export type ScreenLayout = { hits:Hit[]; limit:number };
 export function rect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, color: string) { ctx.fillStyle = color; ctx.fillRect(x, y, w, h); }
 export function center(ctx: CanvasRenderingContext2D, value: string, y: number, scale: number, color: string) { text(ctx, value, (W - textWidth(value, scale)) / 2, y, scale, color); }

@@ -34,7 +34,7 @@ export class DisplayRenderer {
     }
   }
   dispose() { this.disposed = true; this.images.clear(); }
-  draw(state: ConsoleState): ScreenLayout {
+  draw(state: ConsoleState, settingsOffsets: readonly number[] = [0,0]): ScreenLayout {
     const ctx = this.ctx; const p = themeFor(state.palette); const hits: Hit[] = []; const page = state.page;
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high"; rect(ctx, 0, 0, W, H, p.paper);
     if (page.kind === "menu") {
@@ -49,7 +49,7 @@ export class DisplayRenderer {
       return { hits, limit: 0 };
     }
     if (page.kind === "games") return drawGames(ctx,state,page,p);
-    if (page.kind === "settings") return drawSettings(ctx,state,page,p);
+    if (page.kind === "settings") return drawSettings(ctx,state,page,p,settingsOffsets);
     if (page.kind === "game") return drawGame(ctx,state,page.game,p);
     if (page.kind === "list") {
       const entries = entriesFor(page.section); const first = Math.max(0, Math.min(entries.length - 4, page.selected - 2));

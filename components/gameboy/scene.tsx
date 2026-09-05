@@ -9,6 +9,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer, OrbitControls } from "@react-three/drei";
 import { Scan, Orbit, RotateCcw, SkipForward, Volume2, VolumeX, ExternalLink } from "lucide-react";
 import { Vector3 } from "three";
+import { SHELLS, isShell } from "./shells";
 import { Handheld } from "./handheld";
 import { Display } from "./display";
 import { articleLayout, type Hit } from "./display-renderer";
@@ -113,15 +114,15 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
       const saved = JSON.parse(localStorage.getItem("desprets-console-v1") ?? "null");
       if (saved && typeof saved === "object") {
         const score = (value: unknown) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : 0;
-        dispatch({type:"restore",palette:isPalette(saved.palette)?saved.palette:"color",records:{snake:score(saved.records?.snake),tetris:score(saved.records?.tetris)}});
+        dispatch({type:"restore",shell:isShell(saved.shell)?saved.shell:"platinum",palette:isPalette(saved.palette)?saved.palette:"color",records:{snake:score(saved.records?.snake),tetris:score(saved.records?.tetris)}});
       }
     } catch { /* Storage may be unavailable in a private browser. */ }
     setPreferencesLoaded(true);
   }, []);
   useEffect(() => {
     if (!preferencesLoaded) return;
-    try { localStorage.setItem("desprets-console-v1",JSON.stringify({palette:state.palette,records:state.records})); } catch { /* The console also works without persistence. */ }
-  }, [preferencesLoaded,state.palette,state.records]);
+    try { localStorage.setItem("desprets-console-v1",JSON.stringify({palette:state.palette,shell:state.shell,records:state.records})); } catch { /* The console also works without persistence. */ }
+  }, [preferencesLoaded,state.palette,state.shell,state.records]);
   const game = state.page.kind === "game" ? state.page.game : null;
   const gameRunning = game?.status === "running";
   const cadence = game ? gameDelay(game) : 0;
@@ -225,14 +226,18 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
     const pointerup = (event: PointerEvent) => { release(`pointer-${event.pointerId}`); setTouching(false); };
     const wheel = (event: WheelEvent) => {
       if (event.ctrlKey || event.target instanceof HTMLElement && event.target.closest(".sp-accessible")) return;
-      event.preventDefault(); scroll(event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 150 : .5));
+      event.preventDefault();
+      if (availableRef.current && current.current.page.kind==="settings" && Math.abs(event.deltaX)>Math.abs(event.deltaY)) {
+        if(performance.now()-wheelTime.current>140){wheelTime.current=performance.now();pulse(event.deltaX<0?"left":"right");} return;
+      }
+      scroll(event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 150 : .5));
     };
     const pause = () => { clearHeld(); dispatch({type:"pause-game"}); };
     const visibility = () => { if (document.hidden) pause(); };
     window.addEventListener("keydown", keydown); window.addEventListener("keyup", keyup); window.addEventListener("pointerup", pointerup); window.addEventListener("pointercancel", pointerup);
     window.addEventListener("blur", pause); window.addEventListener("wheel", wheel, { passive: false }); document.addEventListener("visibilitychange", visibility);
     return () => { window.removeEventListener("keydown", keydown); window.removeEventListener("keyup", keyup); window.removeEventListener("pointerup", pointerup); window.removeEventListener("pointercancel", pointerup); window.removeEventListener("blur", pause); window.removeEventListener("wheel", wheel); document.removeEventListener("visibilitychange", visibility); };
-  }, [press, release, scroll, booting, clearHeld, stopStartup, waiting, startOpening]);
+  }, [press, release, pulse, scroll, booting, clearHeld, stopStartup, waiting, startOpening]);
   useEffect(() => {
     const timers = pulses.current;
     return () => { clearTimeout(snap.current); timers.forEach(clearTimeout); void audio.current?.close(); document.body.style.cursor = "auto"; };
@@ -245,6 +250,8 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
   const onHit = (action: Hit["action"]) => {
     if (!available) return;
     if ("control" in action) pulse(action.control);
+    else if ("settingsRow" in action) { dispatch({type:"settings-step",row:action.settingsRow,direction:action.direction}); }
+    else if ("shell" in action) { dispatch({type:"shell",shell:action.shell}); }
     else if ("palette" in action) { pulseVisualA(); dispatch({type:"palette",palette:action.palette}); }
     else if ("url" in action) { pulseVisualA(); openLink(action.url); }
     else { pulseVisualA(); dispatch({ type: "open", page: action.page }); }
@@ -258,7 +265,7 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
   const page = state.page; const entry = page.kind === "article" ? entryFor(page.id) : undefined;
   const screenName = entry?.title ?? (page.kind === "list" ? page.section : page.kind === "game" ? page.game.kind.toUpperCase() : page.kind === "settings" ? "Settings" : page.kind === "games" ? "Games" : "Ben Desprets");
 
-  return <div className="sp-experience" data-power={power ? "on" : "off"} data-ready={ready} data-phase={waiting && bootOpening ? "closed" : booting ? "boot" : "ready"} data-boot-stage={booting ? stage : "ready"} data-page={page.kind === "article" ? page.id : page.kind === "list" ? page.section : page.kind === "game" ? page.game.kind : page.kind} data-scroll={page.kind === "article" ? page.scroll : 0} data-selected={"selected" in page ? page.selected : page.kind === "article" ? page.link ?? 0 : 0} data-pressed={[...pressed].join(",")} data-palette={state.palette} data-game-status={game?.status} data-score={game?.score} data-lines={game?.kind === "tetris" ? game.lines : undefined}>
+  return <div className="sp-experience" data-power={power ? "on" : "off"} data-ready={ready} data-phase={waiting && bootOpening ? "closed" : booting ? "boot" : "ready"} data-boot-stage={booting ? stage : "ready"} data-page={page.kind === "article" ? page.id : page.kind === "list" ? page.section : page.kind === "game" ? page.game.kind : page.kind} data-scroll={page.kind === "article" ? page.scroll : 0} data-selected={"selected" in page ? page.selected : page.kind === "article" ? page.link ?? 0 : 0} data-pressed={[...pressed].join(",")} data-palette={state.palette} data-shell={state.shell} data-game-status={game?.status} data-score={game?.score} data-lines={game?.kind === "tetris" ? game.lines : undefined}>
     <Canvas shadows dpr={[1, 1.8]} frameloop="demand" camera={{ position: [5, 5.8, 7.6], fov: 34, near: .1, far: 100 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { gl.setClearColor("#171e24", 0); setReady(true); }}>
       <color attach="background" args={["#171e24"]} /><fog attach="fog" args={["#171e24", 20, 48]} />
       <ambientLight intensity={.38} />
@@ -273,7 +280,7 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
           <Lightformer form="rect" intensity={2} color="#fff2e1" position={[1, 7, 4]} scale={[7, 2, 1]} target={[0, 0, 0]} />
           <Lightformer form="rect" intensity={.7} position={[0, 1, 8]} scale={[6, 6, 1]} target={[0, 1, 0]} />
         </Environment>
-        <Handheld bootOpening={bootOpening} waiting={waiting} onStart={() => startOpening()} time={time} booting={booting} open={open} power={power} reduced={reduced} pressed={pressed} onControl={pulse} onPress={press} onRelease={release} onFold={toggleOpen} onPower={() => {
+        <Handheld shell={state.shell} bootOpening={bootOpening} waiting={waiting} onStart={() => startOpening()} time={time} booting={booting} open={open} power={power} reduced={reduced} pressed={pressed} onControl={pulse} onPress={press} onRelease={release} onFold={toggleOpen} onPower={() => {
           if (power) {
             bootAttempt.current++; starting.current = false; stopStartup(); clearHeld();
             setPower(false); setBooting(false); setWaiting(false); setReset(value => value + 1);
@@ -307,7 +314,7 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
     </div>
     {available && <section className="sp-accessible" aria-label="Portfolio screen">
       <h1 aria-live="polite">{screenName}</h1>
-      {entry ? <><p>{entry.body}</p>{entry.links?.map(link => <a key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label}</a>)}</> : page.kind === "menu" ? MENU.map((label, index) => <button key={label} onClick={() => dispatch({ type: "open", page: sectionPage(index) })}>{label}</button>) : page.kind === "list" ? entriesFor(page.section).map(item => <button key={item.id} onClick={() => dispatch({ type: "open", page: { kind: "article", id: item.id, scroll: 0 } })}>{item.title}</button>) : page.kind === "games" ? (["snake","tetris"] as const).map(kind => <button key={kind} onClick={() => dispatch({type:"open",page:{kind:"game",game:newGame(kind)}})}>{kind}</button>) : page.kind === "settings" ? THEMES.map(theme => <button key={theme.id} aria-pressed={state.palette === theme.id} onClick={() => dispatch({type:"palette",palette:theme.id})}>{theme.name}</button>) : game ? <><p>{game.status}. Score {game.score}. Best {state.records[game.kind]}.</p><button onClick={() => pulse("a")}>{game.status === "running" ? game.kind === "tetris" ? "Rotate" : "Pause" : "Play or resume"}</button><button onClick={() => pulse("b")}>{game.status === "running" ? "Pause" : "Quit game"}</button></> : null}
+      {entry ? <><p>{entry.body}</p>{entry.links?.map(link => <a key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label}</a>)}</> : page.kind === "menu" ? MENU.map((label, index) => <button key={label} onClick={() => dispatch({ type: "open", page: sectionPage(index) })}>{label}</button>) : page.kind === "list" ? entriesFor(page.section).map(item => <button key={item.id} onClick={() => dispatch({ type: "open", page: { kind: "article", id: item.id, scroll: 0 } })}>{item.title}</button>) : page.kind === "games" ? (["snake","tetris"] as const).map(kind => <button key={kind} onClick={() => dispatch({type:"open",page:{kind:"game",game:newGame(kind)}})}>{kind}</button>) : page.kind === "settings" ? <><fieldset><legend>Screen theme</legend>{THEMES.map(theme => <button key={theme.id} aria-pressed={state.palette === theme.id} onClick={() => dispatch({type:"palette",palette:theme.id})}>{theme.name}</button>)}</fieldset><fieldset><legend>Console color</legend>{SHELLS.map(shell=><button key={shell.id} aria-pressed={state.shell===shell.id} onClick={()=>dispatch({type:"shell",shell:shell.id})}>{shell.name}</button>)}</fieldset></> : game ? <><p>{game.status}. Score {game.score}. Best {state.records[game.kind]}.</p><button onClick={() => pulse("a")}>{game.status === "running" ? game.kind === "tetris" ? "Rotate" : "Pause" : "Play or resume"}</button><button onClick={() => pulse("b")}>{game.status === "running" ? "Pause" : "Quit game"}</button></> : null}
       <p>Arrow keys or WASD to move. Z or Enter is A. X or Backspace is B. Space returns home, or pauses a game. Shift changes palette, or hard-drops a Tetris piece. In games, B pauses; B again exits. Drag outside the screen to rotate.</p>
     </section>}
     <div className="sp-keyboard-controls">{(["up", "down", "left", "right", "a", "b", "start", "select", "light"] as const).map(control => <button key={control} disabled={!available} onClick={() => pulse(control)}>{control}</button>)}</div>

@@ -1,21 +1,43 @@
 import { type ConsoleState, type Page } from "./console";
 import { newGame, pieceCells, ghostPiece, PIECES, type Game, type FallingPiece } from "./games";
+import { SHELLS } from "./shells";
 import { THEMES, type Palette } from "./themes";
 import { screenText as text } from "./screen-font";
 import { rect, center, type Hit, type ScreenLayout } from "./screen-ui";
 
-export function drawSettings(ctx: CanvasRenderingContext2D, state: ConsoleState, page: Extract<Page,{kind:"settings"}>, p: Palette): ScreenLayout {
-  const hits: Hit[] = []; text(ctx,"Color scheme",14,12,2,p.ink);
-  THEMES.forEach((theme,index)=>{
-    const x=14+index%2*154, y=42+Math.floor(index/2)*54, selected=page.selected===index, applied=state.palette===theme.id;
-    rect(ctx,x,y,142,48,selected?p.accent:p.soft); if(selected)rect(ctx,x,y,3,48,p.highlight);
-    text(ctx,theme.name,x+9,y+7,1,selected?p.paper:p.ink);
-    if(applied)text(ctx,"ON",x+121,y+7,1,selected?p.highlight:p.accent);
-    [theme.paper,theme.soft,theme.accent,theme.ink,theme.highlight].forEach((color,i)=>{rect(ctx,x+8+i*24,y+29,23,10,selected?p.paper:p.muted);rect(ctx,x+9+i*24,y+30,21,8,color);});
-    hits.push({x,y,w:142,h:48,action:{palette:theme.id}});
+export function drawSettings(ctx: CanvasRenderingContext2D, state: ConsoleState, page: Extract<Page,{kind:"settings"}>, p: Palette, offsets: readonly number[] = [0,0]): ScreenLayout {
+  const hits: Hit[] = [];
+  const rows = [
+    {label:"Screen theme",options:THEMES.map(t=>({id:t.id,name:t.name,colors:[t.paper,t.accent]})),index:THEMES.findIndex(t=>t.id===state.palette)},
+    {label:"Console color",options:SHELLS.map(t=>({id:t.id,name:t.name,colors:[t.body,t.edge]})),index:SHELLS.findIndex(t=>t.id===state.shell)},
+  ];
+  rows.forEach(({label,options,index},rowIndex)=>{
+    const row=rowIndex===0?0:1, top=12+row*102, focused=page.selected===row;
+    text(ctx,label,14,top,1.6,p.ink);
+    const y=top+24;
+    ctx.save(); ctx.beginPath(); ctx.rect(73,y,178,56); ctx.clip();
+    [-2,-1,0,1,2].forEach(step=>{
+      const option=options[(index+step+options.length)%options.length], x=73+step*190+(offsets[row]??0);
+      rect(ctx,x,y,178,56,step===0?p.soft:p.paper);
+      if(step===0 && focused)rect(ctx,x,y+53,178,3,p.accent);
+      rect(ctx,x+12,y+12,32,32,option.colors[0]); rect(ctx,x+28,y+12,16,32,option.colors[1]);
+      ctx.strokeStyle=p.muted;ctx.lineWidth=.5;ctx.strokeRect(x+12.25,y+12.25,31.5,31.5);
+      text(ctx,option.name,x+54,y+20,1.6,step===0?p.ink:p.muted);
+    });
+    ctx.restore();
+    [{x:12,direction:-1},{x:276,direction:1}].forEach(({x,direction})=>{
+      rect(ctx,x,y+7,36,42,p.paper);
+      ctx.strokeStyle=focused?p.accent:p.muted;ctx.lineWidth=2;ctx.lineCap="round";ctx.lineJoin="round";
+      ctx.beginPath();ctx.moveTo(x+18-direction*3,y+21);ctx.lineTo(x+18+direction*3,y+28);ctx.lineTo(x+18-direction*3,y+35);ctx.stroke();
+      hits.push({x:direction<0?0:251,y:y-7,w:73,h:70,action:{settingsRow:row,direction}});
+    });
+    hits.push({x:73,y,w:178,h:56,action:{settingsRow:row,direction:0}});
+    const left=(324-options.length*10)/2;
+    options.forEach((_,i)=>rect(ctx,left+i*10,top+87, i===index?7:4,2,i===index?p.accent:p.soft));
   });
-   return {hits,limit:0};
+  return {hits,limit:0};
 }
+
 export function drawGames(ctx: CanvasRenderingContext2D, state: ConsoleState, page: Extract<Page,{kind:"games"}>, p: Palette): ScreenLayout {
   const hits: Hit[] = [];
   (["snake","tetris"] as const).forEach((kind,index)=>{

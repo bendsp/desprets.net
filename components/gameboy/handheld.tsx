@@ -4,13 +4,14 @@ import { useEffect, useMemo, useRef, type MutableRefObject, type ReactNode } fro
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import { CanvasTexture, DataTexture, Group, MathUtils, RepeatWrapping, RGBAFormat, Shape, SRGBColorSpace } from "three";
+import { shellFor, type ShellId, type Shell } from "./shells";
 import type { Control } from "./console";
 import { lidAt, OPEN_LID_ANGLE } from "./boot";
 import { DPAD, ACTION, SMALL, SPEAKER, capsuleShape, deckShape, recessWall } from "./hardware-geometry";
 
 type Position = [number, number, number];
 type Props = {
-  bootOpening: boolean; waiting: boolean; onStart: () => void;
+  shell: ShellId; bootOpening: boolean; waiting: boolean; onStart: () => void;
   display: ReactNode; time: MutableRefObject<number>; booting: boolean; open: boolean; power: boolean;
   reduced: boolean; pressed: ReadonlySet<Control>; onControl: (control: Control) => void;
   onPress: (control: Control, source: string) => void; onRelease: (source: string) => void; onFold: () => void; onPower: () => void;
@@ -59,17 +60,18 @@ function Disc({ position, radius, depth = .035, color = "#363b42", metalness = .
   </mesh>;
 }
 
-function Recess({ x, z, radius, span = 0, angle = 0 }: { x: number; z: number; radius: number; span?: number; angle?: number }) {
+function Recess({ shell, x, z, radius, span = 0, angle = 0 }: { shell: Shell; x: number; z: number; radius: number; span?: number; angle?: number }) {
   const wall = useMemo(() => recessWall(radius,span),[radius,span]);
   const floor = useMemo(() => capsuleShape(radius-.062,span),[radius,span]);
   useEffect(() => () => wall.dispose(),[wall]);
   return <group position={[x,0,z]} rotation={[0,angle,0]}>
-    <mesh geometry={wall} receiveShadow><meshStandardMaterial color="#a9afb5" metalness={.55} roughness={.38} side={2} /></mesh>
-    <mesh position={[0,.12,0]} rotation={[-Math.PI/2,0,0]} receiveShadow><shapeGeometry args={[floor]} /><meshStandardMaterial color="#b7bdc3" metalness={.5} roughness={.4} /></mesh>
+    <mesh geometry={wall} receiveShadow><meshStandardMaterial color={shell.well} metalness={.55} roughness={.38} side={2} /></mesh>
+    <mesh position={[0,.12,0]} rotation={[-Math.PI/2,0,0]} receiveShadow><shapeGeometry args={[floor]} /><meshStandardMaterial color={shell.floor} metalness={.5} roughness={.4} /></mesh>
   </group>;
 }
 
-export function Handheld({ bootOpening, waiting, onStart, display, time, booting, open, power, reduced, pressed, onControl, onPress, onRelease, onFold, onPower }: Props) {
+export function Handheld({ shell: shellId, bootOpening, waiting, onStart, display, time, booting, open, power, reduced, pressed, onControl, onPress, onRelease, onFold, onPower }: Props) {
+  const shell = shellFor(shellId);
   const lid = useRef<Group>(null);
   const cross = useRef<Group>(null);
   const { invalidate } = useThree();
@@ -107,12 +109,12 @@ export function Handheld({ bootOpening, waiting, onStart, display, time, booting
       if (Math.abs(cross.current.rotation.x - x) + Math.abs(cross.current.rotation.z - z) + Math.abs(cross.current.position.y - y) > .0001) invalidate();
     }
   });
-  const silver = <meshPhysicalMaterial color="#bfc2c5" metalness={.5} roughness={.38} roughnessMap={grain} bumpMap={grain} bumpScale={.00025} clearcoat={.14} clearcoatRoughness={.36} envMapIntensity={.85} />;
-  const darkSilver = <meshStandardMaterial color="#8c949f" metalness={.6} roughness={.37} roughnessMap={grain} />;
+  const silver = <meshPhysicalMaterial color={shell.body} metalness={shell.metalness} roughness={.38} roughnessMap={grain} bumpMap={grain} bumpScale={.00025} clearcoat={.14} clearcoatRoughness={.36} envMapIntensity={.85} />;
+  const darkSilver = <meshStandardMaterial color={shell.edge} metalness={.6} roughness={.37} roughnessMap={grain} />;
   const travel = { pressed, reduced, onPress, onRelease };
   const button = (label: "A" | "B", control: Control, x: number, z: number) => <group key={control} position={[x, 0, z]}>
     <ButtonTravel control={control} {...travel}>
-      <Disc position={[0, .168, 0]} radius={.169} depth={.048} color="#777b79" />
+      <Disc position={[0, .168, 0]} radius={.169} depth={.048} color={shell.buttons} />
       <mesh position={[0, .211, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[.3, 32]} /><meshBasicMaterial transparent opacity={0} depthWrite={false} /></mesh>
       <Label text={label} position={[.003, .194, .003]} width={.091} height={.121} rotation={[-Math.PI / 2, 0, 0]} color="#989c98" />
       <Label text={label} position={[0, .195, 0]} width={.091} height={.121} rotation={[-Math.PI / 2, 0, 0]} color="#636864" />
@@ -136,13 +138,13 @@ export function Handheld({ bootOpening, waiting, onStart, display, time, booting
     </mesh>)}
     {[-1.54,1.54].map(x => <group key={x}>
       <RoundedBox args={[.29,.28,.36]} radius={.075} position={[x,.17,-1.43]} castShadow>{silver}</RoundedBox>
-      <mesh position={[x<0?-1.67:1.68,.27,-1.42]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.157,.157,.013,48]} /><meshStandardMaterial color="#9b9f9f" metalness={.4} roughness={.42} /></mesh>
+      <mesh position={[x<0?-1.67:1.68,.27,-1.42]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.157,.157,.013,48]} /><meshStandardMaterial color={shell.edge} metalness={.4} roughness={.42} /></mesh>
     </group>)}
 
     {/* Low-profile cross inside the molded circular well. */}
-    <Recess {...DPAD} />
+    <Recess shell={shell} {...DPAD} />
     <group ref={cross} position={[DPAD.x, .146, DPAD.z]}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} castShadow><extrudeGeometry args={[dpad, { depth: .045, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: .021, bevelThickness: .012 }]} /><meshStandardMaterial color="#7d807e" roughness={.43} metalness={.22} /></mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} castShadow><extrudeGeometry args={[dpad, { depth: .045, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: .021, bevelThickness: .012 }]} /><meshStandardMaterial color={shell.buttons} roughness={.43} metalness={.22} /></mesh>
       {/* One continuous target resolves direction by quadrant, without diagonal overlap. */}
       <mesh position={[0, .115, 0]} rotation={[-Math.PI / 2, 0, 0]} onPointerDown={event => {
         event.stopPropagation();
@@ -155,23 +157,23 @@ export function Handheld({ bootOpening, waiting, onStart, display, time, booting
       </mesh>
 
     </group>
-    <Recess {...ACTION} />
+    <Recess shell={shell} {...ACTION} />
     {button("B", "b", ACTION.x-Math.cos(ACTION.angle)*ACTION.span/2, ACTION.z+Math.sin(ACTION.angle)*ACTION.span/2)}
     {button("A", "a", ACTION.x+Math.cos(ACTION.angle)*ACTION.span/2, ACTION.z-Math.sin(ACTION.angle)*ACTION.span/2)}
 
     {/* Sixteen drilled speaker holes, with four slightly larger central holes. */}
     {SPEAKER.map((p,i) => <mesh key={i} position={[p.x,.14,p.z]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[p.radius*1.3,16]} /><meshBasicMaterial color="#101617" /></mesh>)}
     {SMALL.xs.map((x,i) => <group key={x}>
-      <Recess x={x} z={SMALL.z} radius={SMALL.radius} />
+      <Recess shell={shell} x={x} z={SMALL.z} radius={SMALL.radius} />
       <ButtonTravel control={i===0?"select":"start"} {...travel}>
-        <Disc position={[x,.151,SMALL.z]} radius={.115} depth={.037} color="#797d78" />
+        <Disc position={[x,.151,SMALL.z]} radius={.115} depth={.037} color={shell.buttons} />
         <mesh position={[x,.202,SMALL.z]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[.25,32]} /><meshBasicMaterial transparent opacity={0} depthWrite={false} /></mesh>
       </ButtonTravel>
-      <Label text={i===0?"SELECT":"START"} position={[x,.183,.94]} width={.30} height={.09} rotation={[-Math.PI/2,0,0]} color="#656d6e" />
+      <Label text={i===0?"SELECT":"START"} position={[x,.183,.94]} width={.30} height={.09} rotation={[-Math.PI/2,0,0]} color={shell.label} />
     </group>)}
-    <Recess x={0} z={-1.0} radius={.135} />
+    <Recess shell={shell} x={0} z={-1.0} radius={.135} />
     <ButtonTravel control="light" {...travel}>
-      <Disc position={[0,.147,-1.0]} radius={.085} depth={.033} color="#747a76" />
+      <Disc position={[0,.147,-1.0]} radius={.085} depth={.033} color={shell.buttons} />
       <Label text="☀" position={[0,.165,-1.0]} width={.11} height={.11} rotation={[-Math.PI/2,0,0]} color="#a3aaa1" />
     </ButtonTravel>
 
@@ -200,10 +202,10 @@ export function Handheld({ bootOpening, waiting, onStart, display, time, booting
       <Label text="GAME BOY ADVANCE SP" position={[0, .665, .194]} width={1.58} height={.119} color="#a0a49d" />
       {/* Keep each pad inside the silver border: lens ends at y=2.85, hinge radius is .205. */}
       {([[-1.46,.355],[1.46,.355],[-1.46,2.985],[0,2.985],[1.46,2.985]] as const).map(([x,y]) => <group key={`${x}-${y}`} position={[x,y,.161]} rotation={[Math.PI/2,0,0]}>
-        <Disc position={[0,0,0]} radius={.085} depth={.012} color="#888e87" metalness={.08} />
+        <Disc position={[0,0,0]} radius={.085} depth={.012} color={shell.pad} metalness={.08} />
       </group>)}
-      <mesh position={[0,1.67,-.15]} scale={[1,.43,1]}><torusGeometry args={[.55,.009,8,64]} /><meshStandardMaterial color="#828787" metalness={.35} roughness={.5} /></mesh>
-      <Label text="Nintendo" position={[0, 1.67, -.15]} rotation={[0, Math.PI, 0]} width={.86} height={.18} color="#727d8a" />
+      <mesh position={[0,1.67,-.15]} scale={[1,.43,1]}><torusGeometry args={[.55,.009,8,64]} /><meshStandardMaterial color={shell.label} metalness={.35} roughness={.5} /></mesh>
+      <Label text="Nintendo" position={[0, 1.67, -.15]} rotation={[0, Math.PI, 0]} width={.86} height={.18} color={shell.label} />
       </group>
     </group>
   </group>;
