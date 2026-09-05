@@ -31,3 +31,5 @@ html[data-portfolio="scene"], html[data-portfolio="scene"] body { overflow: clip
 .sp-experience[data-ready="true"] .sp-open-hint { opacity: .6; }
 @media (hover: hover) and (pointer: fine) { .sp-experience[data-ready="true"] .sp-open-hint:hover { opacity: 1; } }
 .sp-open-hint:focus-visible { outline: 1px solid #d4e7fb88; outline-offset: 2px; border-radius: 6px; opacity: 1; }
+
+@media (max-height: 500px) and (orientation: landscape) { .sp-toolbar { top: 12px; bottom: auto; left: auto; right: 12px; transform: none; } }

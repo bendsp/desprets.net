@@ -5,11 +5,11 @@ import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import { CanvasTexture, DataTexture, Group, MathUtils, RepeatWrapping, RGBAFormat, Shape, SRGBColorSpace } from "three";
 import type { Control } from "./console";
-import { lidAt } from "./boot";
+import { lidAt, OPEN_LID_ANGLE } from "./boot";
 
 type Position = [number, number, number];
 type Props = {
-  waiting: boolean; onStart: () => void;
+  bootOpening: boolean; waiting: boolean; onStart: () => void;
   display: ReactNode; time: MutableRefObject<number>; booting: boolean; open: boolean; power: boolean;
   reduced: boolean; pressed: ReadonlySet<Control>; onControl: (control: Control) => void;
   onPress: (control: Control, source: string) => void; onRelease: (source: string) => void; onFold: () => void; onPower: () => void;
@@ -66,11 +66,11 @@ function Screw({ position, face = "top" }: { position: Position; face?: "top" | 
   </group>;
 }
 
-export function Handheld({ waiting, onStart, display, time, booting, open, power, reduced, pressed, onControl, onPress, onRelease, onFold, onPower }: Props) {
+export function Handheld({ bootOpening, waiting, onStart, display, time, booting, open, power, reduced, pressed, onControl, onPress, onRelease, onFold, onPower }: Props) {
   const lid = useRef<Group>(null);
   const cross = useRef<Group>(null);
   const { invalidate } = useThree();
-  const lidAngle = useRef(reduced ? -.24 : Math.PI / 2);
+  const lidAngle = useRef(reduced ? OPEN_LID_ANGLE : Math.PI / 2);
   const [grain, dpad] = useMemo(() => {
     const data = new Uint8Array(128 * 128 * 4);
     let seed = 73;
@@ -89,8 +89,8 @@ export function Handheld({ waiting, onStart, display, time, booting, open, power
   useEffect(() => () => grain.dispose(), [grain]);
   useEffect(() => { invalidate(); }, [open, reduced, invalidate]);
   useFrame((_, delta) => {
-    const target = open ? -.24 : Math.PI / 2;
-    lidAngle.current = waiting ? Math.PI / 2 : booting ? reduced ? -.24 : lidAt(time.current) : reduced ? target : MathUtils.damp(lidAngle.current, target, 8, Math.min(delta, .05));
+    const target = open ? OPEN_LID_ANGLE : Math.PI / 2;
+    lidAngle.current = waiting && bootOpening ? Math.PI / 2 : booting && bootOpening ? reduced ? OPEN_LID_ANGLE : lidAt(time.current) : reduced ? target : MathUtils.damp(lidAngle.current, target, 8, Math.min(delta, .05));
     if (lid.current) lid.current.rotation.x = lidAngle.current;
     if (!booting && Math.abs(lidAngle.current - target) > .0001) invalidate();
     if (cross.current) {
@@ -110,6 +110,7 @@ export function Handheld({ waiting, onStart, display, time, booting, open, power
     <Disc position={[0, .186, 0]} radius={.256} depth={.023} color="#5a636f" metalness={.6} />
     <ButtonTravel control={control} {...travel}>
       <Disc position={[0, .219, 0]} radius={.22} depth={.089} color="#303944" />
+      <mesh position={[0, .275, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[.3, 32]} /><meshBasicMaterial transparent opacity={0} depthWrite={false} /></mesh>
       <Label text={label} position={[0, .268, 0]} width={.135} height={.145} rotation={[-Math.PI / 2, 0, 0]} color="#8d96a3" />
     </ButtonTravel>
   </group>;
@@ -134,8 +135,18 @@ export function Handheld({ waiting, onStart, display, time, booting, open, power
     <group ref={cross} position={[-.93, .224, -.22]}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} castShadow><extrudeGeometry args={[dpad, { depth: .066, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: .019, bevelThickness: .018 }]} /><meshStandardMaterial color="#303943" roughness={.43} metalness={.22} /></mesh>
       <Disc position={[0, .087, 0]} radius={.113} depth={.004} color="#252e38" />
+      {/* One continuous target resolves direction by quadrant, without diagonal overlap. */}
+      <mesh position={[0, .115, 0]} rotation={[-Math.PI / 2, 0, 0]} onPointerDown={event => {
+        event.stopPropagation();
+        const point = event.object.worldToLocal(event.point.clone());
+        const control: Control = Math.abs(point.x) > Math.abs(point.y) ? point.x > 0 ? "right" : "left" : point.y > 0 ? "up" : "down";
+        (event.target as Element).setPointerCapture?.(event.pointerId);
+        onPress(control, `pointer-${event.pointerId}`);
+      }} onPointerUp={event => { event.stopPropagation(); (event.target as Element).releasePointerCapture?.(event.pointerId); onRelease(`pointer-${event.pointerId}`); }} onClick={event => event.stopPropagation()} onPointerOver={hover} onPointerOut={unhover}>
+        <circleGeometry args={[.66, 32]} /><meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
       {([['up', 0, -.32], ['down', 0, .32], ['left', -.32, 0], ['right', .32, 0]] as const).map(([control, x, z]) => <group key={control}>
-        <mesh position={[x, .102, z]} rotation={[-Math.PI / 2, 0, 0]} onPointerDown={event => { event.stopPropagation(); (event.target as Element).setPointerCapture?.(event.pointerId); onPress(control, `pointer-${event.pointerId}`); }} onPointerUp={event => { event.stopPropagation(); (event.target as Element).releasePointerCapture?.(event.pointerId); onRelease(`pointer-${event.pointerId}`); }} onClick={event => event.stopPropagation()} onPointerOver={hover} onPointerOut={unhover}><planeGeometry args={[.36, .36]} /><meshBasicMaterial transparent opacity={0} depthWrite={false} /></mesh>
+
         {[0, 1, 2].map(index => <mesh key={index} position={[x + (x ? (index - 1) * .045 : 0), .09, z + (z ? (index - 1) * .045 : 0)]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[x ? .013 : .15, z ? .013 : .15]} /><meshBasicMaterial color="#687583" /></mesh>)}
       </group>)}
     </group>
@@ -152,7 +163,10 @@ export function Handheld({ waiting, onStart, display, time, booting, open, power
     }))}
     {([['SELECT', 'select', -.34], ['START', 'start', .34]] as const).map(([label, control, x]) => <group key={control}>
       <Disc position={[x, .187, 1.07]} radius={.153} depth={.017} color="#818c97" metalness={.65} />
-      <ButtonTravel control={control} {...travel}><Disc position={[x, .22, 1.07]} radius={.112} depth={.063} color="#333e4c" /></ButtonTravel>
+      <ButtonTravel control={control} {...travel}>
+        <Disc position={[x, .22, 1.07]} radius={.112} depth={.063} color="#333e4c" />
+        <mesh position={[x, .26, 1.07]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[.25, 32]} /><meshBasicMaterial transparent opacity={0} depthWrite={false} /></mesh>
+      </ButtonTravel>
       <Label text={label} position={[x, .19, 1.35]} width={.36} height={.075} rotation={[-Math.PI / 2, 0, 0]} />
     </group>)}
     <Disc position={[0, .19, -.96]} radius={.147} depth={.016} color="#85909c" metalness={.7} />
@@ -163,7 +177,10 @@ export function Handheld({ waiting, onStart, display, time, booting, open, power
 
     {/* Power slider, charge LED, volume wheel, and cartridge opening. */}
     <RoundedBox args={[.028, .115, .38]} radius={.012} position={[1.718, -.01, -.79]}><meshStandardMaterial color="#27313a" roughness={.48} /></RoundedBox>
-    <RoundedBox args={[.05, .10, .16]} radius={.012} position={[1.741, -.01, power ? -.86 : -.69]} onClick={event => { if (event.delta > 4) return; event.stopPropagation(); onPower(); }} onPointerOver={hover} onPointerOut={unhover}><meshStandardMaterial color="#3e4855" roughness={.5} /></RoundedBox>
+    <group onClick={event => { if (event.delta > 4) return; event.stopPropagation(); onPower(); }} onPointerOver={hover} onPointerOut={unhover}>
+    <RoundedBox args={[.05, .10, .16]} radius={.012} position={[1.741, -.01, power ? -.86 : -.69]}><meshStandardMaterial color="#3e4855" roughness={.5} /></RoundedBox>
+      <mesh position={[1.75, -.01, -.78]}><boxGeometry args={[.1, .25, .5]} /><meshBasicMaterial transparent opacity={0} depthWrite={false} /></mesh>
+    </group>
     <mesh position={[1.722, .104, -.46]}><boxGeometry args={[.024, .059, .102]} /><meshStandardMaterial color={power ? "#95fc76" : "#223c29"} emissive={power ? "#79ff52" : "#000000"} emissiveIntensity={2} /></mesh>
     <mesh position={[1.722, .104, -.27]}><boxGeometry args={[.024, .048, .073]} /><meshStandardMaterial color="#58411f" roughness={.3} /></mesh>
     <RoundedBox args={[.027, .105, .53]} radius={.012} position={[-1.715, -.026, -.6]}><meshStandardMaterial color="#26313d" /></RoundedBox>

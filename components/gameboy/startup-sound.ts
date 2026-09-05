@@ -22,7 +22,7 @@ export function useStartupSound(enabled: boolean, reduced: boolean) {
     cancelPreparation.current?.(); cancelPreparation.current = null;
     source.current?.stop(); source.current?.disconnect(); source.current = null;
   }, []);
-  const start = useCallback(async () => {
+  const start = useCallback(async (delay: number = BOOT.screenOn) => {
     stop();
     startedAt.current = performance.now();
     if (!enabled) { startedAt.current = performance.now(); return; }
@@ -40,7 +40,7 @@ export function useStartupSound(enabled: boolean, reduced: boolean) {
         if (attempt !== generation.current) return;
         const cue = player.createBufferSource(); cue.buffer = buffer;
         cue.connect(player.destination); source.current = cue;
-        cue.start(player.currentTime + (reduced ? 0 : BOOT.screenOn));
+        cue.start(player.currentTime + (reduced ? 0 : delay));
       } catch { /* A failed audio asset must not prevent opening the portfolio. */ }
     };
     await Promise.race([prepare(), cancelled]);

@@ -13,14 +13,14 @@ import { Handheld } from "./handheld";
 import { Display } from "./display";
 import { articleLayout, type Hit } from "./display-renderer";
 import { BOOT_DURATION, consoleReducer, entriesFor, entryFor, initialConsole, keyControl, MENU, sectionPage, type Control } from "./console";
-import { easeInOut, progress } from "./boot";
+import { easeInOut, progress, OPEN_LID_ANGLE } from "./boot";
 import { useStartupSound } from "./startup-sound";
 
 type OrbitControlsImpl = ComponentRef<typeof OrbitControls>;
 type CameraMotion = { returning: boolean; dragging: boolean };
 
-function CameraRig({ elapsed, waiting, sticky, article, reset, reduced, booting, time, onBootEnd, onStage, controls, motion }: {
-  elapsed: () => number; waiting: boolean;
+function CameraRig({ bootOpening, elapsed, waiting, sticky, article, reset, reduced, booting, time, onBootEnd, onStage, controls, motion }: {
+  bootOpening: boolean; elapsed: () => number; waiting: boolean;
   sticky: boolean; reset: number; reduced: boolean; booting: boolean; time: MutableRefObject<number>; onBootEnd: () => void;
   article: boolean;
   onStage: (stage: string) => void;
@@ -31,8 +31,11 @@ function CameraRig({ elapsed, waiting, sticky, article, reset, reduced, booting,
   const targets = useRef({ read: new Vector3(), readLook: new Vector3(), hero: new Vector3(), heroLook: new Vector3(), overview: new Vector3(), overviewLook: new Vector3() });
   useEffect(() => {
     const aspect = size.width / size.height; const t = targets.current;
-    const distance = Math.max(article ? 7.8 : 8.65, (article ? 5.75 : 6.45) / aspect);
-    t.readLook.set(0, article ? 1.25 : 1.12, -.8); t.read.copy(t.readLook).add(new Vector3(0, .238, .971).multiplyScalar(distance));
+    // Keep the whole deck in view on phones, including while reading articles.
+    const closeReading = article && size.width > 800 && size.height > 600;
+    const distance = Math.max(closeReading ? 9.2 : 11.3, 6.55 / aspect);
+    t.readLook.set(0, closeReading ? .9 : .65, closeReading ? -1.2 : -.9);
+    t.read.copy(t.readLook).add(new Vector3(0, -Math.sin(OPEN_LID_ANGLE), Math.cos(OPEN_LID_ANGLE)).multiplyScalar(distance));
     const factor = Math.max(1, .8 / aspect);
     t.heroLook.set(0, .15, 0); t.hero.set(5.0 * factor, 5.8 * factor, 7.6 * factor);
     t.overviewLook.set(0, 1.17, -.15); t.overview.set(5.4 * factor, 5.1 * factor, 8.6 * factor);
@@ -42,10 +45,11 @@ function CameraRig({ elapsed, waiting, sticky, article, reset, reduced, booting,
     const orbit = controls.current; if (!orbit) return;
     const t = targets.current;
     if (booting) {
-      time.current = waiting ? 0 : Math.min(reduced ? BOOT.reducedDuration : BOOT_DURATION, elapsed());
-      onStage(bootStage(time.current, waiting, reduced));
-      if (reduced && !waiting) { camera.position.copy(t.read); orbit.target.copy(t.readLook); }
-      else {
+      const offset = bootOpening || reduced ? 0 : BOOT.screenOn;
+      time.current = waiting ? offset : Math.min(reduced ? BOOT.reducedDuration : BOOT_DURATION, elapsed() + offset);
+      onStage(bootStage(time.current, waiting && bootOpening, reduced));
+      if (bootOpening && reduced && !waiting) { camera.position.copy(t.read); orbit.target.copy(t.readLook); }
+      else if (bootOpening) {
         const opening = easeInOut(progress(time.current, BOOT.lidStart, BOOT.lidDuration));
         const framing = easeInOut(progress(time.current, BOOT.framingStart, BOOT.framingDuration));
         camera.position.copy(t.hero).lerp(t.overview, opening).lerp(t.read, framing);
@@ -78,11 +82,13 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const [state, dispatch] = useReducer(consoleReducer, undefined, () => initialConsole(initialPath, initialHash));
   const [booting, setBooting] = useState(true);
+  const [bootOpening, setBootOpening] = useState(true);
   const [waiting, setWaiting] = useState(true);
   const starting = useRef(false);
+  const bootAttempt = useRef(0);
   const [stage, setStage] = useState("closed");
   const [sticky, setSticky] = useState(true);
-  const [open, setOpen] = useState(true); const [power, setPower] = useState(true);
+  const [open, setOpen] = useState(true); const [power, setPower] = useState(false);
   const [sound, setSound] = useState(true); const [bright, setBright] = useState(true);
   const [reset, setReset] = useState(0); const [pressed, setPressed] = useState<ReadonlySet<Control>>(new Set());
   const [touching, setTouching] = useState(false); const [ready, setReady] = useState(false);
@@ -90,11 +96,13 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
   const startup = useStartupSound(sound, reduced);
   const stopStartup = startup.stop;
   const startSound = startup.start;
-  const startOpening = useCallback(() => {
+  const startOpening = useCallback((withOpening = true) => {
     if (starting.current) return;
     starting.current = true;
+    const attempt = ++bootAttempt.current;
+    setPower(true);
     // Resume on the actual gesture, before any awaited loading or React update.
-    void startSound().catch(() => {}).finally(() => { starting.current = false; setWaiting(false); });
+    void startSound(withOpening ? BOOT.screenOn : 0).catch(() => {}).finally(() => { if (attempt !== bootAttempt.current) return; starting.current = false; setWaiting(false); });
   }, [startSound]);
   const current = useRef(state); current.current = state;
   const available = !booting && power && open;
@@ -230,9 +238,9 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
     return () => { clearTimeout(snap.current); timers.forEach(clearTimeout); void audio.current?.close(); document.body.style.cursor = "auto"; };
   }, []);
   const bootEnd = useCallback(() => { setBooting(false); }, []);
-  const replay = () => {
-    stopStartup(); clearHeld(); clearTimeout(snap.current); setOpen(true); setPower(true); setSticky(true);
-    dispatch({ type: "home" }); time.current = 0; motion.current = { returning: true, dragging: false }; setBooting(true); setWaiting(true); startOpening();
+  const replay = (withOpening = true) => {
+    stopStartup(); clearHeld(); clearTimeout(snap.current); if (withOpening) setOpen(true); setSticky(true); setBootOpening(withOpening);
+    dispatch({ type: "home" }); time.current = withOpening ? 0 : BOOT.screenOn; motion.current = { returning: true, dragging: false }; setBooting(true); setWaiting(true); startOpening(withOpening);
   };
   const onHit = (action: Hit["action"]) => {
     if (!available) return;
@@ -250,14 +258,14 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
   const page = state.page; const entry = page.kind === "article" ? entryFor(page.id) : undefined;
   const screenName = entry?.title ?? (page.kind === "list" ? page.section : page.kind === "game" ? page.game.kind.toUpperCase() : page.kind === "settings" ? "Settings" : page.kind === "games" ? "Games" : "Ben Desprets");
 
-  return <div className="sp-experience" data-ready={ready} data-phase={waiting ? "closed" : booting ? "boot" : "ready"} data-boot-stage={booting ? stage : "ready"} data-page={page.kind === "article" ? page.id : page.kind === "list" ? page.section : page.kind === "game" ? page.game.kind : page.kind} data-scroll={page.kind === "article" ? page.scroll : 0} data-selected={"selected" in page ? page.selected : page.kind === "article" ? page.link ?? 0 : 0} data-pressed={[...pressed].join(",")} data-palette={state.palette} data-game-status={game?.status} data-score={game?.score} data-lines={game?.kind === "tetris" ? game.lines : undefined}>
+  return <div className="sp-experience" data-power={power ? "on" : "off"} data-ready={ready} data-phase={waiting && bootOpening ? "closed" : booting ? "boot" : "ready"} data-boot-stage={booting ? stage : "ready"} data-page={page.kind === "article" ? page.id : page.kind === "list" ? page.section : page.kind === "game" ? page.game.kind : page.kind} data-scroll={page.kind === "article" ? page.scroll : 0} data-selected={"selected" in page ? page.selected : page.kind === "article" ? page.link ?? 0 : 0} data-pressed={[...pressed].join(",")} data-palette={state.palette} data-game-status={game?.status} data-score={game?.score} data-lines={game?.kind === "tetris" ? game.lines : undefined}>
     <Canvas shadows dpr={[1, 1.8]} frameloop="demand" camera={{ position: [5, 5.8, 7.6], fov: 34, near: .1, far: 100 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { gl.setClearColor("#171e24", 0); setReady(true); }}>
       <color attach="background" args={["#171e24"]} /><fog attach="fog" args={["#171e24", 20, 48]} />
       <ambientLight intensity={.38} />
       <directionalLight position={[-4, 8, 5]} intensity={2.8} color="#f4f5ff" />
       <directionalLight position={[5, 3, -4]} intensity={2.3} color="#a6c8ef" />
       <spotLight position={[-4, 6, 1]} color="#e0e6ec" intensity={36} angle={.8} penumbra={1} distance={18} />
-      <CameraRig elapsed={startup.elapsed} waiting={waiting} sticky={sticky} article={page.kind === "article" || page.kind === "game"} reset={reset} reduced={reduced} booting={booting} time={time} onBootEnd={bootEnd} onStage={setStage} controls={controls} motion={motion} />
+      <CameraRig bootOpening={bootOpening} elapsed={startup.elapsed} waiting={waiting} sticky={sticky} article={page.kind === "article" || page.kind === "game"} reset={reset} reduced={reduced} booting={booting} time={time} onBootEnd={bootEnd} onStage={setStage} controls={controls} motion={motion} />
       <Suspense fallback={null}>
         <Environment resolution={256}>
           <Lightformer form="rect" intensity={5} color="#ffffff" position={[-4, 5, 3]} scale={[4, 6, 1]} target={[0, 0, 0]} />
@@ -265,7 +273,13 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
           <Lightformer form="rect" intensity={2} color="#fff2e1" position={[1, 7, 4]} scale={[7, 2, 1]} target={[0, 0, 0]} />
           <Lightformer form="rect" intensity={.7} position={[0, 1, 8]} scale={[6, 6, 1]} target={[0, 1, 0]} />
         </Environment>
-        <Handheld waiting={waiting} onStart={startOpening} time={time} booting={booting} open={open} power={power} reduced={reduced} pressed={pressed} onControl={pulse} onPress={press} onRelease={release} onFold={toggleOpen} onPower={() => { if (!booting) { setPower(value => !value); clickSound(250); } }} display={<Display state={state} time={time} booting={booting} power={power} bright={bright} reduced={reduced} onHit={onHit} onSwipe={pulse} onScroll={scroll} onTouch={value => { touchingNow.current = value; setTouching(value); }} />} />
+        <Handheld bootOpening={bootOpening} waiting={waiting} onStart={() => startOpening()} time={time} booting={booting} open={open} power={power} reduced={reduced} pressed={pressed} onControl={pulse} onPress={press} onRelease={release} onFold={toggleOpen} onPower={() => {
+          if (power) {
+            bootAttempt.current++; starting.current = false; stopStartup(); clearHeld();
+            setPower(false); setBooting(false); setWaiting(false); setReset(value => value + 1);
+          } else if (waiting) startOpening();
+          else replay(false);
+        }} display={<Display state={state} time={time} booting={booting} power={power} bright={bright} reduced={reduced} onHit={onHit} onSwipe={pulse} onScroll={scroll} onTouch={value => { touchingNow.current = value; setTouching(value); }} />} />
         <ContactShadows position={[0, -.37, 0]} opacity={.62} scale={14} blur={2.4} far={5} resolution={512} frames={Infinity} color="#060b13" />
       </Suspense>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -.39, 0]} receiveShadow><planeGeometry args={[200, 200]} /><meshStandardMaterial color="#28323c" roughness={.82} metalness={.15} /></mesh>
@@ -284,10 +298,10 @@ export default function GameboyScene({ initialPath, initialHash }: { initialPath
       }} />
     </Canvas>
     <div className="sp-vignette" aria-hidden="true" />
-    {waiting && <button className="sp-open-hint" onClick={startOpening}>Tap to open</button>}
+    {waiting && bootOpening && <button className="sp-open-hint" onClick={() => startOpening()}>Tap to open</button>}
     <div className="sp-toolbar" role="toolbar" aria-label="Scene controls">
       <button disabled={booting} aria-label={sticky ? "Inspect handheld freely" : "Return to reading view"} title={sticky ? "Inspect handheld freely" : "Return to reading view"} aria-pressed={!sticky} onClick={() => { if (sticky) dispatch({type:"pause-game"}); setOpen(true); setSticky(value => !value); setReset(value => value + 1); }}>{sticky ? <Orbit /> : <Scan />}</button>
-      <button disabled={waiting} aria-label={booting ? "Skip startup" : "Replay startup"} title={booting ? "Skip startup · Esc" : "Replay startup"} onClick={booting ? () => { stopStartup(); time.current = BOOT_DURATION; setBooting(false); setReset(value => value + 1); } : replay}>{booting ? <SkipForward /> : <RotateCcw />}</button>
+      <button disabled={waiting} aria-label={booting ? "Skip startup" : "Replay startup"} title={booting ? "Skip startup · Esc" : "Replay startup"} onClick={booting ? () => { stopStartup(); time.current = BOOT_DURATION; setBooting(false); setReset(value => value + 1); } : () => replay()}>{booting ? <SkipForward /> : <RotateCcw />}</button>
       <button aria-label={sound ? "Mute sound" : "Enable sound"} title={sound ? "Mute sound" : "Enable sound"} aria-pressed={sound} onClick={() => { if (!sound) { audio.current ??= new AudioContext(); void audio.current.resume().catch(() => {}); } setSound(value => !value); }}>{sound ? <Volume2 /> : <VolumeX />}</button>
       <span className="sp-toolbar-divider" /><a href={`${initialPath}?flat=1${initialHash}`} aria-label="Open portfolio without 3D" title="Open portfolio without 3D"><ExternalLink /></a>
     </div>
