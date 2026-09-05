@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test:gameboy": "node --test scripts/gameboy.test.cjs",
     "export": "next build",
     "img": "node scripts/optimize-image.mjs",
     "og": "node scripts/generate-og.mjs"

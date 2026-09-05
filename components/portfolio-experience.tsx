@@ -35,15 +35,6 @@ export function PortfolioExperience({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (window.self === window.top) return;
-    const keydown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") window.parent.postMessage({ type: "sp:unfocus" }, window.location.origin);
-    };
-    window.addEventListener("keydown", keydown);
-    return () => window.removeEventListener("keydown", keydown);
-  }, []);
-
-  useEffect(() => {
     if (mode !== "page" || window.self === window.top || !window.location.hash) return;
     const section = document.getElementById(window.location.hash.slice(1));
     if (!section) return;
