@@ -29,13 +29,10 @@ export function ProjectsSection() {
         {projects.map((project) => {
           return (
             <tr key={project.slug}>
-              <th scope="row" className="project-table__years">
-                {project.years}
-              </th>
-              <td className="project-table__content">
+              <th scope="row" className="project-table__title">
                 <Link href={`/${project.slug}`}>{project.title}</Link>
-                <div className="subtle">{project.description}</div>
-              </td>
+              </th>
+              <td className="project-table__description">{project.description}</td>
             </tr>
           );
         })}
@@ -51,13 +48,10 @@ export function ClientWorkSection() {
         {clientWork.map((client) => {
           return (
             <tr key={client.slug}>
-              <th scope="row" className="project-table__years">
-                {client.years}
-              </th>
-              <td className="project-table__content">
+              <th scope="row" className="project-table__title">
                 <Link href={`/${client.slug}`}>{client.title}</Link>
-                <div className="subtle">{client.description}</div>
-              </td>
+              </th>
+              <td className="project-table__description">{client.description}</td>
             </tr>
           );
         })}

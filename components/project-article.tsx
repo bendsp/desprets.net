@@ -55,6 +55,7 @@ export function ProjectArticle({ slug }: ProjectArticleProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(projectJsonLd) }}
       />
       <h1>{project.title}</h1>
+      <p className="subtle">{project.years}</p>
       <Content />
     </article>
   );
