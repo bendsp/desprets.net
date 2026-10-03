@@ -273,7 +273,7 @@
 }
 
 .page-scroll-section + .page-scroll-section {
-  margin-top: 4.5rem;
+  margin-top: 4rem;
 }
 
 .page-scroll-section > :first-child {
@@ -298,7 +298,7 @@
 
 .compact-table th,
 .compact-table td {
-  padding: 0.68rem 0;
+  padding: 0.55rem 0;
   vertical-align: top;
 }
 
@@ -440,7 +440,7 @@
 }
 
 .document-prose :where(.compact-table):not(:where([class~="not-prose"] *)) {
-  margin-bottom: 2.8rem;
+  margin-bottom: 2.3rem;
 }
 
 .document-prose :where(p):not(:where([class~="not-prose"] *)) {
@@ -603,7 +603,7 @@
 @media (max-width: 560px) {
   .project-table tr {
     display: block;
-    padding: 0.5rem 0;
+    padding: 0.35rem 0;
   }
 
   .project-table th.project-table__title,
