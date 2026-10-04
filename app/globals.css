@@ -337,6 +337,10 @@
   margin: 2rem auto;
 }
 
+.sudoku-screenshot {
+  aspect-ratio: 600 / 1304;
+}
+
 .sudoku-screenshots img {
   display: block;
   width: 100%;
@@ -347,13 +351,6 @@
 .compact-table .subtle {
   margin-top: 0.12rem;
   margin-bottom: 0;
-}
-
-.education-table :is(th, td):first-child {
-  width: 7.35rem;
-  color: var(--muted);
-  white-space: nowrap;
-  font-weight: 400;
 }
 
 .education-table strong {
@@ -560,9 +557,6 @@
     margin-top: 0.12rem;
   }
 
-  .education-table :is(th, td):first-child {
-    width: 6.9rem;
-  }
 }
 
 @media (max-width: 560px) {
