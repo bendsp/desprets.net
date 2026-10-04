@@ -10,6 +10,14 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    slug: "sudoku",
+    title: "Ben’s Sudoku",
+    years: "2026",
+    description: "Offline Sudoku for iPhone and iPad",
+    technologies: ["Swift", "SwiftUI"],
+    link: "https://sudoku-production-1a1d.up.railway.app/",
+  },
+  {
     slug: "bedrock",
     title: "Bedrock",
     years: "Ongoing",

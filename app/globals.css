@@ -273,7 +273,7 @@
 }
 
 .page-scroll-section + .page-scroll-section {
-  margin-top: 4.5rem;
+  margin-top: 4rem;
 }
 
 .page-scroll-section > :first-child {
@@ -292,17 +292,13 @@
   font-variant-numeric: tabular-nums;
 }
 
-.compact-table tr {
-  border-top: 1px solid var(--border);
-}
-
-.compact-table tr:last-child {
-  border-bottom: 1px solid var(--border);
+.document-prose .compact-table :is(tr, th, td) {
+  border: 0;
 }
 
 .compact-table th,
 .compact-table td {
-  padding: 0.68rem 0;
+  padding: 0.55rem 0;
   vertical-align: top;
 }
 
@@ -320,30 +316,41 @@
   margin-bottom: 0;
 }
 
-.project-table__years {
-  width: 7.35rem;
+.project-table__title {
+  width: 12rem;
+}
+
+.document-prose .project-table__title a {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.project-table__description {
   color: var(--muted);
-  white-space: nowrap;
 }
 
-.project-table__content .external-link {
-  display: inline-flex;
+.sudoku-screenshots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  max-width: 34rem;
+  margin: 2rem auto;
 }
 
-.project-table__content a {
-  display: inline-flex;
+.sudoku-screenshot {
+  aspect-ratio: 600 / 1304;
+}
+
+.sudoku-screenshots img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 1rem;
 }
 
 .compact-table .subtle {
   margin-top: 0.12rem;
   margin-bottom: 0;
-}
-
-.education-table :is(th, td):first-child {
-  width: 7.35rem;
-  color: var(--muted);
-  white-space: nowrap;
-  font-weight: 400;
 }
 
 .education-table strong {
@@ -430,7 +437,7 @@
 }
 
 .document-prose :where(.compact-table):not(:where([class~="not-prose"] *)) {
-  margin-bottom: 2.8rem;
+  margin-bottom: 2.3rem;
 }
 
 .document-prose :where(p):not(:where([class~="not-prose"] *)) {
@@ -535,10 +542,6 @@
     table-layout: auto;
   }
 
-  .project-table__years {
-    width: 6.9rem;
-  }
-
   .compact-table th,
   .compact-table td {
     padding-top: 0.58rem;
@@ -554,9 +557,6 @@
     margin-top: 0.12rem;
   }
 
-  .education-table :is(th, td):first-child {
-    width: 6.9rem;
-  }
 }
 
 @media (max-width: 560px) {
@@ -591,5 +591,24 @@
   .site-nav {
     flex-wrap: wrap;
     row-gap: 0.15rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .project-table tr {
+    display: block;
+    padding: 0.35rem 0;
+  }
+
+  .project-table th.project-table__title,
+  .project-table td.project-table__description {
+    display: block;
+    width: auto;
+    padding: 0;
+  }
+
+  .project-table__title a {
+    display: inline-block;
+    padding: 0.3rem 0;
   }
 }
