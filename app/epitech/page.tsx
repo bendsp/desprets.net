@@ -125,7 +125,8 @@ export default function EpitechPage() {
         <h2 id="montreal-heading">Montreal</h2>
         <p>
           I then spent an exchange year at <Link href="/mcgill">McGill</Link> in
-          Montreal. Alongside my studies there, I continued working on my final
+          Montreal, where I studied business management and math. Alongside my
+          studies there, I continued working on my final
           master&apos;s project with my Epitech team.
         </p>
         <div className="grid grid-cols-2 gap-x-3 sm:gap-x-5">
