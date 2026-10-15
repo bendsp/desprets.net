@@ -128,6 +128,29 @@ export default function EpitechPage() {
           Montreal. Alongside my studies there, I continued working on my final
           master&apos;s project with my Epitech team.
         </p>
+        <div className="grid grid-cols-2 gap-x-3 sm:gap-x-5">
+          <Figure
+            src="/epitech-montreal-winter"
+            alt="Two people holding coffee on a snowy campus in Montreal"
+            width={350}
+            height={467}
+            sizes={pairedPhotoSizes}
+          />
+          <Figure
+            src="/epitech-montreal-finals"
+            alt="A student at a whiteboard during finals week at McGill"
+            width={350}
+            height={467}
+            sizes={pairedPhotoSizes}
+          />
+        </div>
+        <Figure
+          src="/epitech-montreal-student-card"
+          alt="Holding my McGill student card"
+          width={440}
+          height={587}
+          sizes={portraitPhotoSizes}
+        />
       </section>
 
       <section aria-labelledby="final-year-heading" className="mt-10">
