@@ -1,8 +1,13 @@
 import { createPageMetadata } from "@/app/seo";
-import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink } from "@/components/homepage-content";
 import { Figure } from "@/components/figure";
+
+// Match the site shell's padding and the two-column gallery's gap.
+const pairedPhotoSizes =
+  "(max-width: 639px) calc(50vw - 23.6px), (max-width: 720px) calc(50vw - 27.6px), (max-width: 767px) calc(50vw - 34px), 350px";
+const portraitPhotoSizes =
+  "(max-width: 475px) calc(100vw - 2.2rem), 440px";
 
 export const metadata = createPageMetadata({
   title: "Epitech",
@@ -38,12 +43,14 @@ export default function EpitechPage() {
             alt="A classroom selfie with classmates during my first year in Paris"
             width={350}
             height={466}
+            sizes={pairedPhotoSizes}
           />
           <Figure
             src="/epitech-paris-year-one-2"
             alt="Classmates posing together during my first year in Paris"
             width={350}
             height={467}
+            sizes={pairedPhotoSizes}
           />
         </div>
 
@@ -59,6 +66,7 @@ export default function EpitechPage() {
             alt="A photo of my laptop showing Epitech's blue and white pixel-art logo on the 2022 r/place canvas"
             width={440}
             height={587}
+            sizes={portraitPhotoSizes}
           >
             Epitech&apos;s logo on r/place in 2022.{" "}
             <ExternalLink href="https://2022.place-atlas.stefanocoding.me/#txhreo">
@@ -76,6 +84,7 @@ export default function EpitechPage() {
           alt="A crowd at a Unison rave beneath the Paris campus, lit by purple lights and lasers"
           width={440}
           height={587}
+          sizes={portraitPhotoSizes}
         />
       </section>
 
@@ -87,16 +96,29 @@ export default function EpitechPage() {
           system, or ECS, both built from scratch. After the year in Berlin, I
           returned to EssilorLuxottica for a second internship.
         </p>
-        <figure className="prose-figure" style={{ maxWidth: 520 }}>
-          <Image
-            src="/epitech_berlin2.webp"
-            alt="A student presenting at a whiteboard at Epitech's Berlin campus"
-            width={1600}
-            height={1200}
-            sizes="(min-width: 640px) 520px, 100vw"
+        <div className="grid grid-cols-2 gap-x-3 sm:gap-x-5">
+          <Figure
+            src="/epitech-berlin-whiteboard"
+            alt="A student standing at a whiteboard at the Berlin campus"
+            width={350}
+            height={467}
+            sizes={pairedPhotoSizes}
           />
-          <figcaption>Berlin</figcaption>
-        </figure>
+          <Figure
+            src="/epitech-berlin-winter"
+            alt="A snowy view outside the Berlin campus"
+            width={350}
+            height={467}
+            sizes={pairedPhotoSizes}
+          />
+        </div>
+        <Figure
+          src="/epitech-berlin-common-room"
+          alt="The common room at the Berlin campus"
+          width={600}
+          height={450}
+          sizes="(max-width: 635px) calc(100vw - 2.2rem), 600px"
+        />
       </section>
 
       <section aria-labelledby="montreal-heading" className="mt-10">

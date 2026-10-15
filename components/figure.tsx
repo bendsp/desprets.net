@@ -8,6 +8,8 @@ interface FigureProps {
   width: number;
   /** Display height matching the image aspect ratio (printed by `pnpm img`) */
   height: number;
+  /** Actual responsive display width; enables width-based source selection. */
+  sizes?: string;
   /** Set for above-the-fold images only; below-the-fold ones lazy-load */
   priority?: boolean;
   /** Optional caption; inline content only so it stays valid figcaption markup */
@@ -19,6 +21,7 @@ export function Figure({
   alt,
   width,
   height,
+  sizes,
   priority = false,
   children,
 }: FigureProps) {
@@ -31,7 +34,12 @@ export function Figure({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={`${src}-${width}.webp`}
-        srcSet={`${src}-${width}.webp 1x, ${src}-${width * 2}.webp 2x`}
+        srcSet={
+          sizes
+            ? `${src}-${width}.webp ${width}w, ${src}-${width * 2}.webp ${width * 2}w`
+            : `${src}-${width}.webp 1x, ${src}-${width * 2}.webp 2x`
+        }
+        sizes={sizes}
         alt={alt}
         width={width}
         height={height}
