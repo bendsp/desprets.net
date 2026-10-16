@@ -21,13 +21,8 @@ export default function EpitechPage() {
     <article className="document-prose prose prose-neutral dark:prose-invert">
       <h1>Epitech</h1>
       <p>
-        I completed Epitech&apos;s international track and graduated with a
-        master&apos;s degree in 2026. The school&apos;s approach is built around
-        learning through projects, with a strong emphasis on teamwork,
-        independent problem-solving, and professional experience. We learned by
-        building software and working through problems ourselves. By graduation,
-        I had about a year and a half of workplace experience through internships
-        and part-time work.
+        I studied software engineering through Epitech&apos;s international track
+        and graduated with a master&apos;s degree in 2026.
       </p>
 
       <section aria-labelledby="paris-heading" className="mt-10">
@@ -91,10 +86,15 @@ export default function EpitechPage() {
       <section aria-labelledby="berlin-heading" className="mt-10">
         <h2 id="berlin-heading">Berlin</h2>
         <p>
-          In Berlin, I worked mainly in C++, with some Haskell along the way. Two
-          projects that stayed with me were a ray tracer and an entity-component
-          system, or ECS, both built from scratch. After the year in Berlin, I
-          returned to EssilorLuxottica for a second internship.
+          In Berlin, I worked mainly in C++, with some Haskell. Standout projects
+          included{" "}
+          <ExternalLink href="https://github.com/bendsp/RayBeam">
+            RayBeam
+          </ExternalLink>
+          , a ray tracer built from scratch with reflections, shadows, and an
+          interactive camera. I also built an entity-component system, or ECS,
+          from scratch. I then returned to EssilorLuxottica for a second
+          internship.
         </p>
         <div className="grid grid-cols-2 gap-x-3 sm:gap-x-5">
           <Figure
@@ -158,8 +158,9 @@ export default function EpitechPage() {
         <h2 id="final-year-heading">Final year</h2>
         <p>
           I completed my final year remotely and started working part-time at{" "}
-          <Link href="/teiimo">Teiimo</Link>. After graduating, I moved into a
-          full-time role there.
+          <Link href="/teiimo">Teiimo</Link>. By graduation, I had about a year and
+          a half of workplace experience through internships and part-time work.
+          I then moved into a full-time role there.
         </p>
 
         <h3>Fundamental</h3>
