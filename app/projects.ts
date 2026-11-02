@@ -14,7 +14,7 @@ export const projects: Project[] = [
     slug: "sudoku",
     title: "Ben’s Sudoku",
     years: "2026",
-    description: "Offline Sudoku for iPhone and iPad",
+    description: "polished ad-free Sudoku for iPhone and iPad",
     technologies: ["Swift", "SwiftUI"],
     link: "https://sudoku-production-1a1d.up.railway.app/",
     externalHref: "https://apps.apple.com/app/id6817976770",
