@@ -6,6 +6,7 @@ export interface Project {
   technologies: string[];
   github?: string;
   link?: string;
+  externalHref?: string;
 }
 
 export const projects: Project[] = [
@@ -16,6 +17,7 @@ export const projects: Project[] = [
     description: "Offline Sudoku for iPhone and iPad",
     technologies: ["Swift", "SwiftUI"],
     link: "https://sudoku-production-1a1d.up.railway.app/",
+    externalHref: "https://apps.apple.com/app/id6817976770",
   },
   {
     slug: "bedrock",

@@ -30,7 +30,11 @@ export function ProjectsSection() {
           return (
             <tr key={project.slug}>
               <th scope="row" className="project-table__title">
-                <Link href={`/${project.slug}`}>{project.title}</Link>
+                {project.externalHref ? (
+                  <ExternalLink href={project.externalHref}>{project.title}</ExternalLink>
+                ) : (
+                  <Link href={`/${project.slug}`}>{project.title}</Link>
+                )}
               </th>
               <td className="project-table__description">{project.description}</td>
             </tr>
