@@ -608,7 +608,7 @@
   }
 
   .project-table__title a {
-    display: inline-block;
+    display: inline-flex;
     padding: 0.3rem 0;
   }
 }
