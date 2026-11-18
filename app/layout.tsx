@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type React from "react";
 import Link from "next/link";
 import "@/app/globals.css";
+import { MeadowScene } from "@/components/meadow-scene";
 import { SiteNav } from "@/components/site-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -108,25 +109,27 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <div className="site-shell">
-            <header className="site-header">
-              <Link href="/" className="site-title">
-                Ben Desprets
-              </Link>
-              <div className="site-header-center">
-                <SiteNav />
-              </div>
-              <div className="site-header-right">
-                <ThemeToggle />
-              </div>
-            </header>
+          <MeadowScene>
+            <div className="site-shell">
+              <header className="site-header">
+                <Link href="/" className="site-title">
+                  Ben Desprets
+                </Link>
+                <div className="site-header-center">
+                  <SiteNav />
+                </div>
+                <div className="site-header-right">
+                  <ThemeToggle />
+                </div>
+              </header>
 
-            <main className="site-main">{children}</main>
+              <main className="site-main">{children}</main>
 
-            <footer className="site-footer">
-              <p>Benjamin Desprets / 2022 - {currentYear}</p>
-            </footer>
-          </div>
+              <footer className="site-footer">
+                <p>Benjamin Desprets / 2022 - {currentYear}</p>
+              </footer>
+            </div>
+          </MeadowScene>
         </ThemeProvider>
       </body>
     </html>

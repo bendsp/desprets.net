@@ -534,6 +534,9 @@
     font-size: 1.03rem;
   }
 
+}
+
+@container crt (max-width: 720px) {
   .site-shell {
     padding: 0 1.1rem 3rem;
   }
@@ -559,7 +562,7 @@
 
 }
 
-@media (max-width: 560px) {
+@container crt (max-width: 560px) {
   .site-header {
     grid-template-columns: 1fr auto;
     margin-bottom: 2rem;
@@ -594,7 +597,7 @@
   }
 }
 
-@media (max-width: 560px) {
+@container crt (max-width: 560px) {
   .project-table tr {
     display: block;
     padding: 0.35rem 0;

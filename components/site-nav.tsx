@@ -32,12 +32,19 @@ export function SiteNav() {
       .map((item) => document.getElementById(item.sectionId))
       .filter((section): section is HTMLElement => Boolean(section));
 
+    const scroller = document.querySelector<HTMLElement>(".crt-document");
+    if (!scroller) return;
+
     let animationFrame = 0;
 
     const updateActiveSection = () => {
+      if (scroller.scrollTop < 2) {
+        setActiveSection(sectionElements[0]?.id ?? "about");
+        return;
+      }
       const lastSection = sectionElements[sectionElements.length - 1];
       const isAtPageBottom =
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+        scroller.clientHeight + scroller.scrollTop >= scroller.scrollHeight - 2;
 
       if (isAtPageBottom && lastSection) {
         setActiveSection(lastSection.id);
@@ -47,7 +54,7 @@ export function SiteNav() {
       const header = document.querySelector(".site-header");
       const headerHeight =
         header instanceof HTMLElement ? header.getBoundingClientRect().height : 0;
-      const marker = headerHeight + 48;
+      const marker = scroller.getBoundingClientRect().top + headerHeight + 48;
       const currentSection =
         sectionElements
           .map((section) => ({
@@ -64,8 +71,10 @@ export function SiteNav() {
       animationFrame = window.requestAnimationFrame(updateActiveSection);
     };
 
+    const sizeObserver = new ResizeObserver(requestActiveSectionUpdate);
+    sizeObserver.observe(scroller);
     requestActiveSectionUpdate();
-    window.addEventListener("scroll", requestActiveSectionUpdate, {
+    scroller.addEventListener("scroll", requestActiveSectionUpdate, {
       passive: true,
     });
     window.addEventListener("resize", requestActiveSectionUpdate);
@@ -73,7 +82,8 @@ export function SiteNav() {
 
     return () => {
       window.cancelAnimationFrame(animationFrame);
-      window.removeEventListener("scroll", requestActiveSectionUpdate);
+      sizeObserver.disconnect();
+      scroller.removeEventListener("scroll", requestActiveSectionUpdate);
       window.removeEventListener("resize", requestActiveSectionUpdate);
       window.removeEventListener("hashchange", requestActiveSectionUpdate);
     };
