@@ -117,6 +117,8 @@ export function createMeadowRenderer(
     loadTexture(field.id, "flora", 0, "meadow-plants.webp"),
     loadTexture(field.id, "grass", 1, "grass.webp"),
     loadTexture(sky.id, "clouds", 2, "cloud-density.webp"),
+    loadTexture(field.id, "trees", 4, "meadow-trees.webp"),
+    loadTexture(field.id, "peaks", 5, "alpine-range.webp"),
     loadTexture(field.id, "legends", 3, "key-legends.webp"),
   ];
   const touch = matchMedia("(any-pointer: coarse)");
@@ -149,7 +151,7 @@ export function createMeadowRenderer(
     const { w, h } = displaySize(portrait);
     const closeScale = Math.min(
       (width * (portrait ? 0.89 : 0.885)) / w,
-      (height * 0.76) / h,
+      (height * (portrait ? 0.76 : 0.83)) / h,
     );
     const wideScale = Math.min(
       (width * (portrait ? 0.39 : 0.255)) / w,

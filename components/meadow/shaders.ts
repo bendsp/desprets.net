@@ -69,6 +69,11 @@ void main(){
   world=pos;
   float gust=sin(clock*1.35+pos.x*1.63+pos.z*.79)+.45*sin(clock*2.04+pos.z*2.72);
   world.x+=plant.x*.030*gust; world.z+=plant.x*.014*gust;
+  if(plant.y>10.5){
+    vec2 local=vec2(plant.x,color.b);
+    float a=mod(clock,52.)*.1208305;
+    world=pos;world.xy+=mat2(cos(a),sin(a),-sin(a),cos(a))*local-local;
+  }
   albedo=color*(plant.y==1. ? .75+.32*plant.x : 1.);
   kind=plant.y;
   vec3 v=world-eye; depth=-v.z;
@@ -79,7 +84,7 @@ export const landFragment =
 #extension GL_OES_standard_derivatives : enable
 precision highp float;
 uniform vec3 eye;
-uniform sampler2D flora, grass, legends;
+uniform sampler2D flora, grass, legends, trees, peaks;
 uniform float dusk;
 uniform vec3 sun;
 varying vec3 world,albedo;
@@ -89,7 +94,19 @@ varying float kind,depth;
   `
 void main(){
   vec3 col=albedo;
-  if(kind>6.5){
+  if(kind>10.5){
+    col=vec3(albedo.r,albedo.g,albedo.g*.81);
+  }else if(kind>9.5){
+    float ripple=noise2(world.xz*vec2(3.1,27.)+noise2(world.xz*1.8)*1.5);
+    float glint=smoothstep(.84,.98,ripple)*smoothstep(.16,.72,noise2(world.xz*.64));
+    float reflection=noise2(world.xz*vec2(.49,.26));
+    col=mix(vec3(.28,.40,.37),vec3(.53,.63,.65),smoothstep(.20,.77,reflection));
+    col+=(ripple-.5)*vec3(.09,.12,.13)+glint*vec3(.28,.25,.19);
+  }else if(kind>7.5){
+    vec4 sampleColor=kind>8.5?texture2D(peaks,albedo.xy):texture2D(trees,albedo.xy);
+    if(sampleColor.a<.38)discard;
+    col=sampleColor.rgb*albedo.z;
+  }else if(kind>6.5){
     vec3 cap=albedo.z>.75 ? vec3(.76,.241,.16) : albedo.z>.25 ? vec3(.25,.29,.34) : vec3(.41,.45,.5);
     col=mix(cap,vec3(.91,.91,.85),texture2D(legends,albedo.xy).r);
   }else if(kind>4.5){
@@ -129,5 +146,5 @@ void main(){
   light=mix(light,vec3(.30,.34,.47),smoothstep(.59,1.,dusk));
   col*=light;
   float haze=1.-exp(-max(depth-4.,0.)*(kind>3.5?.013:.016));
-  gl_FragColor=vec4(mix(col,mix(horizon(dusk),vec3(.55,.69,.79),.74*(1.-smoothstep(.15,.75,dusk))),haze*.92),1.);
+  gl_FragColor=vec4(mix(col,mix(horizon(dusk),vec3(.55,.69,.79),.74*(1.-smoothstep(.15,.75,dusk))),haze*(kind>8.5 && kind<9.5?.62:.92)),1.);
 }`;

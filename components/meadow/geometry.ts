@@ -1,3 +1,4 @@
+import { alpineRange, river, tree, windmill } from "./valley";
 import { addDeskAccessories } from "./desk-accessories";
 // World units are metres. The monitor face lies in the z = 0 plane.
 type Point = [number, number, number];
@@ -10,12 +11,19 @@ export const sill = 1.68;
 
 function ground(x: number, z: number) {
   const field = Math.min(1, Math.hypot(x, z) / 8);
-  return (
+  const upland =
     field *
       (0.39 * Math.sin(x * 0.39 + z * 0.16) +
         0.28 * Math.sin(z * 0.42) +
         0.13 * Math.sin(x * 0.76 - z * 0.26)) +
-    Math.min(0, z + 1) * 0.066
+    Math.min(0, z + 1) * 0.066;
+  const stream = river(x),
+    d = Math.abs(z - stream.z) - stream.half;
+  if (d >= 1.7) return upland;
+  if (d < 0) return stream.level + 0.07 + 0.55 * Math.max(-1, d / 0.29);
+  const t = d / 1.7;
+  return (
+    stream.level + 0.07 + (upland - stream.level - 0.07) * (t * t * (3 - 2 * t))
   );
 }
 
@@ -124,18 +132,63 @@ export function makeMeadow(portrait: boolean) {
 
   box(0, sill + h / 2, 0.0056, w, h, 0.001, [0.066, 0.078, 0.092]);
 
-  for (let z = -40; z < 17; z += 2)
-    for (let x = -50; x < 50; x += 2) {
-      const p = (dx: number, dz: number): Point => [
-        x + dx,
-        ground(x + dx, z + dz),
-        z + dz,
-      ];
-      quad(p(0, 0), p(0, 2), p(2, 2), p(2, 0), [0.31, 0.38, 0.15], 0);
+  // Each terrain column follows the banks; water and shoreline share their bends.
+  for (let x = -50; x < 50; x += 0.75) {
+    function column(u: number): Point[] {
+      const s = river(u),
+        near = s.z + s.half,
+        far = s.z - s.half;
+      const zs = Array.from(
+        { length: 14 },
+        (_, i) => -40 + ((far - 1.7 + 40) * i) / 13,
+      );
+      zs.push(far, far + 0.29, near - 0.29, near);
+      for (let i = 0; i <= 10; i++)
+        zs.push(near + 1.7 + ((18 - near - 1.7) * i) / 10);
+      return zs.map((z) => [u, ground(u, z), z]);
     }
+    const a = column(x),
+      b = column(x + 0.75);
+    for (let j = 1; j < a.length; j++)
+      quad(a[j - 1], a[j], b[j], b[j - 1], [0.31, 0.38, 0.15], 0);
+    const water = (u: number, side: number): Point => {
+      const s = river(u);
+      return [u, s.level, s.z + side * (s.half - 0.02)];
+    };
+    quad(
+      water(x, -1),
+      water(x, 1),
+      water(x + 0.75, 1),
+      water(x + 0.75, -1),
+      [0.32, 0.54, 0.56],
+      10,
+    );
+  }
+  alpineRange(vertex);
+  const oakX = portrait ? -2.9 : -5.4,
+    oakZ = -4.2;
+  tree(vertex, oakX, ground(oakX, oakZ) - 0.08, oakZ, 5.35, false, false, 1.02);
+  const millX = portrait ? 2.55 : 6.7;
+  const millZ = river(millX).z - river(millX).half - 5.25;
+  windmill(vertex, quad, millX, ground(millX, millZ), millZ);
+  for (let i = 0; i < 65; i++) {
+    const x = (rand() - 0.5) * 64,
+      z = river(x).z - river(x).half - 2.4 - rand() * 8;
+    if (Math.abs(x - millX) < 2.0 || Math.abs(x) < 2.3) continue;
+    tree(
+      vertex,
+      x,
+      ground(x, z) - 0.08,
+      z,
+      0.8 + rand() * 1.65,
+      rand() > 0.54,
+      rand() > 0.5,
+      0.73 + rand() * 0.2,
+    );
+  }
 
   // Overlapping ridgelines have independent silhouettes and atmospheric depth.
-  for (let layer = 0; layer < 5; layer++) {
+  for (let layer = 0; layer < 2; layer++) {
     const z = -37 - layer * 10;
     const ridge = (x: number) => {
       const u = x + layer * 7;
@@ -158,6 +211,20 @@ export function makeMeadow(portrait: boolean) {
         z + k * (2.2 + fold),
       ];
     };
+    for (let i = 0; i < 215; i++) {
+      const x = (rand() - 0.5) * 100;
+      const [px, py, pz] = slope(x, rand() * 2.8);
+      tree(
+        vertex,
+        px,
+        py - 0.1,
+        pz,
+        0.54 + rand() * 0.68,
+        rand() > 0.6,
+        rand() > 0.5,
+        0.78,
+      );
+    }
     for (let x = -132; x < 132; x += 1.23)
       for (let k = 0; k < 4; k++) {
         quad(
@@ -204,6 +271,8 @@ export function makeMeadow(portrait: boolean) {
       });
     const x = x0 + rand() * dx,
       z = z0 + rand() * dz;
+    const stream = river(x);
+    if (Math.abs(z - stream.z) < stream.half + 0.18) continue;
     if (Math.abs(x) < w * 0.49 && z > -0.55 && z < 0.43) continue;
     const y = ground(x, z);
     const patch = 0.5 + 0.5 * Math.sin(x * 0.76 + Math.sin(z * 0.62) * 2);
@@ -245,6 +314,8 @@ export function makeMeadow(portrait: boolean) {
     for (let stem = 0; stem < count; stem++) {
       const x = px + (rand() - 0.5) * 1.6,
         z = pz + (rand() - 0.5) * 1.5;
+      const stream = river(x);
+      if (Math.abs(z - stream.z) < stream.half + 0.24) continue;
       const y = ground(x, z) - 0.025;
       const h = (cell === 2 ? 0.69 : 0.52) * (0.6 + rand() * 0.7);
       const half = h * (0.24 + rand() * 0.23),

@@ -27,7 +27,7 @@
   border-radius: 1px;
 }
 .meadow[data-ready] .site-shell {
-  padding-top: 0.5rem;
+  padding-top: 0;
 }
 @media (min-width: 561px) {
   .meadow[data-ready] .site-shell {
@@ -39,4 +39,45 @@
 .meadow[data-ready] .monitor-off {
   opacity: 0;
   pointer-events: none;
+}
+
+.meadow[data-ready] .site-header {
+  margin-bottom: 0.75rem;
+}
+.meadow[data-ready] #about {
+  min-height: var(--about-room);
+}
+.meadow[data-ready] #about .prose-figure {
+  width: min(100%, clamp(380px, var(--portrait-room, 380px), 480px));
+  margin-top: 1.05rem;
+}
+.meadow[data-ready] #about .prose-figure img {
+  width: min(100%, var(--portrait-room, 380px));
+  margin-inline: auto;
+}
+.meadow[data-ready] #about .prose-figure figcaption {
+  width: fit-content;
+  margin-inline: auto;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .meadow[data-ready] #about {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    align-content: start;
+    align-items: start;
+    gap: 0 1rem;
+  }
+  .meadow[data-ready] #about h1,
+  .meadow[data-ready] #about > p {
+    grid-column: 1;
+  }
+  .meadow[data-ready] #about .prose-figure {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin: 0;
+  }
+  .meadow[data-ready] #about .prose-figure figcaption {
+    line-height: 1.28;
+  }
 }

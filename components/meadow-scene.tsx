@@ -75,6 +75,13 @@ export function MeadowScene({ children }: { children: ReactNode }) {
         surface.scrollTop = Math.min(read, Math.max(0, y - intro));
         if (ambient) timer = window.setTimeout(requestDraw, 80);
       }
+      const about = surface.querySelector<HTMLElement>("#about");
+      const photo = surface.querySelector<HTMLElement>(
+        "#about .prose-figure img",
+      );
+      const caption = surface.querySelector<HTMLElement>(
+        "#about .prose-figure figcaption",
+      );
       function measure() {
         const width = document.documentElement.clientWidth,
           height = layer.parentElement!.clientHeight;
@@ -86,6 +93,30 @@ export function MeadowScene({ children }: { children: ReactNode }) {
           const { w, h, closeScale } = renderer!.framing();
           surface.style.width = w * closeScale + "px";
           surface.style.height = h * closeScale + "px";
+        }
+        // offsetTop is in layout pixels, independent of camera zoom and scroll.
+        if (about && photo && caption) {
+          surface.style.setProperty(
+            "--about-room",
+            Math.max(0, surface.clientHeight - about.offsetTop) + "px",
+          );
+          let top = 0;
+          for (
+            let node: HTMLElement | null = photo;
+            node && node !== surface;
+            node = node.offsetParent as HTMLElement | null
+          )
+            top += node.offsetTop;
+          const room =
+            surface.clientHeight -
+            top -
+            caption.offsetHeight -
+            parseFloat(getComputedStyle(caption).marginTop) -
+            12;
+          surface.style.setProperty(
+            "--portrait-room",
+            Math.max(64, Math.floor(room)) + "px",
+          );
         }
         intro =
           reduced.matches || pathname !== "/" ? 0 : Math.round(height * 0.88);
