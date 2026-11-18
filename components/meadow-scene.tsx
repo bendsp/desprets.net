@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import "./meadow-scene.css";
 
@@ -12,6 +12,10 @@ export function MeadowScene({ children }: { children: ReactNode }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const screen = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const routeChanged = useRef<(() => void) | undefined>(undefined);
+  useLayoutEffect(() => {
+    routeChanged.current?.();
+  }, [pathname]);
 
   useEffect(() => {
     const track = root.current!,
@@ -75,13 +79,6 @@ export function MeadowScene({ children }: { children: ReactNode }) {
         surface.scrollTop = Math.min(read, Math.max(0, y - intro));
         if (ambient) timer = window.setTimeout(requestDraw, 80);
       }
-      const about = surface.querySelector<HTMLElement>("#about");
-      const photo = surface.querySelector<HTMLElement>(
-        "#about .prose-figure img",
-      );
-      const caption = surface.querySelector<HTMLElement>(
-        "#about .prose-figure figcaption",
-      );
       function measure() {
         const width = document.documentElement.clientWidth,
           height = layer.parentElement!.clientHeight;
@@ -94,6 +91,14 @@ export function MeadowScene({ children }: { children: ReactNode }) {
           surface.style.width = w * closeScale + "px";
           surface.style.height = h * closeScale + "px";
         }
+        const about = surface.querySelector<HTMLElement>("#about");
+        const photo = surface.querySelector<HTMLElement>(
+          "#about .prose-figure img",
+        );
+        const caption = surface.querySelector<HTMLElement>(
+          "#about .prose-figure figcaption",
+        );
+
         // offsetTop is in layout pixels, independent of camera zoom and scroll.
         if (about && photo && caption) {
           surface.style.setProperty(
@@ -119,7 +124,9 @@ export function MeadowScene({ children }: { children: ReactNode }) {
           );
         }
         intro =
-          reduced.matches || pathname !== "/" ? 0 : Math.round(height * 0.88);
+          reduced.matches || location.pathname !== "/"
+            ? 0
+            : Math.round(height * 0.88);
         read = Math.max(0, surface.scrollHeight - surface.clientHeight);
         outro = Math.round(height * 1.14);
         track.style.height = window.innerHeight + intro + read + outro + "px";
@@ -173,6 +180,7 @@ export function MeadowScene({ children }: { children: ReactNode }) {
         if (target.matches(":focus-visible")) goTo(target, "instant");
       }
       function stop() {
+        routeChanged.current = undefined;
         cancelAnimationFrame(frame);
         clearTimeout(timer);
         window.removeEventListener("scroll", requestDraw);
@@ -192,6 +200,19 @@ export function MeadowScene({ children }: { children: ReactNode }) {
       }
       const observer = new ResizeObserver(measure);
       cleanup = stop;
+      // The root layout owns the canvas. A route change replaces only its live
+      // document; measure that document and synchronize scrolling before paint.
+      routeChanged.current = () => {
+        measure();
+        if (location.hash) hash();
+        else if (location.pathname !== "/")
+          window.scrollTo({ top: 0, behavior: "instant" });
+        else if (window.scrollY === 0)
+          window.scrollTo({ top: intro, behavior: "instant" });
+        clearTimeout(timer);
+        cancelAnimationFrame(frame);
+        draw(performance.now());
+      };
       track.dataset.ready = "true";
       measure();
       cancelAnimationFrame(frame);
@@ -213,7 +234,7 @@ export function MeadowScene({ children }: { children: ReactNode }) {
       disposed = true;
       cleanup?.();
     };
-  }, [pathname]);
+  }, []);
 
   return (
     <div ref={root} className="meadow">

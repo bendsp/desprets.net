@@ -1,3 +1,4 @@
+import { growOak, oakPosition } from "./oak";
 import { alpineRange, river, tree, windmill } from "./valley";
 import { addDeskAccessories } from "./desk-accessories";
 // World units are metres. The monitor face lies in the z = 0 plane.
@@ -31,7 +32,7 @@ export function makeMeadow(portrait: boolean) {
   let seed = 1065;
   const rand = () =>
     (seed = (Math.imul(1664525, seed) + 1013904223) >>> 0) / 4294967296;
-  const verts = new Float32Array(8 * 102000);
+  const verts = new Float32Array(8 * 152000);
   let cursor = 0;
   // Interleaved position, base colour, wind weight and surface category.
   function vertex(p: Point, col: RGB, wind: number, kind: number) {
@@ -165,9 +166,6 @@ export function makeMeadow(portrait: boolean) {
     );
   }
   alpineRange(vertex);
-  const oakX = portrait ? -2.9 : -5.4,
-    oakZ = -4.2;
-  tree(vertex, oakX, ground(oakX, oakZ) - 0.08, oakZ, 5.35, false, false, 1.02);
   const millX = portrait ? 2.55 : 6.7;
   const millZ = river(millX).z - river(millX).half - 5.25;
   windmill(vertex, quad, millX, ground(millX, millZ), millZ);
@@ -249,6 +247,26 @@ export function makeMeadow(portrait: boolean) {
       z1: Infinity,
     },
   ];
+  const [oakX, , oakZ] = oakPosition(portrait);
+  const canopy = {
+    first: cursor / 8,
+    count: 0,
+    x0: Infinity,
+    x1: -Infinity,
+    z0: Infinity,
+    z1: -Infinity,
+  };
+  growOak(
+    (point, colour, wind, kind) => {
+      canopy.x0 = Math.min(canopy.x0, point[0]);
+      canopy.x1 = Math.max(canopy.x1, point[0]);
+      canopy.z0 = Math.min(canopy.z0, point[2]);
+      canopy.z1 = Math.max(canopy.z1, point[2]);
+      vertex(point, colour, wind, kind);
+    },
+    [oakX, ground(oakX, oakZ) - 0.06, oakZ],
+  );
+  batches.push(canopy);
   // Grass blades are pre-rendered into two cutout textures on a shared atlas.
   for (let clump = 0; clump < 3900; clump++) {
     const near = clump < 2700;

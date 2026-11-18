@@ -1,3 +1,4 @@
+import { oakPosition } from "./oak";
 import { displaySize, makeMeadow, sill } from "./geometry";
 import { landFragment, landVertex, skyFragment, skyVertex } from "./shaders";
 
@@ -117,6 +118,7 @@ export function createMeadowRenderer(
     loadTexture(field.id, "flora", 0, "meadow-plants.webp"),
     loadTexture(field.id, "grass", 1, "grass.webp"),
     loadTexture(sky.id, "clouds", 2, "cloud-density.webp"),
+    loadTexture(field.id, "twigs", 6, "oak-leaves.webp"),
     loadTexture(field.id, "trees", 4, "meadow-trees.webp"),
     loadTexture(field.id, "peaks", 5, "alpine-range.webp"),
     loadTexture(field.id, "legends", 3, "key-legends.webp"),
@@ -133,6 +135,9 @@ export function createMeadowRenderer(
       gl!.bindBuffer(gl!.ARRAY_BUFFER, mesh);
       gl!.bufferData(gl!.ARRAY_BUFFER, data.vertices, gl!.STATIC_DRAW);
       batches = data.batches;
+      const [x, , z] = oakPosition(portrait);
+      gl!.useProgram(field.id);
+      gl!.uniform2f(gl!.getUniformLocation(field.id, "oakRoot"), x, z);
       previousOrientation = portrait;
     }
     width = w;

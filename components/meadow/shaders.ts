@@ -69,7 +69,7 @@ void main(){
   world=pos;
   float gust=sin(clock*1.35+pos.x*1.63+pos.z*.79)+.45*sin(clock*2.04+pos.z*2.72);
   world.x+=plant.x*.030*gust; world.z+=plant.x*.014*gust;
-  if(plant.y>10.5){
+  if(plant.y>10.5 && plant.y<11.5){
     vec2 local=vec2(plant.x,color.b);
     float a=mod(clock,52.)*.1208305;
     world=pos;world.xy+=mat2(cos(a),sin(a),-sin(a),cos(a))*local-local;
@@ -84,7 +84,8 @@ export const landFragment =
 #extension GL_OES_standard_derivatives : enable
 precision highp float;
 uniform vec3 eye;
-uniform sampler2D flora, grass, legends, trees, peaks;
+uniform sampler2D flora, grass, legends, trees, peaks, twigs;
+uniform vec2 oakRoot;
 uniform float dusk;
 uniform vec3 sun;
 varying vec3 world,albedo;
@@ -94,7 +95,18 @@ varying float kind,depth;
   `
 void main(){
   vec3 col=albedo;
-  if(kind>10.5){
+  if(kind>12.5){
+    vec3 n=normalize(cross(dFdx(world),dFdy(world)));
+    float furrow=noise2(vec2((world.x+world.z*.63)*47.,world.y*3.4));
+    col*=.65+.25*furrow+.32*max(0.,dot(n,sun));
+  }else if(kind>11.5){
+    vec4 leaf=texture2D(twigs,albedo.xy);
+    if(leaf.a<.36)discard;
+    vec3 n=normalize(cross(dFdx(world),dFdy(world)));
+    float lit=smoothstep(.40,1.03,albedo.z);
+    vec3 leafLight=mix(vec3(.64,.82,.85),vec3(1.14,1.05,.80),lit);
+    col=leaf.rgb*leafLight*albedo.z*(.77+.32*abs(dot(n,sun)));
+  }else if(kind>10.5){
     col=vec3(albedo.r,albedo.g,albedo.g*.81);
   }else if(kind>9.5){
     float ripple=noise2(world.xz*vec2(3.1,27.)+noise2(world.xz*1.8)*1.5);
@@ -141,6 +153,10 @@ void main(){
     vec2 projection=world.xz+(sun.xz/max(.14,sun.y))*(.92-world.y);
     float occlusion=(1.-smoothstep(1.44,1.84,abs(projection.x)))*(1.-smoothstep(.47,.72,abs(projection.y)));
     col*=1.-shadow*.25-occlusion*.28*(1.-dusk);
+  }
+  if(kind<.5 || (kind>4.5 && kind<6.5)){
+    vec2 shade=(world.xz-oakRoot-vec2(-1.25,1.1))/vec2(2.3,1.65);
+    col*=1.-.31*exp(-dot(shade,shade))*(1.-dusk);
   }
   vec3 light=mix(vec3(1.07,1.035,.94),vec3(.99,.69,.53),smoothstep(.03,.66,dusk));
   light=mix(light,vec3(.30,.34,.47),smoothstep(.59,1.,dusk));
