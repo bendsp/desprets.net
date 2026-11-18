@@ -24,7 +24,7 @@ export function MeadowScene({ children }: { children: ReactNode }) {
     async function start() {
       const { createMeadowRenderer } = await import("./meadow/renderer");
       if (disposed) return;
-      const renderer = createMeadowRenderer(layer);
+      const renderer = createMeadowRenderer(layer, requestDraw);
       if (!renderer) return;
       let intro = 0,
         read = 0,

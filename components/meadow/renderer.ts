@@ -1,7 +1,10 @@
 import { displaySize, makeMeadow, sill } from "./geometry";
 import { landFragment, landVertex, skyFragment, skyVertex } from "./shaders";
 
-export function createMeadowRenderer(canvas: HTMLCanvasElement) {
+export function createMeadowRenderer(
+  canvas: HTMLCanvasElement,
+  onTextureReady: () => void,
+) {
   const gl = canvas.getContext("webgl", {
     alpha: false,
     antialias: true,
@@ -52,6 +55,33 @@ export function createMeadowRenderer(canvas: HTMLCanvasElement) {
     gl.STATIC_DRAW,
   );
   let batches: ReturnType<typeof makeMeadow>["batches"] = [];
+  const flora = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, flora);
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    1,
+    1,
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    new Uint8Array(4),
+  );
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  const atlas = new Image();
+  atlas.onload = () => {
+    gl.bindTexture(gl.TEXTURE_2D, flora);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlas);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(
+      gl.TEXTURE_2D,
+      gl.TEXTURE_MIN_FILTER,
+      gl.LINEAR_MIPMAP_LINEAR,
+    );
+    onTextureReady();
+  };
+  atlas.src = "/scene/meadow-plants.webp";
   let previousOrientation: boolean | undefined;
   let width = 1,
     height = 1;
@@ -150,6 +180,8 @@ export function createMeadowRenderer(canvas: HTMLCanvasElement) {
     camera,
     paint,
     dispose() {
+      atlas.onload = null;
+      gl.deleteTexture(flora);
       gl.deleteBuffer(triangle);
       gl.deleteBuffer(mesh);
       gl.deleteProgram(sky.id);

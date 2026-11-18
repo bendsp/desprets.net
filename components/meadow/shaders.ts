@@ -80,6 +80,7 @@ export const landFragment =
 #extension GL_OES_standard_derivatives : enable
 precision highp float;
 uniform vec3 eye;
+uniform sampler2D flora;
 uniform float dusk;
 uniform vec3 sun;
 varying vec3 world,albedo;
@@ -89,7 +90,11 @@ varying float kind,depth;
   `
 void main(){
   vec3 col=albedo;
-  if(kind<.5){
+  if(kind>4.5){
+    vec4 plant=texture2D(flora,albedo.xy);
+    if(plant.a<.39) discard;
+    col=plant.rgb*albedo.z*(.67+.33*(1.-albedo.y));
+  }else if(kind<.5){
     float patches=fbm(world.xz*.91);
     col*=.61+.67*patches;
     col+=vec3(.064,.055,.013)*noise2(world.xz*26.);

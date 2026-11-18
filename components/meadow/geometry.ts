@@ -22,7 +22,7 @@ export function makeMeadow(portrait: boolean) {
   let seed = 1065;
   const rand = () =>
     (seed = (Math.imul(1664525, seed) + 1013904223) >>> 0) / 4294967296;
-  const verts = new Float32Array(8 * 800000);
+  const verts = new Float32Array(8 * 710000);
   let cursor = 0;
   // Interleaved position, base colour, wind weight and surface category.
   function vertex(p: Point, col: RGB, wind: number, kind: number) {
@@ -247,54 +247,40 @@ export function makeMeadow(portrait: boolean) {
   batches.push({
     first: cursor / 8,
     count: 0,
-    x0: -12,
-    x1: 12,
-    z0: -13,
+    x0: -14,
+    x1: 14,
+    z0: -16,
     z1: 10,
   });
-  // Flowers grow in little drifts; every head has an inclined disc and petals.
-  for (let patch = 0; patch < 185; patch++) {
-    const px = (rand() - 0.5) * 22,
-      pz = rand() * 21 - 12;
-    const poppy = rand() < 0.2;
-    const count = 3 + Math.floor(rand() * 9);
-    for (let j = 0; j < count; j++) {
+  // Small textured clumps have their own roots, inclination and wind response.
+  for (let patch = 0; patch < 540; patch++) {
+    const px = (rand() - 0.5) * 24,
+      pz = rand() * 24 - 14;
+    const species = rand();
+    const cell = species < 0.22 ? 0 : species < 0.31 ? 1 : 2;
+    const count = 2 + Math.floor(rand() * 7);
+    for (let stem = 0; stem < count; stem++) {
       const x = px + (rand() - 0.5) * 1.6,
-        z = pz + (rand() - 0.5) * 1.6;
-      if (Math.abs(x) < w * 0.6 && z > -0.55 && z < 1.25) continue;
-      const y = ground(x, z),
-        h = 0.21 + rand() * 0.28,
-        r = (poppy ? 0.055 : 0.032) * (0.67 + rand() * 0.69);
-      const base: Point = [x, y, z],
-        top: Point = [x + 0.03, y + h, z];
-      const green: RGB = [0.23, 0.35, 0.1],
-        petal: RGB = poppy ? [0.91, 0.23, 0.09] : [0.97, 0.91, 0.72];
-      vertex(base, green, 0, 1);
-      vertex([x + 0.009, y, z], green, 0, 1);
-      vertex(top, green, 1, 1);
-      const tilt = 0.2 + rand() * 0.77,
-        rot = rand() * 6.28,
-        n = poppy ? 6 : 10;
-      const at = (a: number, rad: number, lift: number): Point => [
-        top[0] + Math.cos(a) * rad,
-        top[1] + Math.sin(a) * rad * tilt + lift,
-        top[2] - Math.sin(a) * rad * (1 - tilt * 0.6),
-      ];
-      for (let k = 0; k < n; k++) {
-        const a = rot + (k * 2 * Math.PI) / n,
-          spread = (poppy ? 2.5 : 2.1) / n;
-        const p = at(a, r, r * 0.14),
-          l = at(a - spread, r * 0.81, r * 0.12),
-          rr = at(a + spread, r * 0.83, r * 0.15);
-        for (const v of [top, l, p, top, p, rr]) vertex(v, petal, 1, 2);
-        const centre: RGB = poppy ? [0.24, 0.13, 0.09] : [0.98, 0.67, 0.11];
-        for (const v of [
-          at(a, 0, 0.004),
-          at(a, r * 0.24, 0.004),
-          at(a + (2 * Math.PI) / n, r * 0.24, 0.004),
-        ])
-          vertex(v, centre, 1, 2);
-      }
+        z = pz + (rand() - 0.5) * 1.5;
+      const y = ground(x, z) - 0.025;
+      const h = (cell === 2 ? 0.69 : 0.52) * (0.6 + rand() * 0.7);
+      const half = h * (0.24 + rand() * 0.23),
+        lean = (rand() - 0.5) * 0.19,
+        twist = (rand() - 0.5) * 0.34;
+      const left: Point = [x - half, y, z - twist],
+        right: Point = [x + half, y, z + twist];
+      const topLeft: Point = [left[0] + lean, y + h, left[2] - 0.036];
+      const topRight: Point = [right[0] + lean, y + h, right[2] - 0.036];
+      const flip = rand() > 0.5,
+        u0 = (cell + (flip ? 0.985 : 0.015)) / 3,
+        u1 = (cell + (flip ? 0.015 : 0.985)) / 3;
+      const tint = 0.76 + rand() * 0.23;
+      vertex(left, [u0, 0.998, tint], 0, 5);
+      vertex(right, [u1, 0.998, tint], 0, 5);
+      vertex(topRight, [u1, 0.002, tint], 1, 5);
+      vertex(left, [u0, 0.998, tint], 0, 5);
+      vertex(topRight, [u1, 0.002, tint], 1, 5);
+      vertex(topLeft, [u0, 0.002, tint], 1, 5);
     }
   }
   if (cursor > verts.length)
