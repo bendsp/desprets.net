@@ -146,6 +146,12 @@ export function MeadowScene({ children }: { children: ReactNode }) {
           behavior,
         });
       }
+      // The browser restores document scroll for Back and Forward. Explicit
+      // links open a fresh page at its reading position inside the monitor.
+      let restoringPath: string | undefined;
+      function restoreHistory() {
+        restoringPath = location.pathname;
+      }
       function anchor(ev: Event) {
         const link = (ev.target as Element).closest<HTMLAnchorElement>(
           "a[href]",
@@ -157,6 +163,7 @@ export function MeadowScene({ children }: { children: ReactNode }) {
             (ev.metaKey || ev.ctrlKey || ev.altKey || ev.shiftKey))
         )
           return;
+        restoringPath = undefined;
         const url = new URL(link.href);
         if (
           url.origin !== location.origin ||
@@ -189,6 +196,7 @@ export function MeadowScene({ children }: { children: ReactNode }) {
         reduced.removeEventListener("change", measure);
         window.removeEventListener("resize", measure);
         window.removeEventListener("hashchange", hash);
+        window.removeEventListener("popstate", restoreHistory, true);
         surface.removeEventListener("click", anchor, true);
         surface.removeEventListener("focusin", focus);
         layer.removeEventListener("webglcontextlost", stop);
@@ -205,10 +213,9 @@ export function MeadowScene({ children }: { children: ReactNode }) {
       routeChanged.current = () => {
         measure();
         if (location.hash) hash();
-        else if (location.pathname !== "/")
-          window.scrollTo({ top: 0, behavior: "instant" });
-        else if (window.scrollY === 0)
+        else if (restoringPath !== location.pathname)
           window.scrollTo({ top: intro, behavior: "instant" });
+        restoringPath = undefined;
         clearTimeout(timer);
         cancelAnimationFrame(frame);
         draw(performance.now());
@@ -225,6 +232,7 @@ export function MeadowScene({ children }: { children: ReactNode }) {
       window.addEventListener("resize", measure);
       reduced.addEventListener("change", measure);
       window.addEventListener("hashchange", hash);
+      window.addEventListener("popstate", restoreHistory, true);
       surface.addEventListener("click", anchor, true);
       surface.addEventListener("focusin", focus);
       layer.addEventListener("webglcontextlost", stop);
