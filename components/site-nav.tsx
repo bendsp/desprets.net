@@ -9,7 +9,12 @@ const navItems = [
   { href: "/#about", label: "about", sectionId: "about", path: "/about" },
   { href: "/#work", label: "work", sectionId: "work", path: "/work" },
   { href: "/#education", label: "education", sectionId: "education" },
-  { href: "/#contact", label: "contact", sectionId: "contact", path: "/contact" },
+  {
+    href: "/#contact",
+    label: "contact",
+    sectionId: "contact",
+    path: "/contact",
+  },
 ];
 
 function getSectionIdForPathname(pathname: string) {
@@ -32,19 +37,22 @@ export function SiteNav() {
       .map((item) => document.getElementById(item.sectionId))
       .filter((section): section is HTMLElement => Boolean(section));
 
-    const scroller = document.querySelector<HTMLElement>(".crt-document");
+    const scroller = document.querySelector<HTMLElement>(".monitor-document");
     if (!scroller) return;
 
     let animationFrame = 0;
 
     const updateActiveSection = () => {
-      if (scroller.scrollTop < 2) {
+      const framed = scroller.closest(".meadow")?.hasAttribute("data-ready");
+      const top = framed ? scroller.scrollTop : window.scrollY;
+      if (top < 2) {
         setActiveSection(sectionElements[0]?.id ?? "about");
         return;
       }
       const lastSection = sectionElements[sectionElements.length - 1];
-      const isAtPageBottom =
-        scroller.clientHeight + scroller.scrollTop >= scroller.scrollHeight - 2;
+      const isAtPageBottom = framed
+        ? scroller.clientHeight + top >= scroller.scrollHeight - 2
+        : window.innerHeight + top >= document.documentElement.scrollHeight - 2;
 
       if (isAtPageBottom && lastSection) {
         setActiveSection(lastSection.id);
@@ -53,8 +61,11 @@ export function SiteNav() {
 
       const header = document.querySelector(".site-header");
       const headerHeight =
-        header instanceof HTMLElement ? header.getBoundingClientRect().height : 0;
-      const marker = scroller.getBoundingClientRect().top + headerHeight + 48;
+        header instanceof HTMLElement
+          ? header.getBoundingClientRect().height
+          : 0;
+      const marker =
+        (framed ? scroller.getBoundingClientRect().top : 0) + headerHeight + 48;
       const currentSection =
         sectionElements
           .map((section) => ({
@@ -77,6 +88,9 @@ export function SiteNav() {
     scroller.addEventListener("scroll", requestActiveSectionUpdate, {
       passive: true,
     });
+    window.addEventListener("scroll", requestActiveSectionUpdate, {
+      passive: true,
+    });
     window.addEventListener("resize", requestActiveSectionUpdate);
     window.addEventListener("hashchange", requestActiveSectionUpdate);
 
@@ -84,6 +98,7 @@ export function SiteNav() {
       window.cancelAnimationFrame(animationFrame);
       sizeObserver.disconnect();
       scroller.removeEventListener("scroll", requestActiveSectionUpdate);
+      window.removeEventListener("scroll", requestActiveSectionUpdate);
       window.removeEventListener("resize", requestActiveSectionUpdate);
       window.removeEventListener("hashchange", requestActiveSectionUpdate);
     };

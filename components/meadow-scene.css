@@ -1,88 +1,36 @@
-.meadow {
-  --photo: url("/scene/meadow.webp");
+.meadow-stage canvas {
+  display: none;
+}
+.monitor-document {
+  container: crt / inline-size;
+}
+.meadow[data-ready] .meadow-stage {
   position: fixed;
   inset: 0;
-  display: grid;
-  place-items: center;
   overflow: clip;
   isolation: isolate;
-  background: #bcab85 var(--photo) center / cover no-repeat;
 }
-
-@media (max-aspect-ratio: 4/5) {
-  .meadow { --photo: url("/scene/meadow-portrait.webp"); }
-}
-
-.meadow-camera {
-  visibility: hidden;
-  position: relative;
-  flex: none;
-  grid-area: 1 / 1;
-}
-
-/* Explicit tracks keep the optical axis centered even when the glass is wider
-   than a phone. Its reading column is limited separately below. */
-.meadow { grid-template: minmax(0, 1fr) / minmax(0, 1fr); }
-.meadow[data-composed] .meadow-camera { visibility: visible; }
-
-.meadow-land {
+.meadow[data-ready] canvas {
+  display: block;
   position: absolute;
-  width: var(--plate-width);
-  height: var(--plate-height);
-  left: var(--plate-left);
-  top: var(--plate-top);
-  overflow: hidden;
-  pointer-events: none;
-  background: var(--photo) center / 100% 100%;
-}
-
-.meadow-land canvas { width: 100%; height: 100%; display: block; }
-
-.crt-glass {
-  position: relative;
+  width: 100%;
   height: 100%;
-  overflow: hidden;
-  border-radius: 42% 42% 41% 41% / 4% 4% 3% 3%;
-  clip-path: inset(0 round 5% / 7%);
-  background: var(--background);
-  opacity: 0;
-}
-
-.meadow[data-arriving] .crt-glass {
-  animation: crt-wake 4.6s ease both;
-}
-
-@keyframes crt-wake {
-  0%, 37% { opacity: 0; }
-  68%, 100% { opacity: 1; }
-}
-
-.meadow[data-ready] .crt-glass,
-.meadow[data-fallback] .crt-glass { animation: none; opacity: 1; }
-
-.crt-document {
-  container: crt / inline-size;
-  width: min(100%, 100vw);
-  height: 100%;
-  margin: auto;
-  overflow: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-}
-
-.crt-glass::after {
-  content: "";
-  position: absolute;
   inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  box-shadow: inset 0 0 0 2px #31261e69, inset 0 1px 13px #3a2c2338;
-  background: radial-gradient(ellipse at 8% 3%, #ffd78a14, transparent 30%);
 }
-
-.crt-document .site-shell { padding-top: 0.85rem; }
+.meadow[data-ready] .monitor-document {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  transform-origin: top left;
+  background: var(--background);
+  border-radius: 1px;
+}
+.meadow[data-ready] .site-shell {
+  padding-top: 0.5rem;
+}
 @media (min-width: 561px) {
-  .crt-document .site-shell { padding-inline: clamp(1.5rem, 3vw, 3rem); }
+  .meadow[data-ready] .site-shell {
+    padding-inline: clamp(1rem, 2.5vw, 2.7rem);
+  }
 }
-.meadow[data-fallback] .meadow-camera { visibility: visible; width: 100%; height: 100%; }
-.meadow[data-fallback] .meadow-land { display: none; }

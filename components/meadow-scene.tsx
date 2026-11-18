@@ -2,115 +2,168 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { startMeadowWind } from "./meadow-wind";
 import "./meadow-scene.css";
 
-// The inside edge of each photographed CRT, in source-image pixels.
-const landscape = { width: 1672, height: 941, x: 659, y: 245, w: 344, h: 254 };
-const portrait = { width: 941, height: 1672, x: 366, y: 676, w: 214, h: 161 };
+const clamp = (value: number) => Math.min(1, Math.max(0, value));
+const ease = (t: number) => t * t * (3 - 2 * t);
 
 export function MeadowScene({ children }: { children: ReactNode }) {
-  const scene = useRef<HTMLDivElement>(null);
-  const camera = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const screen = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    const stage = scene.current!;
-    const frame = camera.current!;
-    const upright = matchMedia("(max-aspect-ratio: 4/5)");
+    const track = root.current!,
+      surface = screen.current!,
+      layer = canvas.current!;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
     let disposed = false;
-    let played = false;
-    let stopWind: (() => void) | undefined;
-    let movement: Animation | undefined;
+    let cleanup: (() => void) | undefined;
 
-    function settle() {
-      if (movement?.playState === "running") movement.finish();
-      stopWind?.();
-      stopWind = undefined;
-      stage.dataset.ready = "true";
-    }
-
-    function compose() {
-      const p = upright.matches ? portrait : landscape;
-      const { clientWidth: w, clientHeight: h } = stage;
-      const cover = Math.max(w / p.width, h / p.height);
-      const finalHeight = Math.min(h * (upright.matches ? 0.84 : 0.79),
-        upright.matches ? Infinity : w * 0.88 * p.h / p.w);
-      const finalWidth = finalHeight * p.w / p.h;
-      const x = (p.x + p.w / 2 - p.width / 2) * cover;
-      const y = (p.y + p.h / 2 - p.height / 2) * cover;
-      frame.style.width = finalWidth + "px";
-      frame.style.height = finalHeight + "px";
-      frame.style.setProperty("--plate-width", (100 * p.width / p.w) + "%");
-      frame.style.setProperty("--plate-height", (100 * p.height / p.h) + "%");
-      frame.style.setProperty("--plate-left", (-100 * p.x / p.w) + "%");
-      frame.style.setProperty("--plate-top", (-100 * p.y / p.h) + "%");
-
-      stage.dataset.composed = "true";
-      if (played || reduced.matches || location.pathname !== "/" || location.hash) {
-        settle();
-      } else {
-        const start = 'translate(' + x + 'px,' + y + 'px) scale(' + (cover * p.w / finalWidth) + ')';
-        movement = frame.animate([
-          { transform: start, offset: 0 },
-          { transform: start, offset: 0.26, easing: "cubic-bezier(.43,.03,.19,1)" },
-          { transform: "none", offset: 1 },
-        ], { duration: 4600 });
-        movement.onfinish = settle;
-        stopWind = startMeadowWind(frame.querySelector(".meadow-land")!, plate, upright.matches);
-        stage.dataset.arriving = "true";
+    async function start() {
+      const { createMeadowRenderer } = await import("./meadow/renderer");
+      if (disposed) return;
+      const renderer = createMeadowRenderer(layer);
+      if (!renderer) return;
+      let intro = 0,
+        read = 0,
+        outro = 0,
+        frame = 0,
+        timer = 0;
+      function requestDraw() {
+        clearTimeout(timer);
+        if (!frame && !document.hidden) frame = requestAnimationFrame(draw);
       }
-      played = true;
+      let lastWidth = 0,
+        lastHeight = 0;
+      function draw(now: number) {
+        frame = 0;
+        const y = window.scrollY;
+        const approach = intro ? ease(clamp(y / intro)) : 1;
+        const exit = outro ? clamp((y - intro - read) / outro) : 0;
+        const view = renderer!.camera(
+          approach,
+          reduced.matches ? 0 : ease(exit),
+        );
+        surface.style.transform = `translate3d(${view.left}px, ${view.top}px, 0) scale(${view.scale})`;
+        surface.scrollTop = Math.min(read, Math.max(0, y - intro));
+        renderer!.paint(view, exit, reduced.matches ? 0 : now * 0.001);
+        if (!reduced.matches) timer = window.setTimeout(requestDraw, 65);
+      }
+      function measure() {
+        const width = document.documentElement.clientWidth,
+          height = layer.parentElement!.clientHeight;
+        if (width !== lastWidth || height !== lastHeight) {
+          renderer!.resize(width, height);
+          lastWidth = width;
+          lastHeight = height;
+          const { w, h, closeScale } = renderer!.framing();
+          surface.style.width = w * closeScale + "px";
+          surface.style.height = h * closeScale + "px";
+        }
+        intro =
+          reduced.matches || pathname !== "/" ? 0 : Math.round(height * 0.88);
+        read = Math.max(0, surface.scrollHeight - surface.clientHeight);
+        outro = Math.round(height * 1.14);
+        track.style.height = window.innerHeight + intro + read + outro + "px";
+        requestDraw();
+      }
+      function goTo(target: HTMLElement, behavior: ScrollBehavior) {
+        const scale =
+          surface.getBoundingClientRect().width / surface.offsetWidth;
+        const offset =
+          (target.getBoundingClientRect().top -
+            surface.getBoundingClientRect().top) /
+            scale +
+          surface.scrollTop -
+          (parseFloat(getComputedStyle(target).scrollMarginTop) || 0);
+        window.scrollTo({
+          top: intro + Math.min(read, Math.max(0, offset)),
+          behavior,
+        });
+      }
+      function anchor(ev: Event) {
+        const link = (ev.target as Element).closest<HTMLAnchorElement>(
+          "a[href]",
+        );
+        if (
+          !link ||
+          ev.defaultPrevented ||
+          (ev instanceof MouseEvent &&
+            (ev.metaKey || ev.ctrlKey || ev.altKey || ev.shiftKey))
+        )
+          return;
+        const url = new URL(link.href);
+        if (
+          url.origin !== location.origin ||
+          url.pathname !== location.pathname ||
+          !url.hash
+        )
+          return;
+        const target = document.getElementById(url.hash.slice(1));
+        if (!target) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        history.pushState(null, "", url.hash);
+        goTo(target, reduced.matches ? "instant" : "smooth");
+      }
+      function hash() {
+        const target = document.getElementById(location.hash.slice(1));
+        if (target) goTo(target, "instant");
+      }
+      function focus(ev: FocusEvent) {
+        const target = ev.target as HTMLElement;
+        if (target.matches(":focus-visible")) goTo(target, "instant");
+      }
+      function stop() {
+        cancelAnimationFrame(frame);
+        clearTimeout(timer);
+        window.removeEventListener("scroll", requestDraw);
+        document.removeEventListener("visibilitychange", requestDraw);
+        observer.disconnect();
+        reduced.removeEventListener("change", measure);
+        window.removeEventListener("resize", measure);
+        window.removeEventListener("hashchange", hash);
+        surface.removeEventListener("click", anchor, true);
+        surface.removeEventListener("focusin", focus);
+        layer.removeEventListener("webglcontextlost", stop);
+        renderer!.dispose();
+        track.removeAttribute("data-ready");
+        track.removeAttribute("style");
+        surface.removeAttribute("style");
+      }
+      const observer = new ResizeObserver(measure);
+      cleanup = stop;
+      track.dataset.ready = "true";
+      measure();
+      cancelAnimationFrame(frame);
+      draw(performance.now());
+      window.addEventListener("scroll", requestDraw, { passive: true });
+      document.addEventListener("visibilitychange", requestDraw);
+      if (location.hash) hash();
+      observer.observe(surface.firstElementChild!);
+      observer.observe(layer.parentElement!);
+      window.addEventListener("resize", measure);
+      reduced.addEventListener("change", measure);
+      window.addEventListener("hashchange", hash);
+      surface.addEventListener("click", anchor, true);
+      surface.addEventListener("focusin", focus);
+      layer.addEventListener("webglcontextlost", stop);
     }
-
-    // Keep the establishing shot visible while the image decodes.
-    const plate = new Image();
-    plate.src = upright.matches ? "/scene/meadow-portrait.webp" : "/scene/meadow.webp";
-    plate.decode().then(() => {
-      if (!disposed) compose();
-    }).catch(() => {
-      if (!disposed) stage.dataset.fallback = "true";
-    });
-
-    const resize = () => { if (played) compose(); };
-    window.addEventListener("resize", resize);
-    reduced.addEventListener("change", resize);
-    stage.addEventListener("pointerdown", settle);
-    stage.addEventListener("focusin", settle);
+    start().catch(() => cleanup?.());
     return () => {
       disposed = true;
-      movement?.cancel();
-      stopWind?.();
-      window.removeEventListener("resize", resize);
-      reduced.removeEventListener("change", resize);
-      stage.removeEventListener("pointerdown", settle);
-      stage.removeEventListener("focusin", settle);
+      cleanup?.();
     };
-  }, []);
-
-  useEffect(() => {
-    const sectionId = location.hash.slice(1);
-    if (!sectionId) return;
-    // A direct section link can arrive before the CRT has its final height.
-    const scroller = scene.current?.querySelector(".crt-document");
-    if (!scroller) return;
-    const observer = new ResizeObserver(() => {
-      if (!scene.current?.dataset.composed) return;
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: "instant" });
-      observer.disconnect();
-    });
-    observer.observe(scroller);
-    return () => observer.disconnect();
   }, [pathname]);
 
   return (
-    <div ref={scene} className="meadow">
-      <noscript><style>{".meadow .meadow-camera,.meadow .crt-glass{visibility:visible;opacity:1}.meadow .meadow-camera{width:100%;height:100%}"}</style></noscript>
-      <div ref={camera} className="meadow-camera">
-        <div className="meadow-land" aria-hidden="true" />
-        <div className="crt-glass">
-          <div className="crt-document" key={pathname}>{children}</div>
+    <div ref={root} className="meadow">
+      <div className="meadow-stage">
+        <canvas ref={canvas} aria-hidden="true" />
+        <div ref={screen} className="monitor-document">
+          {children}
         </div>
       </div>
     </div>
