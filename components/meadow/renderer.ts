@@ -55,33 +55,71 @@ export function createMeadowRenderer(
     gl.STATIC_DRAW,
   );
   let batches: ReturnType<typeof makeMeadow>["batches"] = [];
-  const flora = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, flora);
-  gl.texImage2D(
-    gl.TEXTURE_2D,
-    0,
-    gl.RGBA,
-    1,
-    1,
-    0,
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
-    new Uint8Array(4),
-  );
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  const atlas = new Image();
-  atlas.onload = () => {
-    gl.bindTexture(gl.TEXTURE_2D, flora);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlas);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texParameteri(
-      gl.TEXTURE_2D,
-      gl.TEXTURE_MIN_FILTER,
-      gl.LINEAR_MIPMAP_LINEAR,
+  function loadTexture(
+    id: WebGLProgram,
+    name: string,
+    unit: number,
+    path: string,
+  ) {
+    const context = gl!;
+    const texture = context.createTexture();
+    context.useProgram(id);
+    context.uniform1i(context.getUniformLocation(id, name), unit);
+    const bind = () => {
+      context.activeTexture(context.TEXTURE0 + unit);
+      context.bindTexture(context.TEXTURE_2D, texture);
+    };
+    bind();
+    context.texImage2D(
+      context.TEXTURE_2D,
+      0,
+      context.RGBA,
+      1,
+      1,
+      0,
+      context.RGBA,
+      context.UNSIGNED_BYTE,
+      new Uint8Array(4),
     );
-    onTextureReady();
-  };
-  atlas.src = "/scene/meadow-plants.webp";
+    context.texParameteri(
+      context.TEXTURE_2D,
+      context.TEXTURE_MIN_FILTER,
+      context.LINEAR,
+    );
+    for (const axis of [context.TEXTURE_WRAP_S, context.TEXTURE_WRAP_T])
+      context.texParameteri(context.TEXTURE_2D, axis, context.CLAMP_TO_EDGE);
+    const image = new Image();
+    image.onload = () => {
+      bind();
+      context.texImage2D(
+        context.TEXTURE_2D,
+        0,
+        context.RGBA,
+        context.RGBA,
+        context.UNSIGNED_BYTE,
+        image,
+      );
+      context.generateMipmap(context.TEXTURE_2D);
+      context.texParameteri(
+        context.TEXTURE_2D,
+        context.TEXTURE_MIN_FILTER,
+        context.LINEAR_MIPMAP_LINEAR,
+      );
+      onTextureReady();
+    };
+    image.src = "/scene/" + path;
+    return () => {
+      image.onload = null;
+      context.deleteTexture(texture);
+    };
+  }
+  const textures = [
+    loadTexture(field.id, "flora", 0, "meadow-plants.webp"),
+    loadTexture(field.id, "grass", 1, "grass.webp"),
+    loadTexture(sky.id, "clouds", 2, "cloud-density.webp"),
+    loadTexture(field.id, "legends", 3, "key-legends.webp"),
+  ];
+  const touch = matchMedia("(any-pointer: coarse)");
   let previousOrientation: boolean | undefined;
   let width = 1,
     height = 1;
@@ -99,8 +137,8 @@ export function createMeadowRenderer(
     height = h;
     const density = Math.min(
       window.devicePixelRatio,
-      1.5,
-      Math.sqrt(1350000 / (w * h)),
+      touch.matches ? 1.25 : 1.5,
+      Math.sqrt((touch.matches ? 620000 : 1350000) / (w * h)),
     );
     canvas.width = Math.round(w * density);
     canvas.height = Math.round(h * density);
@@ -180,8 +218,7 @@ export function createMeadowRenderer(
     camera,
     paint,
     dispose() {
-      atlas.onload = null;
-      gl.deleteTexture(flora);
+      textures.forEach((dispose) => dispose());
       gl.deleteBuffer(triangle);
       gl.deleteBuffer(mesh);
       gl.deleteProgram(sky.id);

@@ -27,6 +27,7 @@ export const skyFragment =
   `
 precision highp float;
 varying vec2 uv;
+uniform sampler2D clouds;
 uniform vec2 lens;
 uniform vec3 sun;
 uniform float dusk;
@@ -45,9 +46,7 @@ void main(){
   sky=mix(sky,sunlight,(.42*exp(-dist*4.)+.46*exp(-dist*22.))*day);
   // Intersect view rays with a high cloud deck. Wisps converge at the horizon.
   vec2 deck=ray.xz/(max(.025,h)+.055);
-  vec2 cloudUV=deck*vec2(1.45,3.55)+vec2(21.,3.);
-  float cirrus=fbm(cloudUV+.58*vec2(fbm(cloudUV*2.5),fbm(cloudUV*2.1+9.)));
-  float cloud=smoothstep(.46,.75,cirrus)*smoothstep(.012,.12,h);
+  float cloud=texture2D(clouds,(deck+vec2(13.))/vec2(26.,13.)).r*smoothstep(.012,.12,h);
   vec3 cloudColor=mix(vec3(1.,.96,.84),vec3(.99,.59,.43),smoothstep(.18,.62,dusk));
   cloudColor=mix(cloudColor,vec3(.33,.31,.44),smoothstep(.62,1.,dusk));
   sky=mix(sky,cloudColor,cloud*.71);
@@ -80,7 +79,7 @@ export const landFragment =
 #extension GL_OES_standard_derivatives : enable
 precision highp float;
 uniform vec3 eye;
-uniform sampler2D flora;
+uniform sampler2D flora, grass, legends;
 uniform float dusk;
 uniform vec3 sun;
 varying vec3 world,albedo;
@@ -90,8 +89,11 @@ varying float kind,depth;
   `
 void main(){
   vec3 col=albedo;
-  if(kind>4.5){
-    vec4 plant=texture2D(flora,albedo.xy);
+  if(kind>6.5){
+    vec3 cap=albedo.z>.75 ? vec3(.76,.241,.16) : albedo.z>.25 ? vec3(.25,.29,.34) : vec3(.41,.45,.5);
+    col=mix(cap,vec3(.91,.91,.85),texture2D(legends,albedo.xy).r);
+  }else if(kind>4.5){
+    vec4 plant=kind>5.5?texture2D(grass,albedo.xy):texture2D(flora,albedo.xy);
     if(plant.a<.39) discard;
     col=plant.rgb*albedo.z*(.67+.33*(1.-albedo.y));
   }else if(kind<.5){

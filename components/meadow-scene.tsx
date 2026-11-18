@@ -24,7 +24,15 @@ export function MeadowScene({ children }: { children: ReactNode }) {
     async function start() {
       const { createMeadowRenderer } = await import("./meadow/renderer");
       if (disposed) return;
-      const renderer = createMeadowRenderer(layer, requestDraw);
+      let dirty = true,
+        lastApproach = -1,
+        lastExit = -1;
+      const touch = matchMedia("(any-pointer: coarse)");
+      function invalidate() {
+        dirty = true;
+        requestDraw();
+      }
+      const renderer = createMeadowRenderer(layer, invalidate);
       if (!renderer) return;
       let intro = 0,
         read = 0,
@@ -42,19 +50,36 @@ export function MeadowScene({ children }: { children: ReactNode }) {
         const y = window.scrollY;
         const approach = intro ? ease(clamp(y / intro)) : 1;
         const exit = outro ? clamp((y - intro - read) / outro) : 0;
-        const view = renderer!.camera(
-          approach,
-          reduced.matches ? 0 : ease(exit),
-        );
-        surface.style.transform = `translate3d(${view.left}px, ${view.top}px, 0) scale(${view.scale})`;
+        const reading = y >= intro && y <= intro + read;
+        const off =
+          y + window.innerHeight >= document.documentElement.scrollHeight - 1;
+        if (surface.classList.contains("monitor-off") !== off)
+          surface.classList.toggle("monitor-off", off);
+        const ambient = !touch.matches && !reduced.matches && !reading && !off;
+        if (
+          dirty ||
+          approach !== lastApproach ||
+          exit !== lastExit ||
+          ambient
+        ) {
+          const view = renderer!.camera(
+            approach,
+            reduced.matches ? 0 : ease(exit),
+          );
+          surface.style.transform = `translate3d(${view.left}px, ${view.top}px, 0) scale(${view.scale})`;
+          renderer!.paint(view, exit, reduced.matches ? 0 : now * 0.001);
+          dirty = false;
+          lastApproach = approach;
+          lastExit = exit;
+        }
         surface.scrollTop = Math.min(read, Math.max(0, y - intro));
-        renderer!.paint(view, exit, reduced.matches ? 0 : now * 0.001);
-        if (!reduced.matches) timer = window.setTimeout(requestDraw, 65);
+        if (ambient) timer = window.setTimeout(requestDraw, 80);
       }
       function measure() {
         const width = document.documentElement.clientWidth,
           height = layer.parentElement!.clientHeight;
         if (width !== lastWidth || height !== lastHeight) {
+          dirty = true;
           renderer!.resize(width, height);
           lastWidth = width;
           lastHeight = height;
@@ -132,6 +157,7 @@ export function MeadowScene({ children }: { children: ReactNode }) {
         track.removeAttribute("data-ready");
         track.removeAttribute("style");
         surface.removeAttribute("style");
+        surface.classList.remove("monitor-off");
       }
       const observer = new ResizeObserver(measure);
       cleanup = stop;

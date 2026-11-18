@@ -34,3 +34,9 @@
     padding-inline: clamp(1rem, 2.5vw, 2.7rem);
   }
 }
+
+/* Expose the dark physical panel underneath the live document when it sleeps. */
+.meadow[data-ready] .monitor-off {
+  opacity: 0;
+  pointer-events: none;
+}
