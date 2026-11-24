@@ -18,6 +18,18 @@ export function capturePosition(surface: HTMLElement): ReadingPosition | null {
   if ((surface.closest("[data-framed]") ? surface.scrollTop : scrollY) < 2)
     return null;
   const { y, scale } = readingLine(surface);
+  // At the bottom of the plain page the browser cannot align a short final
+  // section with the header. Keep the selected section when entering the CRT.
+  if (
+    location.hash &&
+    !surface.closest("[data-framed]") &&
+    scrollY + innerHeight >= document.documentElement.scrollHeight - 2
+  ) {
+    const target = document.getElementById(location.hash.slice(1));
+    const rect = target?.getBoundingClientRect();
+    if (target && rect && rect.top >= y && rect.bottom <= innerHeight)
+      return { element: target, fraction: 0, gap: 0 };
+  }
   for (const element of surface.querySelectorAll<HTMLElement>(
     "main h1, main h2, main h3, main p, main li, main tr, main figure, footer",
   )) {
