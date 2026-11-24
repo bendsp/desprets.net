@@ -43,7 +43,7 @@ export function SiteNav() {
     let animationFrame = 0;
 
     const updateActiveSection = () => {
-      const framed = scroller.closest(".meadow")?.hasAttribute("data-ready");
+      const framed = scroller.closest(".meadow")?.hasAttribute("data-framed");
       const top = framed ? scroller.scrollTop : window.scrollY;
       if (top < 2) {
         setActiveSection(sectionElements[0]?.id ?? "about");

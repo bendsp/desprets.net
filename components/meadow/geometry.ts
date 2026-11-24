@@ -1,14 +1,10 @@
+import { displaySize, sill } from "./camera";
 import { growOak, oakPosition } from "./oak";
 import { alpineRange, river, tree, windmill } from "./valley";
 import { addDeskAccessories } from "./desk-accessories";
 // World units are metres. The monitor face lies in the z = 0 plane.
 type Point = [number, number, number];
 type RGB = [number, number, number];
-
-export function displaySize(portrait: boolean) {
-  return portrait ? { w: 1.29, h: 2.05 } : { w: 2.58, h: 1.54 };
-}
-export const sill = 1.68;
 
 function ground(x: number, z: number) {
   const field = Math.min(1, Math.hypot(x, z) / 8);

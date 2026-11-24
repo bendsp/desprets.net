@@ -1,20 +1,14 @@
 import { oakPosition } from "./oak";
-import { displaySize, makeMeadow, sill } from "./geometry";
+import { makeMeadow } from "./geometry";
+import { lensY, type camera } from "./camera";
 import { landFragment, landVertex, skyFragment, skyVertex } from "./shaders";
 
-export function createMeadowRenderer(
-  canvas: HTMLCanvasElement,
-  onTextureReady: () => void,
+export async function createMeadowRenderer(
+  gl: WebGLRenderingContext,
+  signal: AbortSignal,
 ) {
-  const gl = canvas.getContext("webgl", {
-    alpha: false,
-    antialias: true,
-    powerPreference: "low-power",
-  });
-  if (!gl || !gl.getExtension("OES_standard_derivatives")) return null;
-
   function program(vertex: string, fragment: string) {
-    const context = gl!;
+    const context = gl;
     const result = context.createProgram()!;
     for (const [type, source] of [
       [context.VERTEX_SHADER, vertex],
@@ -56,65 +50,47 @@ export function createMeadowRenderer(
     gl.STATIC_DRAW,
   );
   let batches: ReturnType<typeof makeMeadow>["batches"] = [];
-  function loadTexture(
-    id: WebGLProgram,
+  async function loadTexture(
+    program: WebGLProgram,
     name: string,
     unit: number,
-    path: string,
+    file: string,
   ) {
-    const context = gl!;
-    const texture = context.createTexture();
-    context.useProgram(id);
-    context.uniform1i(context.getUniformLocation(id, name), unit);
-    const bind = () => {
-      context.activeTexture(context.TEXTURE0 + unit);
-      context.bindTexture(context.TEXTURE_2D, texture);
-    };
-    bind();
-    context.texImage2D(
-      context.TEXTURE_2D,
-      0,
-      context.RGBA,
-      1,
-      1,
-      0,
-      context.RGBA,
-      context.UNSIGNED_BYTE,
-      new Uint8Array(4),
-    );
-    context.texParameteri(
-      context.TEXTURE_2D,
-      context.TEXTURE_MIN_FILTER,
-      context.LINEAR,
-    );
-    for (const axis of [context.TEXTURE_WRAP_S, context.TEXTURE_WRAP_T])
-      context.texParameteri(context.TEXTURE_2D, axis, context.CLAMP_TO_EDGE);
-    const image = new Image();
-    image.onload = () => {
-      bind();
-      context.texImage2D(
-        context.TEXTURE_2D,
+    const response = await fetch("/scene/" + file, { signal });
+    if (!response.ok) throw new Error("Missing meadow texture: " + file);
+    const url = URL.createObjectURL(await response.blob());
+    try {
+      const image = new Image();
+      image.src = url;
+      await image.decode();
+      signal.throwIfAborted();
+      gl.useProgram(program);
+      gl.uniform1i(gl.getUniformLocation(program, name), unit);
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+      gl.texImage2D(
+        gl.TEXTURE_2D,
         0,
-        context.RGBA,
-        context.RGBA,
-        context.UNSIGNED_BYTE,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
         image,
       );
-      context.generateMipmap(context.TEXTURE_2D);
-      context.texParameteri(
-        context.TEXTURE_2D,
-        context.TEXTURE_MIN_FILTER,
-        context.LINEAR_MIPMAP_LINEAR,
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(
+        gl.TEXTURE_2D,
+        gl.TEXTURE_MIN_FILTER,
+        gl.LINEAR_MIPMAP_LINEAR,
       );
-      onTextureReady();
-    };
-    image.src = "/scene/" + path;
-    return () => {
-      image.onload = null;
-      context.deleteTexture(texture);
-    };
+      for (const axis of [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T])
+        gl.texParameteri(gl.TEXTURE_2D, axis, gl.CLAMP_TO_EDGE);
+      if (gl.getError() !== gl.NO_ERROR)
+        throw new Error("Meadow texture upload failed");
+    } finally {
+      URL.revokeObjectURL(url);
+    }
   }
-  const textures = [
+  await Promise.all([
     loadTexture(field.id, "flora", 0, "meadow-plants.webp"),
     loadTexture(field.id, "grass", 1, "grass.webp"),
     loadTexture(sky.id, "clouds", 2, "cloud-density.webp"),
@@ -122,22 +98,22 @@ export function createMeadowRenderer(
     loadTexture(field.id, "trees", 4, "meadow-trees.webp"),
     loadTexture(field.id, "peaks", 5, "alpine-range.webp"),
     loadTexture(field.id, "legends", 3, "key-legends.webp"),
-  ];
+  ]);
   const touch = matchMedia("(any-pointer: coarse)");
   let previousOrientation: boolean | undefined;
   let width = 1,
     height = 1;
-  const lensY = 0.46;
+
   function resize(w: number, h: number) {
     const portrait = w < h;
     if (previousOrientation !== portrait) {
       const data = makeMeadow(portrait);
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, mesh);
-      gl!.bufferData(gl!.ARRAY_BUFFER, data.vertices, gl!.STATIC_DRAW);
+      gl.bindBuffer(gl.ARRAY_BUFFER, mesh);
+      gl.bufferData(gl.ARRAY_BUFFER, data.vertices, gl.STATIC_DRAW);
       batches = data.batches;
       const [x, , z] = oakPosition(portrait);
-      gl!.useProgram(field.id);
-      gl!.uniform2f(gl!.getUniformLocation(field.id, "oakRoot"), x, z);
+      gl.useProgram(field.id);
+      gl.uniform2f(gl.getUniformLocation(field.id, "oakRoot"), x, z);
       previousOrientation = portrait;
     }
     width = w;
@@ -147,41 +123,12 @@ export function createMeadowRenderer(
       touch.matches ? 1.25 : 1.5,
       Math.sqrt((touch.matches ? 620000 : 1350000) / (w * h)),
     );
-    canvas.width = Math.round(w * density);
-    canvas.height = Math.round(h * density);
-    gl!.viewport(0, 0, canvas.width, canvas.height);
-  }
-  function framing() {
-    const portrait = width < height;
-    const { w, h } = displaySize(portrait);
-    const closeScale = Math.min(
-      (width * (portrait ? 0.89 : 0.885)) / w,
-      (height * (portrait ? 0.76 : 0.83)) / h,
-    );
-    const wideScale = Math.min(
-      (width * (portrait ? 0.39 : 0.255)) / w,
-      (height * 0.35) / h,
-    );
-    return { w, h, closeScale, wideScale };
-  }
-  function camera(approach: number, exit: number) {
-    const { w, h, closeScale, wideScale } = framing();
-    const focus = approach * (1 - exit);
-    const scale = wideScale + (closeScale - wideScale) * focus;
-    const x = (width < height ? 0.12 : 0.32) * (1 - approach) + 0.31 * exit;
-    const y = sill + h * 0.5 - 0.1 * (1 - focus);
-    const z = height / (2 * lensY * scale);
-    return {
-      x,
-      y,
-      z,
-      scale: scale / closeScale,
-      left: width / 2 - (w * 0.5 + x) * scale,
-      top: height / 2 - (sill + h - y) * scale,
-    };
+    gl.canvas.width = Math.round(w * density);
+    gl.canvas.height = Math.round(h * density);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   }
   function paint(view: ReturnType<typeof camera>, dusk: number, time: number) {
-    const context = gl!;
+    const context = gl;
     const elevation = 0.25 - 0.33 * dusk;
     const sx = Math.min(0.51, ((lensY * width) / height) * 0.77) - 0.008 * dusk,
       sy = Math.sin(elevation),
@@ -221,15 +168,11 @@ export function createMeadowRenderer(
   }
   return {
     resize,
-    framing,
-    camera,
+
     paint,
-    dispose() {
-      textures.forEach((dispose) => dispose());
-      gl.deleteBuffer(triangle);
-      gl.deleteBuffer(mesh);
-      gl.deleteProgram(sky.id);
-      gl.deleteProgram(field.id);
-    },
   };
 }
+
+export type MeadowRenderer = NonNullable<
+  Awaited<ReturnType<typeof createMeadowRenderer>>
+>;

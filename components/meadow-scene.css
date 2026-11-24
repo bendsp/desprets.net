@@ -4,20 +4,20 @@
 .monitor-document {
   container: crt / inline-size;
 }
-.meadow[data-ready] .meadow-stage {
+.meadow[data-framed] .meadow-stage {
   position: fixed;
   inset: 0;
   overflow: clip;
   isolation: isolate;
 }
-.meadow[data-ready] canvas {
+.meadow[data-framed] canvas {
   display: block;
   position: absolute;
   width: 100%;
   height: 100%;
   inset: 0;
 }
-.meadow[data-ready] .monitor-document {
+.meadow[data-framed] .monitor-document {
   position: absolute;
   top: 0;
   left: 0;
@@ -26,58 +26,203 @@
   background: var(--background);
   border-radius: 1px;
 }
-.meadow[data-ready] .site-shell {
+.meadow[data-framed] .site-shell {
   padding-top: 0;
 }
 @media (min-width: 561px) {
-  .meadow[data-ready] .site-shell {
+  .meadow[data-framed] .site-shell {
     padding-inline: clamp(1rem, 2.5vw, 2.7rem);
   }
 }
 
 /* Expose the dark physical panel underneath the live document when it sleeps. */
-.meadow[data-ready] .monitor-off {
+.meadow[data-framed] .monitor-off {
   opacity: 0;
   pointer-events: none;
 }
 
-.meadow[data-ready] .site-header {
+.meadow[data-framed] .site-header {
   margin-bottom: 0.75rem;
 }
-.meadow[data-ready] #about {
+.meadow[data-framed] #about {
   min-height: var(--about-room);
 }
-.meadow[data-ready] #about .prose-figure {
+.meadow[data-framed] #about .prose-figure {
   width: min(100%, clamp(380px, var(--portrait-room, 380px), 480px));
   margin-top: 1.05rem;
 }
-.meadow[data-ready] #about .prose-figure img {
+.meadow[data-framed] #about .prose-figure img {
   width: min(100%, var(--portrait-room, 380px));
   margin-inline: auto;
 }
-.meadow[data-ready] #about .prose-figure figcaption {
+.meadow[data-framed] #about .prose-figure figcaption {
   width: fit-content;
   margin-inline: auto;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
-  .meadow[data-ready] #about {
+  .meadow[data-framed] #about {
     display: grid;
     grid-template-columns: 1.2fr 1fr;
     align-content: start;
     align-items: start;
     gap: 0 1rem;
   }
-  .meadow[data-ready] #about h1,
-  .meadow[data-ready] #about > p {
+  .meadow[data-framed] #about h1,
+  .meadow[data-framed] #about > p {
     grid-column: 1;
   }
-  .meadow[data-ready] #about .prose-figure {
+  .meadow[data-framed] #about .prose-figure {
     grid-column: 2;
     grid-row: 1 / span 2;
     margin: 0;
   }
-  .meadow[data-ready] #about .prose-figure figcaption {
+  .meadow[data-framed] #about .prose-figure figcaption {
     line-height: 1.28;
   }
+}
+
+/* The still and the live frame share one projection and one HTML document. */
+.meadow-poster {
+  display: none;
+}
+.meadow[data-framed] .meadow-poster {
+  display: block;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #a5b8a2 url("/scene/opening-wide.webp") center / cover;
+}
+@media (orientation: portrait) {
+  .meadow[data-framed] .meadow-poster {
+    background-image: url("/scene/opening-tall.webp");
+  }
+}
+.meadow-poster img {
+  position: absolute;
+  max-width: none;
+  transform-origin: top left;
+}
+.meadow[data-framed] canvas {
+  opacity: 0;
+  transition: opacity 480ms ease-in-out;
+}
+.meadow[data-ready] canvas {
+  opacity: 1;
+}
+.meadow-controls {
+  position: fixed;
+  z-index: 12;
+  bottom: max(0.65rem, env(safe-area-inset-bottom));
+  right: max(0.75rem, env(safe-area-inset-right));
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 2px 10px #15181018;
+  font-size: 0.875rem;
+  line-height: 1.25;
+}
+.meadow-controls button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: inherit;
+  cursor: pointer;
+}
+.meadow-controls button:hover {
+  background: var(--selection);
+}
+.meadow-feedback {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.meadow[data-phase="plain"] .meadow-feedback:not(:empty) {
+  position: absolute;
+  inset: auto 0 calc(100% + 0.4rem) auto;
+  width: max-content;
+  max-width: min(17rem, 80vw);
+  height: auto;
+  clip-path: none;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  padding: 0.55rem 0.8rem;
+}
+.meadow:not([data-framed]) .site-shell {
+  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+}
+.meadow:not([data-framed]) .meadow-stage {
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+}
+.meadow:not([data-framed]) .site-header {
+  top: env(safe-area-inset-top);
+}
+html[data-meadow="active"] {
+  background: #a8c9db;
+  background: linear-gradient(#a8c9db, #68724b) fixed;
+  overscroll-behavior: none;
+}
+html[data-meadow="active"] body {
+  background: transparent;
+}
+.meadow[data-framed] .meadow-stage {
+  background: #a8c9db;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 280ms;
+  animation-timing-function: ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .meadow[data-framed] canvas {
+    transition: none;
+  }
+}
+@media print {
+  html[data-meadow],
+  html[data-meadow] body {
+    background: white;
+  }
+  .meadow {
+    height: auto !important;
+  }
+  .meadow .meadow-poster,
+  .meadow-controls,
+  .meadow canvas {
+    display: none !important;
+  }
+  .meadow .meadow-stage,
+  .meadow .monitor-document {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    transform: none !important;
+    opacity: 1 !important;
+    background: transparent !important;
+    container-type: normal;
+  }
+  .meadow .site-header {
+    position: static;
+  }
+  .meadow[data-framed] #about {
+    min-height: auto;
+  }
+}
+
+.meadow-poster img {
+  mask-image:
+    linear-gradient(to right, transparent, black 5%, black 95%, transparent),
+    linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+  mask-composite: intersect;
 }
